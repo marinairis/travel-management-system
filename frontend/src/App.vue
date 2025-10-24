@@ -15,7 +15,6 @@ const themeStore = useThemeStore()
 const route = useRoute()
 
 const showMainLayout = computed(() => {
-  // Páginas que não devem mostrar o layout principal (login, register, etc.)
   const guestPages = ['/login', '/register', '/forgot-password']
   return !guestPages.includes(route.path)
 })

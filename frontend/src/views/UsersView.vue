@@ -161,14 +161,13 @@ const applyFilters = () => {
 }
 
 const onEmailInput = () => {
-  // Debounce para evitar muitas requisições
   if (emailTimeout) {
     clearTimeout(emailTimeout)
   }
 
   emailTimeout = setTimeout(() => {
     applyFilters()
-  }, 500) // Aguarda 500ms após parar de digitar
+  }, 500)
 }
 
 const clearFilters = () => {
@@ -202,10 +201,9 @@ const handleUpdate = async () => {
       if (success) {
         showEditDialog.value = false
 
-        // Se o usuário editado é o próprio usuário logado, atualizar a sessão
         if (selectedUser.value.id === authStore.user?.id) {
           await authStore.fetchUser()
-          router.go(0) // Recarregar a página
+          router.go(0)
         }
       }
     }
@@ -225,15 +223,4 @@ const confirmDelete = async () => {
 }
 </script>
 
-<style scoped>
-/* Classes de layout já estão definidas em layout.css:
-   - page-container
-   - main-content
-   - page-header
-   - page-title
-   - filters-card
-   - table-card
-*/
-
-/* Estilos específicos de UsersView (se houver) vão aqui */
-</style>
+<style scoped></style>

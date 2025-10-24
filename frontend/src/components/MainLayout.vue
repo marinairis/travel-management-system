@@ -82,7 +82,6 @@ const activeMenu = computed(() => {
 })
 
 const handleMenuSelect = (index) => {
-  // Fechar sidebar em mobile após seleção
   if (isMobile.value) {
     sidebarOpen.value = false
   }
@@ -158,7 +157,6 @@ onUnmounted(() => {
   position: relative;
 }
 
-/* Overlay para mobile */
 .sidebar-overlay {
   position: fixed;
   top: var(--header-height);
@@ -170,7 +168,6 @@ onUnmounted(() => {
   backdrop-filter: blur(2px);
 }
 
-/* Sidebar */
 .sidebar {
   width: var(--sidebar-width);
   background-color: var(--el-bg-color);

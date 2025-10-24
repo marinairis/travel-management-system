@@ -79,7 +79,6 @@
         </el-table-column>
       </el-table>
 
-      <!-- Modal de confirmação de exclusão -->
       <el-dialog v-model="deleteDialogVisible" title="Confirmar Exclusão" width="400" align-center>
         <p>Tem certeza que deseja excluir este pedido de viagem?</p>
         <template #footer>
@@ -88,7 +87,6 @@
         </template>
       </el-dialog>
 
-      <!-- Modal de alteração de status -->
       <el-dialog v-model="statusDialogVisible" title="Alterar Status" width="400" align-center>
         <el-form>
           <el-form-item label="Novo Status">
@@ -106,7 +104,6 @@
         </template>
       </el-dialog>
 
-      <!-- Modal de detalhes -->
       <el-dialog v-model="viewDialogVisible" title="Detalhes do Pedido" width="600">
         <el-descriptions v-if="selectedRequest" :column="1" border>
           <el-descriptions-item label="ID">
@@ -250,8 +247,6 @@ const handleView = (row) => {
 </script>
 
 <style scoped>
-/* .text-muted já está em utilities.css */
-
 .travel-request-table {
   width: 100%;
 }

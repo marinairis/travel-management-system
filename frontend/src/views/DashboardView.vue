@@ -181,16 +181,8 @@ const handleStatusChange = async (id, status) => {
 }
 
 const handleView = (data) => {
-  // Implementar se necessário
   console.log('View:', data)
 }
 </script>
 
-<style scoped>
-/* Classes de layout, page-header, page-title, filter-card, table-card
-   já estão definidas em layout.css */
-
-/* Classes destination-item e destination-text já estão em utilities.css */
-
-/* Estilos específicos do Dashboard (se houver) vão aqui */
-</style>
+<style scoped></style>

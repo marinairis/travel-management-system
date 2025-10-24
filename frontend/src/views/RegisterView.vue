@@ -118,14 +118,4 @@ const handleRegister = async () => {
 }
 </script>
 
-<style scoped>
-/* Classes de autenticação já estão definidas em auth.css:
-   - auth-container
-   - auth-card
-   - auth-card-header
-   - auth-form-links (com classe .center para centralização)
-   - auth-button
-*/
-
-/* Estilos específicos do Register (se houver) vão aqui */
-</style>
+<style scoped></style>

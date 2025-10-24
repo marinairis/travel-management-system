@@ -7,7 +7,7 @@ export const useDestinationsStore = defineStore('destinations', {
     loading: false,
     error: null,
     lastFetch: null,
-    cacheTimeout: 30 * 60 * 1000, // 30 minutos
+    cacheTimeout: 30 * 60 * 1000,
   }),
 
   getters: {
@@ -43,7 +43,6 @@ export const useDestinationsStore = defineStore('destinations', {
 
   actions: {
     async fetchDestinations(forceRefresh = false) {
-      // Se já temos dados válidos no cache e não é refresh forçado, não busca novamente
       if (this.isCacheValid && !forceRefresh && this.destinations.length > 0) {
         return this.destinations
       }
@@ -73,12 +72,10 @@ export const useDestinationsStore = defineStore('destinations', {
     },
 
     async getDestinations() {
-      // Se já temos dados válidos no cache, retorna imediatamente
       if (this.isCacheValid && this.destinations.length > 0) {
         return this.destinations
       }
 
-      // Caso contrário, busca os dados
       return await this.fetchDestinations()
     },
 

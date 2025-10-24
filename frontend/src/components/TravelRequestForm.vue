@@ -129,7 +129,6 @@ watch(
 )
 
 onMounted(async () => {
-  // Carrega destinos quando o componente é montado
   await loadDestinations()
 })
 
@@ -173,6 +172,4 @@ defineExpose({
 })
 </script>
 
-<style scoped>
-/* .destination-item já está em utilities.css */
-</style>
+<style scoped></style>

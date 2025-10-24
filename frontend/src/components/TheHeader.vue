@@ -65,7 +65,6 @@ const handleLogout = () => {
 }
 
 const toggleSidebar = () => {
-  // Emitir evento para o componente pai
   window.dispatchEvent(new CustomEvent('toggle-sidebar'))
 }
 </script>
@@ -107,8 +106,6 @@ const toggleSidebar = () => {
   align-items: center;
   gap: var(--spacing-md);
 }
-
-/* User Info já está em utilities.css */
 
 .sidebar-toggle {
   display: none;
