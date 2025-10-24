@@ -2,7 +2,7 @@
   <el-header class="app-header">
     <div class="header-left">
       <el-icon class="logo-icon" :size="24">
-        <Van />
+        <MapLocation />
       </el-icon>
       <h1 class="app-title">Viagens Corporativas</h1>
     </div>
@@ -42,7 +42,7 @@
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useRouter } from 'vue-router'
-import { User, SwitchButton, Moon, Sunny, Van } from '@element-plus/icons-vue'
+import { User, SwitchButton, Moon, Sunny, MapLocation } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
@@ -63,21 +63,21 @@ const handleLogout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 0 var(--spacing-xl);
+  box-shadow: var(--shadow-md);
   width: 100%;
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000;
+  z-index: var(--z-header);
   background-color: var(--el-bg-color);
-  height: 60px;
+  height: var(--header-height);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-md);
 }
 
 .logo-icon {
@@ -93,32 +93,10 @@ const handleLogout = () => {
 .header-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--spacing-md);
 }
 
-/* User Info Styles */
-.user-info {
-  text-align: center;
-  padding: 8px 0;
-}
-
-.user-name {
-  font-weight: 600;
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-.user-email {
-  font-size: 12px;
-  color: var(--el-text-color-secondary);
-  margin-bottom: 4px;
-}
-
-.user-role {
-  font-size: 11px;
-  color: var(--el-color-primary);
-  font-weight: 500;
-}
+/* User Info já está em utilities.css */
 
 @media (max-width: 768px) {
   .app-title {

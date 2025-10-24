@@ -1,0 +1,59 @@
+/* ========================================
+   ESTILOS DE AUTENTICAÇÃO (LOGIN/REGISTER)
+   ======================================== */
+
+/* Auth container */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--auth-gradient);
+  padding: var(--spacing-xl);
+}
+
+/* Auth card */
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Card header */
+.auth-card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.auth-card-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+/* Auth form links */
+.auth-form-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-lg);
+}
+
+.auth-form-links.center {
+  justify-content: center;
+}
+
+.auth-form-links a {
+  color: var(--el-color-primary);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.auth-form-links a:hover {
+  text-decoration: underline;
+}
+
+/* Full width button utility for auth forms */
+.auth-button {
+  width: 100%;
+}
+

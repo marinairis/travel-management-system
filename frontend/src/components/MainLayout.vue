@@ -39,7 +39,6 @@
         </div>
       </div>
 
-      <!-- Conteúdo principal -->
       <div class="main-content">
         <router-view />
       </div>
@@ -58,7 +57,6 @@ const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
 
-// Estado do hover do sidebar
 const isExpanded = ref(false)
 
 const activeMenu = computed(() => {
@@ -103,44 +101,44 @@ const onSidebarLeave = () => {
 .layout-content {
   display: flex;
   flex: 1;
-  height: calc(100vh - 60px); /* Altura total menos o header */
+  height: calc(100vh - var(--header-height));
 }
 
 .sidebar {
-  width: 70px;
+  width: var(--sidebar-width);
   background-color: var(--el-bg-color);
   border-right: 1px solid var(--el-border-color-light);
   display: flex;
   flex-direction: column;
   position: fixed;
   left: 0;
-  top: 60px; /* Altura do header */
+  top: var(--header-height);
   bottom: 0;
-  z-index: 100;
-  transition: width 0.3s ease;
+  z-index: var(--z-sidebar);
+  transition: width var(--transition-normal);
   overflow: hidden;
 }
 
 .sidebar:hover {
-  width: 280px;
+  width: var(--sidebar-expanded-width);
 }
 
 .sidebar-content {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 0;
+  padding: var(--spacing-lg) 0;
 }
 
 .navigation-section {
-  margin-bottom: 24px;
+  margin-bottom: var(--spacing-2xl);
 }
 
 .navigation-section h4 {
-  margin: 0 0 12px 0;
+  margin: 0 0 var(--spacing-md) 0;
   font-size: 14px;
   font-weight: 600;
   color: var(--el-text-color-regular);
-  padding: 0 20px;
+  padding: 0 var(--spacing-xl);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -157,26 +155,26 @@ const onSidebarLeave = () => {
 .main-menu .el-menu-item {
   height: 48px;
   line-height: 48px;
-  padding: 0 20px;
-  border-radius: 6px;
-  margin: 4px 12px;
-  width: calc(100% - 24px);
+  padding: 0 var(--spacing-xl);
+  border-radius: var(--radius-md);
+  margin: var(--spacing-xs) var(--spacing-md);
+  width: calc(100% - var(--spacing-2xl));
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: var(--spacing-md);
   white-space: nowrap;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all var(--transition-normal);
 }
 
 /* Quando o sidebar está fechado, centralizar apenas o ícone */
 .sidebar:not(:hover) .admin-menu .el-menu-item,
 .sidebar:not(:hover) .main-menu .el-menu-item {
   justify-content: center;
-  padding: 0 8px;
-  margin: 4px 8px;
-  width: calc(100% - 16px);
+  padding: 0 var(--spacing-sm);
+  margin: var(--spacing-xs) var(--spacing-sm);
+  width: calc(100% - var(--spacing-lg));
 }
 
 .sidebar:not(:hover) .admin-menu .el-menu-item .el-icon,
@@ -189,7 +187,7 @@ const onSidebarLeave = () => {
 .sidebar:hover .admin-menu .el-menu-item,
 .sidebar:hover .main-menu .el-menu-item {
   justify-content: flex-start;
-  padding: 0 20px;
+  padding: 0 var(--spacing-xl);
 }
 
 .admin-menu .el-menu-item:hover,
@@ -205,17 +203,20 @@ const onSidebarLeave = () => {
 
 .main-content {
   flex: 1;
-  margin-left: 70px;
   overflow-y: auto;
   background-color: var(--el-bg-color-page);
-  transition: margin-left 0.3s ease;
+  transition: margin-left var(--transition-normal);
+}
+
+.main-content.sidebar-expanded {
+  margin-left: var(--sidebar-expanded-width);
 }
 
 /* Responsividade */
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-normal);
   }
 
   .sidebar.mobile-open {
@@ -228,6 +229,10 @@ const onSidebarLeave = () => {
 }
 
 /* Scrollbar personalizada */
+.sidebar-content {
+  @extend .custom-scrollbar;
+}
+
 .sidebar-content::-webkit-scrollbar {
   width: 4px;
 }

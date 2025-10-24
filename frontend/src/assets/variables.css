@@ -1,0 +1,50 @@
+/* ========================================
+   VARIÁVEIS CUSTOMIZADAS DO PROJETO
+   ======================================== */
+
+:root {
+  /* Layout */
+  --header-height: 60px;
+  --sidebar-width: 70px;
+  --sidebar-expanded-width: 280px;
+  --max-content-width: 1400px;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+  --spacing-3xl: 32px;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.12);
+
+  /* Z-index */
+  --z-header: 1000;
+  --z-sidebar: 100;
+  --z-modal: 2000;
+  --z-dropdown: 1500;
+
+  /* Breakpoints (para uso em media queries) */
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1024px;
+  --breakpoint-desktop: 1280px;
+
+  /* Auth gradient */
+  --auth-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+

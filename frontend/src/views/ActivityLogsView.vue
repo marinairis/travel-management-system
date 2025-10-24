@@ -1,5 +1,5 @@
 <template>
-  <div class="logs-container">
+  <div class="page-container">
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
@@ -287,56 +287,17 @@ const formatDateTime = (date) => {
 </script>
 
 <style scoped>
-.logs-container {
-  min-height: calc(100vh - 60px);
-  background-color: var(--el-bg-color-page);
-  display: flex;
-  flex-direction: column;
-  padding-top: 60px; /* Espaço para o header fixo */
-}
+/* Classes de layout já estão definidas em layout.css:
+   - page-container
+   - main-content
+   - page-header
+   - page-title
+   - filter-card
+   - table-card
+   - pagination-container
+*/
 
-.main-content {
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-  flex: 1;
-  width: 100%;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.filter-card {
-  margin-bottom: 24px;
-}
-
-.table-card {
-  margin-bottom: 24px;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-pre {
-  background-color: var(--el-fill-color-light);
-  padding: 12px;
-  border-radius: 4px;
-  overflow-x: auto;
-  font-size: 12px;
-}
+/* pre tag já está em utilities.css */
 
 /* Estilos personalizados para as ações */
 .action-tag {
@@ -419,18 +380,5 @@ pre {
   border-color: #eab308 !important;
 }
 
-@media (max-width: 768px) {
-  .main-content {
-    padding: 16px;
-  }
-
-  .page-title {
-    font-size: 24px;
-  }
-
-  :deep(.el-form--inline .el-form-item) {
-    display: block;
-    margin-bottom: 12px;
-  }
-}
+/* Media queries já estão em layout.css */
 </style>

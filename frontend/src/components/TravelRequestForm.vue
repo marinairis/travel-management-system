@@ -174,9 +174,5 @@ defineExpose({
 </script>
 
 <style scoped>
-.destination-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+/* .destination-item já está em utilities.css */
 </style>

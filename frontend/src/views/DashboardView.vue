@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-container">
+  <div class="page-container">
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
@@ -187,90 +187,10 @@ const handleView = (data) => {
 </script>
 
 <style scoped>
-.dashboard-container {
-  min-height: calc(100vh - 60px);
-  background-color: var(--el-bg-color-page);
-  display: flex;
-  flex-direction: column;
-  padding-top: 60px; /* Espaço para o header fixo */
-}
+/* Classes de layout, page-header, page-title, filter-card, table-card
+   já estão definidas em layout.css */
 
-.main-content {
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-  flex: 1;
-  width: 100%;
-}
+/* Classes destination-item e destination-text já estão em utilities.css */
 
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.filter-card {
-  margin-bottom: 24px;
-}
-
-.table-card {
-  margin-bottom: 24px;
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    padding: 16px;
-  }
-
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .page-title {
-    font-size: 24px;
-  }
-
-  :deep(.el-form--inline .el-form-item) {
-    display: block;
-    margin-bottom: 12px;
-  }
-}
-
-@media (min-width: 769px) {
-  .main-content {
-    padding: 24px;
-  }
-
-  .page-header {
-    flex-direction: row;
-    align-items: center;
-    gap: 0;
-  }
-
-  .page-title {
-    font-size: 28px;
-  }
-}
-
-.destination-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.destination-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 300px;
-}
+/* Estilos específicos do Dashboard (se houver) vão aqui */
 </style>

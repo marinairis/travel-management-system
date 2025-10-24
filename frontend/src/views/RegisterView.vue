@@ -1,10 +1,10 @@
 <template>
-  <div class="register-container">
-    <el-card class="register-card">
+  <div class="auth-container">
+    <el-card class="auth-card">
       <template #header>
-        <div class="card-header">
+        <div class="auth-card-header">
           <el-icon :size="32" color="#409EFF">
-            <Van />
+            <MapLocation />
           </el-icon>
           <h2>Criar Conta</h2>
         </div>
@@ -46,12 +46,12 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" style="width: 100%" :loading="loading" @click="handleRegister">
+          <el-button type="primary" class="auth-button" :loading="loading" @click="handleRegister">
             Criar Conta
           </el-button>
         </el-form-item>
 
-        <div class="form-links">
+        <div class="auth-form-links center">
           <router-link to="/login">Já tem uma conta? Faça login</router-link>
         </div>
       </el-form>
@@ -62,7 +62,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { Van, Message, Lock, User } from '@element-plus/icons-vue'
+import { MapLocation, Message, Lock, User } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
 
@@ -119,45 +119,13 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
-.register-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-}
+/* Classes de autenticação já estão definidas em auth.css:
+   - auth-container
+   - auth-card
+   - auth-card-header
+   - auth-form-links (com classe .center para centralização)
+   - auth-button
+*/
 
-.register-card {
-  width: 100%;
-  max-width: 400px;
-}
-
-.card-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.card-header h2 {
-  margin: 0;
-  font-size: 24px;
-}
-
-.form-links {
-  display: flex;
-  justify-content: center;
-  margin-top: 16px;
-}
-
-.form-links a {
-  color: var(--el-color-primary);
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.form-links a:hover {
-  text-decoration: underline;
-}
+/* Estilos específicos do Register (se houver) vão aqui */
 </style>

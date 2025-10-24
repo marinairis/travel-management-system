@@ -1,5 +1,5 @@
 <template>
-  <div class="users-container">
+  <div class="page-container">
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
@@ -226,50 +226,14 @@ const confirmDelete = async () => {
 </script>
 
 <style scoped>
-.users-container {
-  min-height: calc(100vh - 60px);
-  background-color: var(--el-bg-color-page);
-  display: flex;
-  flex-direction: column;
-  padding-top: 60px; /* Espaço para o header fixo */
-}
+/* Classes de layout já estão definidas em layout.css:
+   - page-container
+   - main-content
+   - page-header
+   - page-title
+   - filters-card
+   - table-card
+*/
 
-.main-content {
-  padding: 24px;
-  max-width: 1400px;
-  margin: 0 auto;
-  flex: 1;
-  width: 100%;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 600;
-  margin: 0;
-}
-
-.filters-card {
-  margin-bottom: 24px;
-}
-
-.table-card {
-  margin-bottom: 24px;
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    padding: 16px;
-  }
-
-  .page-title {
-    font-size: 24px;
-  }
-}
+/* Estilos específicos de UsersView (se houver) vão aqui */
 </style>

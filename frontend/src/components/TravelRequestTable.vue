@@ -250,9 +250,7 @@ const handleView = (row) => {
 </script>
 
 <style scoped>
-.text-muted {
-  color: var(--el-text-color-secondary);
-}
+/* .text-muted já está em utilities.css */
 
 .travel-request-table {
   width: 100%;

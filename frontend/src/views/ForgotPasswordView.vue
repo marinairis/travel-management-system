@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <el-icon :size="32" color="#409EFF">
-            <Van />
+            <MapLocation />
           </el-icon>
           <h2>Recuperar Senha</h2>
         </div>
@@ -70,7 +70,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { Van, Message } from '@element-plus/icons-vue'
+import { MapLocation, Message } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
 

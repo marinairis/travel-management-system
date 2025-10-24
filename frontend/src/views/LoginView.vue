@@ -1,10 +1,10 @@
 <template>
-  <div class="login-container">
-    <el-card class="login-card">
+  <div class="auth-container">
+    <el-card class="auth-card">
       <template #header>
-        <div class="card-header">
+        <div class="auth-card-header">
           <el-icon :size="32" color="#409EFF">
-            <Van />
+            <MapLocation />
           </el-icon>
           <h2>Viagens Corporativas</h2>
         </div>
@@ -32,12 +32,12 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" style="width: 100%" :loading="loading" @click="handleLogin">
+          <el-button type="primary" class="auth-button" :loading="loading" @click="handleLogin">
             Entrar
           </el-button>
         </el-form-item>
 
-        <div class="form-links">
+        <div class="auth-form-links">
           <router-link to="/register">Criar conta</router-link>
           <router-link to="/forgot-password">Esqueci minha senha</router-link>
         </div>
@@ -49,7 +49,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { Van, Message, Lock } from '@element-plus/icons-vue'
+import { MapLocation, Message, Lock } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
 
@@ -88,45 +88,13 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-}
+/* Classes de autenticação já estão definidas em auth.css:
+   - auth-container
+   - auth-card
+   - auth-card-header
+   - auth-form-links
+   - auth-button
+*/
 
-.login-card {
-  width: 100%;
-  max-width: 400px;
-}
-
-.card-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.card-header h2 {
-  margin: 0;
-  font-size: 24px;
-}
-
-.form-links {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 16px;
-}
-
-.form-links a {
-  color: var(--el-color-primary);
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.form-links a:hover {
-  text-decoration: underline;
-}
+/* Estilos específicos do Login (se houver) vão aqui */
 </style>

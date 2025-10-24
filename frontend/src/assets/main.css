@@ -1,4 +1,9 @@
+/* Importar estilos base e compartilhados */
 @import './base.css';
+@import './variables.css';
+@import './layout.css';
+@import './utilities.css';
+@import './auth.css';
 
 #app {
   width: 100%;
