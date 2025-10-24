@@ -1,10 +1,8 @@
 <template>
   <div class="main-layout">
-    <!-- Header fixo no topo -->
     <TheHeader />
 
     <div class="layout-content">
-      <!-- Drawer com hover à esquerda -->
       <div class="sidebar" @mouseenter="onSidebarHover" @mouseleave="onSidebarLeave">
         <div class="sidebar-content">
           <div class="navigation-section" v-if="authStore.isAdmin">
@@ -24,6 +22,8 @@
               </el-menu-item>
             </el-menu>
           </div>
+
+          <el-divider />
 
           <div class="navigation-section">
             <h4 v-show="isExpanded">Navegação</h4>

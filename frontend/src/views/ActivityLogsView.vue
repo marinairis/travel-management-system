@@ -66,7 +66,12 @@
           >
             <el-table-column prop="id" label="ID" width="80" />
 
-            <el-table-column prop="user.name" label="Usuário" min-width="150" />
+            <el-table-column
+              prop="user.name"
+              label="Usuário"
+              min-width="200"
+              show-overflow-tooltip
+            />
 
             <el-table-column prop="action" label="Ação" width="140">
               <template #default="scope">
@@ -76,15 +81,20 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="description" label="Descrição" min-width="250" />
+            <el-table-column
+              prop="description"
+              label="Descrição"
+              min-width="250"
+              show-overflow-tooltip
+            />
 
-            <el-table-column prop="model_type" label="Tipo" width="150">
+            <el-table-column prop="model_type" label="Tipo" min-width="200" show-overflow-tooltip>
               <template #default="scope">
                 {{ translateModelType(scope.row.model_type) }}
               </template>
             </el-table-column>
 
-            <el-table-column prop="ip_address" label="IP" width="130" />
+            <el-table-column prop="ip_address" label="IP" width="130" show-overflow-tooltip />
 
             <el-table-column prop="created_at" label="Data/Hora" width="180">
               <template #default="scope">
