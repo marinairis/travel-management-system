@@ -4,11 +4,14 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\CityRepository;
+use App\Traits\HasActivityLogging;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class LocationController extends Controller
 {
+    use HasActivityLogging;
+
     public function __construct(private CityRepository $cityRepository) {}
 
     public function getCities(Request $request): JsonResponse

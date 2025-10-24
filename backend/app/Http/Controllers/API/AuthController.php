@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AuthFormRequest;
 use App\Models\User;
+use App\Traits\HasActivityLogging;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -12,28 +14,18 @@ use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    use HasActivityLogging;
+
+    public function register(AuthFormRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro de validação',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'is_admin' => false,
         ]);
+
+        $this->logActivityCreate($user, $request, 'Usuário registrado');
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
@@ -172,7 +164,6 @@ class AuthController extends Controller
             ]);
         }
 
-        // Mensagens de erro mais detalhadas
         $errorMessages = [
             Password::INVALID_TOKEN => 'Token de recuperação inválido ou expirado',
             Password::INVALID_USER => 'Não encontramos um usuário com este email',

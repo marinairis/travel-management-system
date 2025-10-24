@@ -23,19 +23,19 @@ class IbgeService
     });
   }
 
-  public function searchCities(string $query = null)
+  public function searchCities(string|null $query = null)
   {
-    $municipios = $this->getCity();
+    $cities = $this->getCity();
 
     if (!$query) {
-      return $municipios;
+      return $cities;
     }
 
-    return collect($municipios)->filter(function ($municipio) use ($query) {
+    return collect($cities)->filter(function ($city) use ($query) {
       $searchable = strtolower(
-        $municipio['nome'] . ' ' .
-          $municipio['microrregiao']['mesorregiao']['UF']['sigla'] . ' ' .
-          $municipio['microrregiao']['mesorregiao']['UF']['nome']
+        $city['nome'] . ' ' .
+          $city['microrregiao']['mesorregiao']['UF']['sigla'] . ' ' .
+          $city['microrregiao']['mesorregiao']['UF']['nome']
       );
 
       return str_contains($searchable, strtolower($query));

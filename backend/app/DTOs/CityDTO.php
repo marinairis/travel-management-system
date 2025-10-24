@@ -6,8 +6,8 @@ class CityDTO
 {
   public function __construct(
     public readonly int $id,
-    public readonly string $nome,
-    public readonly string $estado,
+    public readonly string $name,
+    public readonly string $state,
     public readonly string $uf,
     public readonly string $label,
     public readonly string $value
@@ -15,27 +15,26 @@ class CityDTO
 
   public static function fromApiResponse(array $data): self
   {
-    $nome = $data['nome'] ?? '';
+    $name = $data['nome'] ?? '';
 
-    // Safely extract estado and uf with proper null checks
-    $estado = '';
+    $state = '';
     $uf = '';
 
     if (isset($data['microrregiao']['mesorregiao']['UF'])) {
-      $estado = $data['microrregiao']['mesorregiao']['UF']['nome'] ?? '';
+      $state = $data['microrregiao']['mesorregiao']['UF']['nome'] ?? '';
       $uf = $data['microrregiao']['mesorregiao']['UF']['sigla'] ?? '';
     } elseif (isset($data['estado'])) {
-      $estado = $data['estado']['nome'] ?? '';
+      $state = $data['estado']['nome'] ?? '';
       $uf = $data['estado']['sigla'] ?? '';
     }
 
     return new self(
       id: $data['id'] ?? 0,
-      nome: $nome,
-      estado: $estado,
+      name: $name,
+      state: $state,
       uf: $uf,
-      label: "{$nome} - {$estado} - {$uf}",
-      value: "{$nome} - {$estado} - {$uf}"
+      label: "{$name} - {$state} - {$uf}",
+      value: "{$name} - {$state} - {$uf}"
     );
   }
 
@@ -43,8 +42,8 @@ class CityDTO
   {
     return [
       'id' => $this->id,
-      'nome' => $this->nome,
-      'estado' => $this->estado,
+      'name' => $this->name,
+      'state' => $this->state,
       'uf' => $this->uf,
       'label' => $this->label,
       'value' => $this->value,

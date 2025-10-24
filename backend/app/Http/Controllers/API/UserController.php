@@ -3,40 +3,27 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UserFormRequest;
+use App\Http\Requests\UserFilterRequest;
 use App\Models\User;
 use App\Models\ActivityLog;
+use App\Traits\HasOwnershipValidation;
+use App\Traits\HasResourceValidation;
+use App\Traits\HasActivityLogging;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
-    public function index(Request $request)
-    {
-        if (!auth()->user()->is_admin) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Apenas administradores podem listar usuários'
-            ], 403);
-        }
+    use HasOwnershipValidation, HasResourceValidation, HasActivityLogging;
 
+    public function index(UserFilterRequest $request)
+    {
         $query = User::withCount('travelRequests');
 
-        // Filtro por tipo de usuário
-        if ($request->has('user_type')) {
-            $userType = $request->input('user_type');
-            if ($userType === 'admin') {
-                $query->where('is_admin', true);
-            } elseif ($userType === 'basic') {
-                $query->where('is_admin', false);
-            }
-        }
-
-        // Filtro por email
-        if ($request->has('email') && !empty($request->input('email'))) {
-            $email = $request->input('email');
-            $query->where('email', 'like', "%{$email}%");
-        }
+        $this->applyFilters($query, $request);
 
         $users = $query->get();
 
@@ -48,21 +35,17 @@ class UserController extends Controller
 
     public function show($id)
     {
+        $currentUser = Auth::user();
         $user = User::withCount('travelRequests')->find($id);
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Usuário não encontrado'
-            ], 404);
-        }
-
-        // Verifica permissão
-        if (!auth()->user()->is_admin && auth()->id() !== $user->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Você não tem permissão para visualizar este usuário'
-            ], 403);
+        if (
+            $error = $this->validateViewPermissions(
+                $user,
+                $currentUser,
+                'Você não tem permissão para visualizar este usuário'
+            )
+        ) {
+            return $error;
         }
 
         return response()->json([
@@ -71,52 +54,28 @@ class UserController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id)
+    public function update(UserFormRequest $request, $id)
     {
-        if (!auth()->user()->is_admin) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Apenas administradores podem atualizar usuários'
-            ], 403);
-        }
-
         $user = User::find($id);
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Usuário não encontrado'
-            ], 404);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
-            'is_admin' => 'sometimes|boolean',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro de validação',
-                'errors' => $validator->errors()
-            ], 422);
+        if (
+            $error = $this->validateResourceExists(
+                $user,
+                'Usuário não encontrado'
+            )
+        ) {
+            return $error;
         }
 
         $oldValues = $user->toArray();
         $user->update($request->only(['name', 'is_admin']));
 
-        // Log da atividade
-        ActivityLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'update',
-            'model_type' => User::class,
-            'model_id' => $user->id,
-            'description' => 'Usuário atualizado',
-            'old_values' => $oldValues,
-            'new_values' => $user->fresh()->toArray(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+        $this->logActivityUpdate(
+            $user,
+            $oldValues,
+            $request,
+            'Usuário atualizado'
+        );
 
         return response()->json([
             'success' => true,
@@ -127,40 +86,25 @@ class UserController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        if (!auth()->user()->is_admin) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Apenas administradores podem excluir usuários'
-            ], 403);
-        }
-
         $user = User::find($id);
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Usuário não encontrado'
-            ], 404);
+        if (
+            $error = $this->validateResourceExists(
+                $user,
+                'Usuário não encontrado'
+            )
+        ) {
+            return $error;
         }
 
-        if ($user->id === auth()->id()) {
+        if ($user->id === Auth::id()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Você não pode excluir sua própria conta'
             ], 403);
         }
 
-        // Log da atividade
-        ActivityLog::create([
-            'user_id' => auth()->id(),
-            'action' => 'delete',
-            'model_type' => User::class,
-            'model_id' => $user->id,
-            'description' => 'Usuário excluído',
-            'old_values' => $user->toArray(),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-        ]);
+        $this->logActivityDelete($user, $request, 'Usuário excluído');
 
         $user->delete();
 
@@ -168,5 +112,29 @@ class UserController extends Controller
             'success' => true,
             'message' => 'Usuário excluído com sucesso'
         ]);
+    }
+
+    private function applyFilters($query, UserFilterRequest $request)
+    {
+        $this->filterByUserType($query, $request);
+        $this->filterByEmail($query, $request);
+    }
+
+    private function filterByUserType($query, UserFilterRequest $request)
+    {
+        if ($request->has('user_type') && $request->user_type) {
+            if ($request->user_type === 'admin') {
+                $query->where('is_admin', true);
+            } elseif ($request->user_type === 'basic') {
+                $query->where('is_admin', false);
+            }
+        }
+    }
+
+    private function filterByEmail($query, UserFilterRequest $request)
+    {
+        if ($request->has('email') && $request->email) {
+            $query->where('email', 'like', "%{$request->email}%");
+        }
     }
 }
