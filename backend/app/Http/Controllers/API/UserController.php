@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         if (!auth()->user()->is_admin) {
             return response()->json([
@@ -20,7 +20,25 @@ class UserController extends Controller
             ], 403);
         }
 
-        $users = User::withCount('travelRequests')->get();
+        $query = User::withCount('travelRequests');
+
+        // Filtro por tipo de usuário
+        if ($request->has('user_type')) {
+            $userType = $request->input('user_type');
+            if ($userType === 'admin') {
+                $query->where('is_admin', true);
+            } elseif ($userType === 'basic') {
+                $query->where('is_admin', false);
+            }
+        }
+
+        // Filtro por email
+        if ($request->has('email') && !empty($request->input('email'))) {
+            $email = $request->input('email');
+            $query->where('email', 'like', "%{$email}%");
+        }
+
+        $users = $query->get();
 
         return response()->json([
             'success' => true,

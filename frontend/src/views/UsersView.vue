@@ -6,6 +6,38 @@
           <h1 class="page-title">Gestão de Usuários</h1>
         </div>
 
+        <!-- Filtros -->
+        <el-card class="filters-card">
+          <el-form :model="filters" inline>
+            <el-form-item label="Tipo de Usuário">
+              <el-select
+                v-model="filters.userType"
+                placeholder="Todos"
+                clearable
+                style="width: 150px"
+                @change="applyFilters"
+              >
+                <el-option label="Admin" value="admin" />
+                <el-option label="Básico" value="basic" />
+              </el-select>
+            </el-form-item>
+
+            <el-form-item label="Email">
+              <el-input
+                v-model="filters.email"
+                placeholder="Digite o email"
+                clearable
+                style="width: 250px"
+                @input="onEmailInput"
+              />
+            </el-form-item>
+
+            <el-form-item>
+              <el-button :icon="Refresh" @click="clearFilters"> Limpar </el-button>
+            </el-form-item>
+          </el-form>
+        </el-card>
+
         <el-card class="table-card">
           <el-table :data="userStore.users" v-loading="userStore.loading" style="width: 100%">
             <el-table-column prop="id" label="ID" width="80" />
@@ -91,7 +123,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
-import { Edit, Delete } from '@element-plus/icons-vue'
+import { Edit, Delete, Refresh } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
 const authStore = useAuthStore()
@@ -103,6 +135,11 @@ const updating = ref(false)
 const deleting = ref(false)
 const selectedUser = ref(null)
 const formRef = ref(null)
+
+const filters = reactive({
+  userType: '',
+  email: '',
+})
 
 const editForm = reactive({
   name: '',
@@ -116,6 +153,30 @@ const rules = {
 onMounted(() => {
   userStore.fetchUsers()
 })
+
+let emailTimeout = null
+
+const applyFilters = () => {
+  userStore.fetchUsers(filters)
+}
+
+const onEmailInput = () => {
+  // Debounce para evitar muitas requisições
+  if (emailTimeout) {
+    clearTimeout(emailTimeout)
+  }
+
+  emailTimeout = setTimeout(() => {
+    applyFilters()
+  }, 500) // Aguarda 500ms após parar de digitar
+}
+
+const clearFilters = () => {
+  filters.userType = ''
+  filters.email = ''
+  userStore.clearFilters()
+  userStore.fetchUsers()
+}
 
 const formatDateTime = (date) => {
   if (!date) return '-'
@@ -192,6 +253,10 @@ const confirmDelete = async () => {
   font-size: 28px;
   font-weight: 600;
   margin: 0;
+}
+
+.filters-card {
+  margin-bottom: 24px;
 }
 
 .table-card {
