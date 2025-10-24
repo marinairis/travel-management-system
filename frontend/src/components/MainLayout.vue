@@ -4,10 +4,15 @@
 
     <div class="layout-content">
       <!-- Overlay para mobile -->
-      <div v-if="isMobile && sidebarOpen" class="sidebar-overlay" @click="closeSidebar"></div>
-
-      <!-- Sidebar -->
       <div
+        v-if="isMobile && sidebarOpen && authStore.isAdmin"
+        class="sidebar-overlay"
+        @click="closeSidebar"
+      ></div>
+
+      <!-- Sidebar - apenas para admins -->
+      <div
+        v-if="authStore.isAdmin"
         class="sidebar"
         :class="{
           'sidebar-open': sidebarOpen,
@@ -51,7 +56,13 @@
         </div>
       </div>
 
-      <div class="main-content" :class="{ 'sidebar-open': sidebarOpen && isMobile }">
+      <div
+        class="main-content"
+        :class="{
+          'sidebar-open': sidebarOpen && isMobile && authStore.isAdmin,
+          'no-sidebar': !authStore.isAdmin,
+        }"
+      >
         <router-view />
       </div>
     </div>
@@ -285,6 +296,11 @@ onUnmounted(() => {
   background-color: var(--el-bg-color-page);
   transition: all var(--transition-normal);
   margin-left: var(--sidebar-width);
+}
+
+.main-content.no-sidebar {
+  margin-left: 0;
+  width: 100%;
 }
 
 /* Scrollbar personalizada */

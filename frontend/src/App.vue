@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useThemeStore } from './stores/theme'
 import MainLayout from './components/MainLayout.vue'
@@ -19,8 +19,44 @@ const showMainLayout = computed(() => {
   return !guestPages.includes(route.path)
 })
 
+const updatePageTitle = () => {
+  const baseTitle = 'Viagens Corporativas'
+  let pageTitle = baseTitle
+
+  switch (route.path) {
+    case '/':
+    case '/dashboard':
+      pageTitle = `${baseTitle} | Pedidos de Viagem`
+      break
+    case '/logs':
+      pageTitle = `${baseTitle} | Logs de Atividades`
+      break
+    case '/users':
+      pageTitle = `${baseTitle} | Gestão de Usuários`
+      break
+    case '/login':
+      pageTitle = `${baseTitle} | Login`
+      break
+    case '/register':
+      pageTitle = `${baseTitle} | Cadastro`
+      break
+    case '/forgot-password':
+      pageTitle = `${baseTitle} | Recuperar Senha`
+      break
+    default:
+      pageTitle = baseTitle
+  }
+
+  document.title = pageTitle
+}
+
 onMounted(() => {
   themeStore.initTheme()
+  updatePageTitle()
+})
+
+watch(route, () => {
+  updatePageTitle()
 })
 </script>
 

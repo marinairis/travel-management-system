@@ -46,18 +46,29 @@ const router = createRouter({
       component: () => import('@/views/ActivityLogsView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      redirect: '/dashboard',
+    },
   ],
 })
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
+  // Verificar se a rota existe (não é a rota catch-all)
+  if (to.name === 'not-found') {
+    next('/dashboard')
+    return
+  }
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')
   } else if (to.meta.guest && authStore.isAuthenticated) {
     next('/')
   } else if (to.meta.requiresAdmin && !authStore.isAdmin) {
-    next('/')
+    next('/dashboard')
   } else {
     next()
   }
