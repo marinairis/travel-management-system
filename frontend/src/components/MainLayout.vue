@@ -3,35 +3,47 @@
     <TheHeader />
 
     <div class="layout-content">
-      <div class="sidebar" @mouseenter="onSidebarHover" @mouseleave="onSidebarLeave">
+      <!-- Overlay para mobile -->
+      <div v-if="isMobile && sidebarOpen" class="sidebar-overlay" @click="closeSidebar"></div>
+
+      <!-- Sidebar -->
+      <div
+        class="sidebar"
+        :class="{
+          'sidebar-open': sidebarOpen,
+          'sidebar-expanded': isExpanded && !isMobile,
+        }"
+        @mouseenter="onSidebarHover"
+        @mouseleave="onSidebarLeave"
+      >
         <div class="sidebar-content">
           <div class="navigation-section" v-if="authStore.isAdmin">
-            <h4 v-show="isExpanded">Administração</h4>
+            <h4 v-show="isExpanded || isMobile">Administração</h4>
             <el-menu :default-active="activeMenu" class="admin-menu" @select="handleMenuSelect">
               <el-menu-item index="users">
                 <el-icon><UserFilled /></el-icon>
                 <template #title>
-                  <span v-show="isExpanded">Gestão de Usuários</span>
+                  <span v-show="isExpanded || isMobile">Gestão de Usuários</span>
                 </template>
               </el-menu-item>
               <el-menu-item index="logs">
                 <el-icon><Document /></el-icon>
                 <template #title>
-                  <span v-show="isExpanded">Logs de Atividades</span>
+                  <span v-show="isExpanded || isMobile">Logs de Atividades</span>
                 </template>
               </el-menu-item>
             </el-menu>
           </div>
 
-          <el-divider />
+          <el-divider v-if="authStore.isAdmin" />
 
           <div class="navigation-section">
-            <h4 v-show="isExpanded">Navegação</h4>
+            <h4 v-show="isExpanded || isMobile">Navegação</h4>
             <el-menu :default-active="activeMenu" class="main-menu" @select="handleMenuSelect">
               <el-menu-item index="dashboard">
                 <el-icon><House /></el-icon>
                 <template #title>
-                  <span v-show="isExpanded">Dashboard</span>
+                  <span v-show="isExpanded || isMobile">Dashboard</span>
                 </template>
               </el-menu-item>
             </el-menu>
@@ -39,7 +51,7 @@
         </div>
       </div>
 
-      <div class="main-content">
+      <div class="main-content" :class="{ 'sidebar-open': sidebarOpen && isMobile }">
         <router-view />
       </div>
     </div>
@@ -47,7 +59,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter, useRoute } from 'vue-router'
 import TheHeader from '@/components/TheHeader.vue'
@@ -58,6 +70,8 @@ const router = useRouter()
 const route = useRoute()
 
 const isExpanded = ref(false)
+const sidebarOpen = ref(false)
+const isMobile = ref(false)
 
 const activeMenu = computed(() => {
   const path = route.path
@@ -68,6 +82,11 @@ const activeMenu = computed(() => {
 })
 
 const handleMenuSelect = (index) => {
+  // Fechar sidebar em mobile após seleção
+  if (isMobile.value) {
+    sidebarOpen.value = false
+  }
+
   switch (index) {
     case 'dashboard':
       router.push('/dashboard')
@@ -82,12 +101,46 @@ const handleMenuSelect = (index) => {
 }
 
 const onSidebarHover = () => {
-  isExpanded.value = true
+  if (!isMobile.value) {
+    isExpanded.value = true
+  }
 }
 
 const onSidebarLeave = () => {
-  isExpanded.value = false
+  if (!isMobile.value) {
+    isExpanded.value = false
+  }
 }
+
+const closeSidebar = () => {
+  sidebarOpen.value = false
+}
+
+const toggleSidebar = () => {
+  sidebarOpen.value = !sidebarOpen.value
+}
+
+const checkMobile = () => {
+  isMobile.value = window.innerWidth <= 768
+  if (!isMobile.value) {
+    sidebarOpen.value = false
+  }
+}
+
+const handleToggleSidebar = () => {
+  toggleSidebar()
+}
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+  window.addEventListener('toggle-sidebar', handleToggleSidebar)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+  window.removeEventListener('toggle-sidebar', handleToggleSidebar)
+})
 </script>
 
 <style scoped>
@@ -102,8 +155,22 @@ const onSidebarLeave = () => {
   display: flex;
   flex: 1;
   height: calc(100vh - var(--header-height));
+  position: relative;
 }
 
+/* Overlay para mobile */
+.sidebar-overlay {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: var(--z-sidebar) - 1;
+  backdrop-filter: blur(2px);
+}
+
+/* Sidebar */
 .sidebar {
   width: var(--sidebar-width);
   background-color: var(--el-bg-color);
@@ -115,12 +182,24 @@ const onSidebarLeave = () => {
   top: var(--header-height);
   bottom: 0;
   z-index: var(--z-sidebar);
-  transition: width var(--transition-normal);
+  transition: all var(--transition-normal);
   overflow: hidden;
+  box-shadow: var(--shadow-lg);
 }
 
+/* Hover effect para desktop */
 .sidebar:hover {
   width: var(--sidebar-expanded-width);
+}
+
+/* Sidebar expandido no desktop */
+.sidebar.sidebar-expanded {
+  width: var(--sidebar-expanded-width);
+}
+
+/* Sidebar aberto no mobile */
+.sidebar.sidebar-open {
+  transform: translateX(0);
 }
 
 .sidebar-content {
@@ -169,23 +248,25 @@ const onSidebarLeave = () => {
 }
 
 /* Quando o sidebar está fechado, centralizar apenas o ícone */
-.sidebar:not(:hover) .admin-menu .el-menu-item,
-.sidebar:not(:hover) .main-menu .el-menu-item {
+.sidebar:not(:hover):not(.sidebar-expanded) .admin-menu .el-menu-item,
+.sidebar:not(:hover):not(.sidebar-expanded) .main-menu .el-menu-item {
   justify-content: center;
   padding: 0 var(--spacing-sm);
   margin: var(--spacing-xs) var(--spacing-sm);
   width: calc(100% - var(--spacing-lg));
 }
 
-.sidebar:not(:hover) .admin-menu .el-menu-item .el-icon,
-.sidebar:not(:hover) .main-menu .el-menu-item .el-icon {
+.sidebar:not(:hover):not(.sidebar-expanded) .admin-menu .el-menu-item .el-icon,
+.sidebar:not(:hover):not(.sidebar-expanded) .main-menu .el-menu-item .el-icon {
   font-size: 20px;
   margin: 0;
 }
 
 /* Quando o sidebar está expandido, alinhar à esquerda */
 .sidebar:hover .admin-menu .el-menu-item,
-.sidebar:hover .main-menu .el-menu-item {
+.sidebar:hover .main-menu .el-menu-item,
+.sidebar.sidebar-expanded .admin-menu .el-menu-item,
+.sidebar.sidebar-expanded .main-menu .el-menu-item {
   justify-content: flex-start;
   padding: 0 var(--spacing-xl);
 }
@@ -205,34 +286,11 @@ const onSidebarLeave = () => {
   flex: 1;
   overflow-y: auto;
   background-color: var(--el-bg-color-page);
-  transition: margin-left var(--transition-normal);
-}
-
-.main-content.sidebar-expanded {
-  margin-left: var(--sidebar-expanded-width);
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform var(--transition-normal);
-  }
-
-  .sidebar.mobile-open {
-    transform: translateX(0);
-  }
-
-  .main-content {
-    margin-left: 0;
-  }
+  transition: all var(--transition-normal);
+  margin-left: var(--sidebar-width);
 }
 
 /* Scrollbar personalizada */
-.sidebar-content {
-  @extend .custom-scrollbar;
-}
-
 .sidebar-content::-webkit-scrollbar {
   width: 4px;
 }
@@ -248,5 +306,45 @@ const onSidebarLeave = () => {
 
 .sidebar-content::-webkit-scrollbar-thumb:hover {
   background: var(--el-border-color-dark);
+}
+
+/* Responsividade - Mobile */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 280px;
+    transform: translateX(-100%);
+    transition: transform var(--transition-normal);
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* Responsividade - Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: var(--sidebar-width);
+  }
+
+  .main-content {
+    margin-left: var(--sidebar-width);
+  }
+}
+
+/* Responsividade - Desktop */
+@media (min-width: 1025px) {
+  .sidebar {
+    width: var(--sidebar-width);
+  }
+
+  .main-content {
+    margin-left: var(--sidebar-width);
+  }
 }
 </style>

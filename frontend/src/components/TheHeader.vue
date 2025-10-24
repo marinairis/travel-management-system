@@ -1,6 +1,13 @@
 <template>
   <el-header class="app-header">
     <div class="header-left">
+      <el-button
+        v-if="authStore.isAuthenticated"
+        class="sidebar-toggle"
+        circle
+        @click="toggleSidebar"
+        :icon="Menu"
+      />
       <el-icon class="logo-icon" :size="24">
         <MapLocation />
       </el-icon>
@@ -42,7 +49,7 @@
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useRouter } from 'vue-router'
-import { User, SwitchButton, Moon, Sunny, MapLocation } from '@element-plus/icons-vue'
+import { User, SwitchButton, Moon, Sunny, MapLocation, Menu } from '@element-plus/icons-vue'
 
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
@@ -55,6 +62,11 @@ const toggleTheme = () => {
 const handleLogout = () => {
   authStore.logout()
   router.push('/login')
+}
+
+const toggleSidebar = () => {
+  // Emitir evento para o componente pai
+  window.dispatchEvent(new CustomEvent('toggle-sidebar'))
 }
 </script>
 
@@ -98,7 +110,15 @@ const handleLogout = () => {
 
 /* User Info já está em utilities.css */
 
+.sidebar-toggle {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  .sidebar-toggle {
+    display: flex;
+  }
+
   .app-title {
     font-size: 16px;
   }

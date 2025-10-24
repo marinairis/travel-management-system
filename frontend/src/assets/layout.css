@@ -100,6 +100,7 @@
 @media (max-width: 768px) {
   .main-content {
     padding: var(--spacing-lg);
+    margin-left: 0 !important; /* Forçar sem margem em mobile */
   }
 
   .page-header {
@@ -117,10 +118,41 @@
     display: block;
     margin-bottom: var(--spacing-md);
   }
+
+  /* Cards em mobile */
+  .filter-card,
+  .filters-card,
+  .table-card {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  /* Melhor espaçamento para botões em mobile */
+  .flex-between {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+  }
+}
+
+/* Responsive - Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-content {
+    padding: var(--spacing-xl);
+  }
+
+  .page-header {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+
+  .page-title {
+    font-size: 26px;
+  }
 }
 
 /* Responsive - Desktop */
-@media (min-width: 769px) {
+@media (min-width: 1025px) {
   .main-content {
     padding: var(--spacing-2xl);
   }
