@@ -20,9 +20,10 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('/locations/destinations', [LocationController::class, 'getDestinations']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:api')->group(function () {
   Route::get('/me', [AuthController::class, 'me']);
   Route::post('/logout', [AuthController::class, 'logout']);
+  Route::post('/refresh', [AuthController::class, 'refresh']);
 
   Route::get('/travel-requests', [TravelRequestController::class, 'index']);
   Route::post('/travel-requests', [TravelRequestController::class, 'store']);
@@ -37,7 +38,7 @@ Route::middleware('auth:sanctum')->group(function () {
   Route::get('/locations/cities', [LocationController::class, 'getCities']);
 });
 
-Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+Route::middleware(['auth:api', 'admin'])->group(function () {
   Route::get('/users', [UserController::class, 'index']);
   Route::put('/users/{id}', [UserController::class, 'update']);
   Route::delete('/users/{id}', [UserController::class, 'destroy']);

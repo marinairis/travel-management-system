@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Password;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -27,7 +28,7 @@ class AuthController extends Controller
 
         $this->logActivityCreate($user, $request, 'Usuário registrado');
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $token = JWTAuth::fromUser($user);
 
         return response()->json([
             'success' => true,
@@ -55,15 +56,16 @@ class AuthController extends Controller
             ], 422);
         }
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        $credentials = $request->only('email', 'password');
+
+        if (!$token = JWTAuth::attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Credenciais inválidas'
             ], 401);
         }
 
-        $user = User::where('email', $request->email)->first();
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $user = Auth::user();
 
         return response()->json([
             'success' => true,
@@ -86,12 +88,33 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        JWTAuth::invalidate(JWTAuth::getToken());
 
         return response()->json([
             'success' => true,
             'message' => 'Logout realizado com sucesso'
         ]);
+    }
+
+    public function refresh()
+    {
+        try {
+            $token = JWTAuth::refresh(JWTAuth::getToken());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Token renovado com sucesso',
+                'data' => [
+                    'token' => $token,
+                    'token_type' => 'bearer'
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Não foi possível renovar o token'
+            ], 401);
+        }
     }
 
     public function forgotPassword(Request $request)
