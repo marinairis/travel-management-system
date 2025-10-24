@@ -1,7 +1,5 @@
 <template>
   <div class="dashboard-container">
-    <TheHeader />
-
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
@@ -86,7 +84,6 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useTravelRequestStore } from '@/stores/travelRequest'
 import { useThemeStore } from '@/stores/theme'
-import TheHeader from '@/components/TheHeader.vue'
 import TravelRequestTable from '@/components/TravelRequestTable.vue'
 import TravelRequestForm from '@/components/TravelRequestForm.vue'
 import { Plus, Refresh } from '@element-plus/icons-vue'
@@ -156,10 +153,11 @@ const handleView = (data) => {
 
 <style scoped>
 .dashboard-container {
-  min-height: 100vh;
+  min-height: calc(100vh - 60px);
   background-color: var(--el-bg-color-page);
   display: flex;
   flex-direction: column;
+  padding-top: 60px; /* Espaço para o header fixo */
 }
 
 .main-content {

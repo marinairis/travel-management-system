@@ -1,7 +1,5 @@
 <template>
   <div class="logs-container">
-    <TheHeader />
-
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
@@ -171,7 +169,6 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useActivityLogStore } from '@/stores/activityLog'
-import TheHeader from '@/components/TheHeader.vue'
 import { View, Refresh } from '@element-plus/icons-vue'
 
 const activityLogStore = useActivityLogStore()
@@ -270,10 +267,11 @@ const formatDateTime = (date) => {
 
 <style scoped>
 .logs-container {
-  min-height: 100vh;
+  min-height: calc(100vh - 60px);
   background-color: var(--el-bg-color-page);
   display: flex;
   flex-direction: column;
+  padding-top: 60px; /* Espaço para o header fixo */
 }
 
 .main-content {

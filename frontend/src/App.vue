@@ -1,12 +1,24 @@
 <template>
-  <router-view />
+  <div id="app">
+    <MainLayout v-if="showMainLayout" />
+    <router-view v-else />
+  </div>
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useThemeStore } from './stores/theme'
+import MainLayout from './components/MainLayout.vue'
 
 const themeStore = useThemeStore()
+const route = useRoute()
+
+const showMainLayout = computed(() => {
+  // Páginas que não devem mostrar o layout principal (login, register, etc.)
+  const guestPages = ['/login', '/register', '/forgot-password']
+  return !guestPages.includes(route.path)
+})
 
 onMounted(() => {
   themeStore.initTheme()

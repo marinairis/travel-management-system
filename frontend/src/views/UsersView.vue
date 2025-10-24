@@ -1,7 +1,5 @@
 <template>
   <div class="users-container">
-    <TheHeader />
-
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
@@ -93,7 +91,6 @@ import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
-import TheHeader from '@/components/TheHeader.vue'
 import { Edit, Delete } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
@@ -169,10 +166,11 @@ const confirmDelete = async () => {
 
 <style scoped>
 .users-container {
-  min-height: 100vh;
+  min-height: calc(100vh - 60px);
   background-color: var(--el-bg-color-page);
   display: flex;
   flex-direction: column;
+  padding-top: 60px; /* Espaço para o header fixo */
 }
 
 .main-content {
