@@ -4,29 +4,35 @@
     <TheHeader />
 
     <div class="layout-content">
-      <!-- Drawer fixo à esquerda -->
-      <div class="sidebar">
+      <!-- Drawer com hover à esquerda -->
+      <div class="sidebar" @mouseenter="onSidebarHover" @mouseleave="onSidebarLeave">
         <div class="sidebar-content">
           <div class="navigation-section" v-if="authStore.isAdmin">
-            <h4>Administração</h4>
+            <h4 v-show="isExpanded">Administração</h4>
             <el-menu :default-active="activeMenu" class="admin-menu" @select="handleMenuSelect">
               <el-menu-item index="users">
                 <el-icon><UserFilled /></el-icon>
-                <template #title>Gestão de Usuários</template>
+                <template #title>
+                  <span v-show="isExpanded">Gestão de Usuários</span>
+                </template>
               </el-menu-item>
               <el-menu-item index="logs">
                 <el-icon><Document /></el-icon>
-                <template #title>Logs de Atividades</template>
+                <template #title>
+                  <span v-show="isExpanded">Logs de Atividades</span>
+                </template>
               </el-menu-item>
             </el-menu>
           </div>
 
           <div class="navigation-section">
-            <h4>Navegação</h4>
+            <h4 v-show="isExpanded">Navegação</h4>
             <el-menu :default-active="activeMenu" class="main-menu" @select="handleMenuSelect">
               <el-menu-item index="dashboard">
                 <el-icon><House /></el-icon>
-                <template #title>Dashboard</template>
+                <template #title>
+                  <span v-show="isExpanded">Dashboard</span>
+                </template>
               </el-menu-item>
             </el-menu>
           </div>
@@ -42,7 +48,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter, useRoute } from 'vue-router'
 import TheHeader from '@/components/TheHeader.vue'
@@ -51,6 +57,9 @@ import { UserFilled, Document, House } from '@element-plus/icons-vue'
 const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+
+// Estado do hover do sidebar
+const isExpanded = ref(false)
 
 const activeMenu = computed(() => {
   const path = route.path
@@ -73,6 +82,14 @@ const handleMenuSelect = (index) => {
       break
   }
 }
+
+const onSidebarHover = () => {
+  isExpanded.value = true
+}
+
+const onSidebarLeave = () => {
+  isExpanded.value = false
+}
 </script>
 
 <style scoped>
@@ -90,7 +107,7 @@ const handleMenuSelect = (index) => {
 }
 
 .sidebar {
-  width: 280px;
+  width: 70px;
   background-color: var(--el-bg-color);
   border-right: 1px solid var(--el-border-color-light);
   display: flex;
@@ -100,6 +117,12 @@ const handleMenuSelect = (index) => {
   top: 60px; /* Altura do header */
   bottom: 0;
   z-index: 100;
+  transition: width 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar:hover {
+  width: 280px;
 }
 
 .sidebar-content {
@@ -120,6 +143,8 @@ const handleMenuSelect = (index) => {
   padding: 0 20px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .admin-menu,
@@ -138,7 +163,33 @@ const handleMenuSelect = (index) => {
   width: calc(100% - 24px);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Quando o sidebar está fechado, centralizar apenas o ícone */
+.sidebar:not(:hover) .admin-menu .el-menu-item,
+.sidebar:not(:hover) .main-menu .el-menu-item {
+  justify-content: center;
+  padding: 0 8px;
+  margin: 4px 8px;
+  width: calc(100% - 16px);
+}
+
+.sidebar:not(:hover) .admin-menu .el-menu-item .el-icon,
+.sidebar:not(:hover) .main-menu .el-menu-item .el-icon {
+  font-size: 20px;
+  margin: 0;
+}
+
+/* Quando o sidebar está expandido, alinhar à esquerda */
+.sidebar:hover .admin-menu .el-menu-item,
+.sidebar:hover .main-menu .el-menu-item {
+  justify-content: flex-start;
+  padding: 0 20px;
 }
 
 .admin-menu .el-menu-item:hover,
@@ -154,9 +205,10 @@ const handleMenuSelect = (index) => {
 
 .main-content {
   flex: 1;
-  margin-left: 280px;
+  margin-left: 70px;
   overflow-y: auto;
   background-color: var(--el-bg-color-page);
+  transition: margin-left 0.3s ease;
 }
 
 /* Responsividade */

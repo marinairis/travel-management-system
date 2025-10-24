@@ -1,11 +1,13 @@
 <template>
   <div class="travel-request-table">
-    <el-table
-      :data="tableData"
-      style="width: 100%"
-      v-loading="loading"
-      :default-sort="{ prop: 'created_at', order: 'descending' }"
-    >
+    <div class="table-container">
+      <el-table
+        :data="tableData"
+        style="width: 100%"
+        v-loading="loading"
+        :default-sort="{ prop: 'created_at', order: 'descending' }"
+        :scroll-x="true"
+      >
       <el-table-column prop="id" label="ID" width="80" sortable />
 
       <el-table-column prop="requester_name" label="Solicitante" min-width="150" />
