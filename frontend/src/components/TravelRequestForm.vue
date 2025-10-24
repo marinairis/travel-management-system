@@ -11,21 +11,23 @@
     </el-form-item>
 
     <el-form-item label="Destino" prop="destination">
-      <el-autocomplete
+      <el-select-v2
         v-model="formData.destination"
-        :fetch-suggestions="searchDestinations"
-        placeholder="Digite para buscar municípios"
+        :options="destinationOptions"
+        placeholder="Selecione ou digite para buscar destino"
         style="width: 100%"
-        :debounce="500"
-        @select="handleSelect"
+        filterable
+        clearable
+        :loading="destinationsStore.loading"
+        @focus="loadDestinations"
       >
         <template #default="{ item }">
           <div class="destination-item">
             <el-icon><LocationFilled /></el-icon>
-            <span>{{ item.value }}</span>
+            <span>{{ item.label }}</span>
           </div>
         </template>
-      </el-autocomplete>
+      </el-select-v2>
     </el-form-item>
 
     <el-row :gutter="20">
@@ -76,9 +78,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed, onMounted } from 'vue'
 import { LocationFilled } from '@element-plus/icons-vue'
-import api from '@/plugins/axios'
+import { useDestinationsStore } from '@/stores/destinations'
 
 const props = defineProps({
   modelValue: {
@@ -95,7 +97,7 @@ const emit = defineEmits(['submit', 'cancel', 'update:modelValue'])
 
 const formRef = ref(null)
 const loading = ref(false)
-const destinations = ref([])
+const destinationsStore = useDestinationsStore()
 
 const formData = reactive({
   requester_name: '',
@@ -114,6 +116,8 @@ const rules = {
   return_date: [{ required: true, message: 'Data de volta é obrigatória', trigger: 'change' }],
 }
 
+const destinationOptions = computed(() => destinationsStore.getDestinationsForSelect)
+
 watch(
   () => props.modelValue,
   (newVal) => {
@@ -124,6 +128,19 @@ watch(
   { immediate: true },
 )
 
+onMounted(async () => {
+  // Carrega destinos quando o componente é montado
+  await loadDestinations()
+})
+
+const loadDestinations = async () => {
+  try {
+    await destinationsStore.getDestinations()
+  } catch (error) {
+    console.error('Erro ao carregar destinos:', error)
+  }
+}
+
 const disabledDepartureDate = (time) => {
   return time.getTime() < Date.now() - 8.64e7
 }
@@ -132,31 +149,6 @@ const disabledReturnDate = (time) => {
   if (!formData.departure_date) return time.getTime() < Date.now() - 8.64e7
   const departureTime = new Date(formData.departure_date).getTime()
   return time.getTime() < departureTime
-}
-
-const searchDestinations = async (queryString, cb) => {
-  if (!queryString) {
-    cb([])
-    return
-  }
-
-  try {
-    const response = await api.get('/locations/municipios', {
-      params: { q: queryString },
-    })
-    if (response.data.success) {
-      cb(response.data.data)
-    } else {
-      cb([])
-    }
-  } catch (error) {
-    console.error('Erro ao buscar destinos:', error)
-    cb([])
-  }
-}
-
-const handleSelect = (item) => {
-  formData.destination = item.value
 }
 
 const handleSubmit = async () => {

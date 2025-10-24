@@ -33,4 +33,26 @@ class LocationController extends Controller
             ], 500);
         }
     }
+
+    public function getDestinations(): JsonResponse
+    {
+        try {
+            $destinations = $this->cityRepository->getDestinations();
+
+            return response()->json([
+                'success' => true,
+                'data' => $destinations->values(),
+                'meta' => [
+                    'total' => $destinations->count(),
+                    'cached' => true
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao buscar destinos',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
 }

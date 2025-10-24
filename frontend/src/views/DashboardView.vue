@@ -27,13 +27,33 @@
             </el-form-item>
 
             <el-form-item label="Destino">
-              <el-input
+              <el-select-v2
                 v-model="filters.destination"
-                placeholder="Buscar destino"
+                :options="destinationOptions"
+                placeholder="Selecione destino"
+                style="width: 340px"
                 clearable
-                style="width: 200px"
+                filterable
+                :loading="destinationsStore.loading"
                 @change="handleFilter"
-              />
+                @focus="loadDestinations"
+              >
+                <template #default="{ item }">
+                  <div class="destination-item">
+                    <el-icon><LocationFilled /></el-icon>
+                    <el-tooltip
+                      v-if="isTextOverflowing(item.label)"
+                      class="box-item"
+                      effect="dark"
+                      :content="item.label"
+                      placement="right-start"
+                    >
+                      <span class="destination-text">{{ item.label }}</span>
+                    </el-tooltip>
+                    <span v-else class="destination-text">{{ item.label }}</span>
+                  </div>
+                </template>
+              </el-select-v2>
             </el-form-item>
 
             <el-form-item label="Período">
@@ -81,15 +101,19 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { useTravelRequestStore } from '@/stores/travelRequest'
 import { useThemeStore } from '@/stores/theme'
+import { useDestinationsStore } from '@/stores/destinations'
+import { useTextUtils } from '@/composables/useTextUtils'
 import TravelRequestTable from '@/components/TravelRequestTable.vue'
 import TravelRequestForm from '@/components/TravelRequestForm.vue'
-import { Plus, Refresh } from '@element-plus/icons-vue'
+import { Plus, Refresh, LocationFilled } from '@element-plus/icons-vue'
 
 const travelRequestStore = useTravelRequestStore()
 const themeStore = useThemeStore()
+const destinationsStore = useDestinationsStore()
+const { isTextOverflowing } = useTextUtils()
 
 const showCreateDialog = ref(false)
 const dateRange = ref([])
@@ -101,10 +125,21 @@ const filters = reactive({
   end_date: '',
 })
 
-onMounted(() => {
+const destinationOptions = computed(() => destinationsStore.getDestinationsForSelect)
+
+onMounted(async () => {
   themeStore.initTheme()
   travelRequestStore.fetchTravelRequests()
+  await loadDestinations()
 })
+
+const loadDestinations = async () => {
+  try {
+    await destinationsStore.getDestinations()
+  } catch (error) {
+    console.error('Erro ao carregar destinos:', error)
+  }
+}
 
 const handleFilter = () => {
   travelRequestStore.fetchTravelRequests(filters)
@@ -224,5 +259,18 @@ const handleView = (data) => {
   .page-title {
     font-size: 28px;
   }
+}
+
+.destination-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.destination-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
 }
 </style>
