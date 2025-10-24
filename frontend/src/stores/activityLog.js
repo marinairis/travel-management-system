@@ -4,6 +4,7 @@ import api from '@/plugins/axios'
 export const useActivityLogStore = defineStore('activityLog', {
   state: () => ({
     logs: [],
+    users: [],
     loading: false,
     pagination: {
       current_page: 1,
@@ -21,8 +22,6 @@ export const useActivityLogStore = defineStore('activityLog', {
         if (filters.user_id) params.append('user_id', filters.user_id)
         if (filters.action) params.append('action', filters.action)
         if (filters.model_type) params.append('model_type', filters.model_type)
-        if (filters.start_date) params.append('start_date', filters.start_date)
-        if (filters.end_date) params.append('end_date', filters.end_date)
         if (filters.page) params.append('page', filters.page)
         if (filters.per_page) params.append('per_page', filters.per_page)
 
@@ -40,6 +39,17 @@ export const useActivityLogStore = defineStore('activityLog', {
         console.error('Erro ao buscar logs:', error)
       } finally {
         this.loading = false
+      }
+    },
+
+    async fetchUsers() {
+      try {
+        const response = await api.get('/users')
+        if (response.data.success) {
+          this.users = response.data.data
+        }
+      } catch (error) {
+        console.error('Erro ao buscar usuários:', error)
       }
     },
   },

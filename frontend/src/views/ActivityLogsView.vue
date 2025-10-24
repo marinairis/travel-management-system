@@ -25,6 +25,24 @@
               </el-select>
             </el-form-item>
 
+            <el-form-item label="Usuário">
+              <el-select
+                v-model="filters.user_id"
+                placeholder="Todos"
+                clearable
+                filterable
+                style="width: 200px"
+                @change="handleFilter"
+              >
+                <el-option
+                  v-for="user in activityLogStore.users"
+                  :key="user.id"
+                  :label="user.name"
+                  :value="user.id"
+                />
+              </el-select>
+            </el-form-item>
+
             <el-form-item label="Tipo">
               <el-select
                 v-model="filters.model_type"
@@ -36,19 +54,6 @@
                 <el-option label="Pedido de Viagem" value="App\Models\TravelRequest" />
                 <el-option label="Usuário" value="App\Models\User" />
               </el-select>
-            </el-form-item>
-
-            <el-form-item label="Período">
-              <el-date-picker
-                v-model="dateRange"
-                type="daterange"
-                range-separator="até"
-                start-placeholder="Data início"
-                end-placeholder="Data fim"
-                format="DD/MM/YYYY"
-                value-format="YYYY-MM-DD"
-                @change="handleDateChange"
-              />
             </el-form-item>
 
             <el-form-item>
@@ -75,7 +80,10 @@
 
             <el-table-column prop="action" label="Ação" width="140">
               <template #default="scope">
-                <el-tag :type="getActionType(scope.row.action)">
+                <el-tag
+                  :type="getActionType(scope.row.action)"
+                  :class="`action-tag action-${scope.row.action}`"
+                >
                   {{ translateAction(scope.row.action) }}
                 </el-tag>
               </template>
@@ -139,7 +147,10 @@
           {{ selectedLog.user?.name || 'Sistema' }}
         </el-descriptions-item>
         <el-descriptions-item label="Ação">
-          <el-tag :type="getActionType(selectedLog.action)">
+          <el-tag
+            :type="getActionType(selectedLog.action)"
+            :class="`action-tag action-${selectedLog.action}`"
+          >
             {{ translateAction(selectedLog.action) }}
           </el-tag>
         </el-descriptions-item>
@@ -185,19 +196,18 @@ const activityLogStore = useActivityLogStore()
 
 const showViewDialog = ref(false)
 const selectedLog = ref(null)
-const dateRange = ref([])
 const currentPage = ref(1)
 
 const filters = reactive({
   action: '',
+  user_id: '',
   model_type: '',
-  start_date: '',
-  end_date: '',
   page: 1,
 })
 
 onMounted(() => {
   activityLogStore.fetchLogs()
+  activityLogStore.fetchUsers()
 })
 
 const handleFilter = () => {
@@ -206,24 +216,11 @@ const handleFilter = () => {
   activityLogStore.fetchLogs(filters)
 }
 
-const handleDateChange = (dates) => {
-  if (dates) {
-    filters.start_date = dates[0]
-    filters.end_date = dates[1]
-  } else {
-    filters.start_date = ''
-    filters.end_date = ''
-  }
-  handleFilter()
-}
-
 const handleReset = () => {
   filters.action = ''
+  filters.user_id = ''
   filters.model_type = ''
-  filters.start_date = ''
-  filters.end_date = ''
   filters.page = 1
-  dateRange.value = []
   currentPage.value = 1
   handleFilter()
 }
@@ -245,8 +242,15 @@ const getActionType = (action) => {
     delete: 'danger',
     status_change: 'info',
     cancel: 'warning',
+    login: 'primary',
+    logout: 'info',
+    approve: 'success',
+    reject: 'danger',
+    view: 'primary',
+    export: 'info',
+    import: 'warning',
   }
-  return types[action] || ''
+  return types[action] || 'info'
 }
 
 const translateAction = (action) => {
@@ -256,6 +260,13 @@ const translateAction = (action) => {
     delete: 'Deletar',
     status_change: 'Alterar Status',
     cancel: 'Cancelar',
+    login: 'Login',
+    logout: 'Logout',
+    approve: 'Aprovar',
+    reject: 'Rejeitar',
+    view: 'Visualizar',
+    export: 'Exportar',
+    import: 'Importar',
   }
   return translations[action] || action
 }
@@ -325,6 +336,87 @@ pre {
   border-radius: 4px;
   overflow-x: auto;
   font-size: 12px;
+}
+
+/* Estilos personalizados para as ações */
+.action-tag {
+  font-weight: 600;
+  border-radius: 6px;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+/* Cores específicas para cada ação */
+.action-create {
+  background-color: #f0fdf4 !important;
+  color: #166534 !important;
+  border-color: #22c55e !important;
+}
+
+.action-update {
+  background-color: #fef3c7 !important;
+  color: #d97706 !important;
+  border-color: #f59e0b !important;
+}
+
+.action-delete {
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+  border-color: #ef4444 !important;
+}
+
+.action-status_change {
+  background-color: #f0f9ff !important;
+  color: #1d4ed8 !important;
+  border-color: #3b82f6 !important;
+}
+
+.action-cancel {
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+  border-color: #ef4444 !important;
+}
+
+.action-login {
+  background-color: #f0fdf4 !important;
+  color: #166534 !important;
+  border-color: #22c55e !important;
+}
+
+.action-logout {
+  background-color: #f8fafc !important;
+  color: #475569 !important;
+  border-color: #94a3b8 !important;
+}
+
+.action-approve {
+  background-color: #f0fdf4 !important;
+  color: #15803d !important;
+  border-color: #16a34a !important;
+}
+
+.action-reject {
+  background-color: #fef2f2 !important;
+  color: #b91c1c !important;
+  border-color: #dc2626 !important;
+}
+
+.action-view {
+  background-color: #f0f9ff !important;
+  color: #1e40af !important;
+  border-color: #2563eb !important;
+}
+
+.action-export {
+  background-color: #f0f9ff !important;
+  color: #7c3aed !important;
+  border-color: #8b5cf6 !important;
+}
+
+.action-import {
+  background-color: #fef3c7 !important;
+  color: #a16207 !important;
+  border-color: #eab308 !important;
 }
 
 @media (max-width: 768px) {

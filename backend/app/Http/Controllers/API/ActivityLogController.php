@@ -20,20 +20,16 @@ class ActivityLogController extends Controller
         $query = ActivityLog::with('user')->orderBy('created_at', 'desc');
 
         // Filtros
-        if ($request->has('user_id')) {
+        if ($request->has('user_id') && $request->user_id) {
             $query->where('user_id', $request->user_id);
         }
 
-        if ($request->has('action')) {
+        if ($request->has('action') && $request->action) {
             $query->where('action', $request->action);
         }
 
-        if ($request->has('model_type')) {
+        if ($request->has('model_type') && $request->model_type) {
             $query->where('model_type', $request->model_type);
-        }
-
-        if ($request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
 
         $logs = $query->paginate($request->get('per_page', 50));
