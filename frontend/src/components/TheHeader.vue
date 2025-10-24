@@ -74,6 +74,10 @@ const goToLogs = () => {
   align-items: center;
   padding: 0 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  position: relative;
+  z-index: 1000;
+  background-color: var(--el-bg-color);
 }
 
 .header-left {

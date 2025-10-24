@@ -1,8 +1,8 @@
 <template>
   <div class="users-container">
-    <el-container>
-      <TheHeader />
+    <TheHeader />
 
+    <el-container>
       <el-main class="main-content">
         <div class="page-header">
           <h1 class="page-title">Gestão de Usuários</h1>
@@ -171,12 +171,16 @@ const confirmDelete = async () => {
 .users-container {
   min-height: 100vh;
   background-color: var(--el-bg-color-page);
+  display: flex;
+  flex-direction: column;
 }
 
 .main-content {
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
+  flex: 1;
+  width: 100%;
 }
 
 .page-header {

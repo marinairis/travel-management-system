@@ -1,8 +1,8 @@
 <template>
   <div class="dashboard-container">
-    <el-container>
-      <TheHeader />
+    <TheHeader />
 
+    <el-container>
       <el-main class="main-content">
         <div class="page-header">
           <h1 class="page-title">Pedidos de Viagem</h1>
@@ -158,12 +158,16 @@ const handleView = (data) => {
 .dashboard-container {
   min-height: 100vh;
   background-color: var(--el-bg-color-page);
+  display: flex;
+  flex-direction: column;
 }
 
 .main-content {
   padding: 24px;
   max-width: 1400px;
   margin: 0 auto;
+  flex: 1;
+  width: 100%;
 }
 
 .page-header {
