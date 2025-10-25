@@ -1,12 +1,15 @@
 <template>
   <div class="forgot-container">
+    <div class="language-selector-container">
+      <LanguageSelector />
+    </div>
     <el-card class="forgot-card">
       <template #header>
         <div class="card-header">
           <el-icon :size="32" color="#409EFF">
             <MapLocation />
           </el-icon>
-          <h2>Recuperar Senha</h2>
+          <h2>{{ $t('auth.forgotPassword') }}</h2>
         </div>
       </template>
 
@@ -19,8 +22,8 @@
       >
         <el-alert
           v-if="!success"
-          title="Informe seu email"
-          description="Enviaremos um link para redefinir sua senha"
+          :title="$t('auth.enterEmail')"
+          :description="$t('auth.emailSentDescription')"
           type="info"
           :closable="false"
           style="margin-bottom: 20px"
@@ -28,17 +31,17 @@
 
         <el-alert
           v-if="success"
-          title="Email enviado!"
-          description="Verifique sua caixa de entrada"
+          :title="$t('auth.emailSent')"
+          :description="$t('auth.checkInbox')"
           type="success"
           :closable="false"
           style="margin-bottom: 20px"
         />
 
-        <el-form-item label="Email" prop="email">
+        <el-form-item :label="$t('auth.email')" prop="email">
           <el-input
             v-model="formData.email"
-            placeholder="seu@email.com"
+            :placeholder="$t('auth.emailPlaceholder')"
             :prefix-icon="Message"
             :disabled="success"
           />
@@ -52,15 +55,15 @@
             :loading="loading"
             @click="handleSubmit"
           >
-            Enviar Link
+            {{ $t('auth.sendLink') }}
           </el-button>
           <el-button v-else style="width: 100%" @click="$router.push('/login')">
-            Voltar para Login
+            {{ $t('auth.backToLogin') }}
           </el-button>
         </el-form-item>
 
         <div class="form-links">
-          <router-link to="/login">Voltar para login</router-link>
+          <router-link to="/login">{{ $t('auth.backToLogin') }}</router-link>
         </div>
       </el-form>
     </el-card>
@@ -70,7 +73,11 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useI18n } from 'vue-i18n'
+import LanguageSelector from '@/components/LanguageSelector.vue'
 import { MapLocation, Message } from '@element-plus/icons-vue'
+
+const { t } = useI18n()
 
 const authStore = useAuthStore()
 
@@ -84,8 +91,8 @@ const formData = reactive({
 
 const rules = {
   email: [
-    { required: true, message: 'Email é obrigatório', trigger: 'blur' },
-    { type: 'email', message: 'Email inválido', trigger: 'blur' },
+    { required: true, message: t('auth.emailRequired'), trigger: 'blur' },
+    { type: 'email', message: t('auth.emailInvalid'), trigger: 'blur' },
   ],
 }
 
@@ -99,7 +106,7 @@ const handleSubmit = async () => {
         await authStore.forgotPassword(formData.email)
         success.value = true
       } catch (error) {
-        console.error('Erro ao enviar email:', error)
+        console.error(t('auth.emailSendError'), error)
       } finally {
         loading.value = false
       }
@@ -116,6 +123,14 @@ const handleSubmit = async () => {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   padding: 20px;
+  position: relative;
+}
+
+.language-selector-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
 }
 
 .forgot-card {

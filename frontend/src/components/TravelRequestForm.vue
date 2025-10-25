@@ -6,15 +6,18 @@
     label-position="top"
     @submit.prevent="handleSubmit"
   >
-    <el-form-item label="Nome do Solicitante" prop="requester_name">
-      <el-input v-model="formData.requester_name" placeholder="Digite o nome do solicitante" />
+    <el-form-item :label="$t('travelRequest.requesterName')" prop="requester_name">
+      <el-input
+        v-model="formData.requester_name"
+        :placeholder="$t('travelRequest.requesterNamePlaceholder')"
+      />
     </el-form-item>
 
-    <el-form-item label="Destino" prop="destination">
+    <el-form-item :label="$t('travelRequest.destination')" prop="destination">
       <el-select-v2
         v-model="formData.destination"
         :options="destinationOptions"
-        placeholder="Selecione ou digite para buscar destino"
+        :placeholder="$t('travelRequest.destinationPlaceholder')"
         style="width: 100%"
         filterable
         clearable
@@ -32,11 +35,11 @@
 
     <el-row :gutter="20">
       <el-col :xs="24" :sm="12">
-        <el-form-item label="Data de Ida" prop="departure_date">
+        <el-form-item :label="$t('travelRequest.departureDate')" prop="departure_date">
           <el-date-picker
             v-model="formData.departure_date"
             type="date"
-            placeholder="Selecione a data"
+            :placeholder="$t('travelRequest.datePlaceholder')"
             style="width: 100%"
             format="DD/MM/YYYY"
             value-format="YYYY-MM-DD"
@@ -45,11 +48,11 @@
         </el-form-item>
       </el-col>
       <el-col :xs="24" :sm="12">
-        <el-form-item label="Data de Volta" prop="return_date">
+        <el-form-item :label="$t('travelRequest.returnDate')" prop="return_date">
           <el-date-picker
             v-model="formData.return_date"
             type="date"
-            placeholder="Selecione a data"
+            :placeholder="$t('travelRequest.datePlaceholder')"
             style="width: 100%"
             format="DD/MM/YYYY"
             value-format="YYYY-MM-DD"
@@ -59,20 +62,20 @@
       </el-col>
     </el-row>
 
-    <el-form-item label="Observações" prop="notes">
+    <el-form-item :label="$t('travelRequest.notes')" prop="notes">
       <el-input
         v-model="formData.notes"
         type="textarea"
         :rows="4"
-        placeholder="Digite observações adicionais (opcional)"
+        :placeholder="$t('travelRequest.notesPlaceholder')"
       />
     </el-form-item>
 
     <el-form-item>
       <el-button type="primary" @click="handleSubmit" :loading="loading">
-        {{ isEdit ? 'Atualizar' : 'Criar' }} Pedido
+        {{ isEdit ? $t('travelRequest.updateRequest') : $t('travelRequest.createRequest') }}
       </el-button>
-      <el-button @click="handleCancel">Cancelar</el-button>
+      <el-button @click="handleCancel">{{ $t('common.cancel') }}</el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -81,6 +84,9 @@
 import { ref, reactive, watch, computed, onMounted } from 'vue'
 import { LocationFilled } from '@element-plus/icons-vue'
 import { useDestinationsStore } from '@/stores/destinations'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   modelValue: {
@@ -109,11 +115,17 @@ const formData = reactive({
 
 const rules = {
   requester_name: [
-    { required: true, message: 'Nome do solicitante é obrigatório', trigger: 'blur' },
+    { required: true, message: t('travelRequest.requesterNameRequired'), trigger: 'blur' },
   ],
-  destination: [{ required: true, message: 'Destino é obrigatório', trigger: 'blur' }],
-  departure_date: [{ required: true, message: 'Data de ida é obrigatória', trigger: 'change' }],
-  return_date: [{ required: true, message: 'Data de volta é obrigatória', trigger: 'change' }],
+  destination: [
+    { required: true, message: t('travelRequest.destinationRequired'), trigger: 'blur' },
+  ],
+  departure_date: [
+    { required: true, message: t('travelRequest.departureDateRequired'), trigger: 'change' },
+  ],
+  return_date: [
+    { required: true, message: t('travelRequest.returnDateRequired'), trigger: 'change' },
+  ],
 }
 
 const destinationOptions = computed(() => destinationsStore.getDestinationsForSelect)
@@ -136,7 +148,7 @@ const loadDestinations = async () => {
   try {
     await destinationsStore.getDestinations()
   } catch (error) {
-    console.error('Erro ao carregar destinos:', error)
+    console.error(t('travelRequest.loadDestinationsError'), error)
   }
 }
 

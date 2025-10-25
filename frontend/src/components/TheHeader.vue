@@ -11,11 +11,13 @@
       <el-icon class="logo-icon" :size="24">
         <MapLocation />
       </el-icon>
-      <h1 class="app-title">Viagens Corporativas</h1>
+      <h1 class="app-title">{{ $t('auth.title') }}</h1>
     </div>
 
     <div class="header-right">
-      <el-tooltip content="Alternar Tema" placement="bottom">
+      <LanguageSelector />
+
+      <el-tooltip :content="$t('common.toggleTheme')" placement="bottom">
         <el-button circle @click="toggleTheme" :icon="themeStore.isDark ? Sunny : Moon" />
       </el-tooltip>
 
@@ -30,13 +32,13 @@
                 <div class="user-name">{{ authStore.user?.name }}</div>
                 <div class="user-email">{{ authStore.user?.email }}</div>
                 <div class="user-role">
-                  {{ authStore.isAdmin ? 'Administrador' : 'Usuário Básico' }}
+                  {{ authStore.isAdmin ? $t('users.admin') : $t('users.basic') }}
                 </div>
               </div>
             </el-dropdown-item>
             <el-dropdown-item divided @click="handleLogout">
               <el-icon><SwitchButton /></el-icon>
-              Sair
+              {{ $t('common.logout') }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -49,7 +51,11 @@
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import LanguageSelector from './LanguageSelector.vue'
 import { User, SwitchButton, Moon, Sunny, MapLocation, Menu } from '@element-plus/icons-vue'
+
+const { t } = useI18n()
 
 const authStore = useAuthStore()
 const themeStore = useThemeStore()

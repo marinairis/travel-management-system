@@ -23,18 +23,18 @@
       >
         <div class="sidebar-content">
           <div class="navigation-section" v-if="authStore.isAdmin">
-            <h4 v-show="isExpanded || isMobile">Administração</h4>
+            <h4 v-show="isExpanded || isMobile">{{ $t('navigation.administration') }}</h4>
             <el-menu :default-active="activeMenu" class="admin-menu" @select="handleMenuSelect">
               <el-menu-item index="users">
                 <el-icon><UserFilled /></el-icon>
                 <template #title>
-                  <span v-show="isExpanded || isMobile">Gestão de Usuários</span>
+                  <span v-show="isExpanded || isMobile">{{ $t('navigation.users') }}</span>
                 </template>
               </el-menu-item>
               <el-menu-item index="logs">
                 <el-icon><Document /></el-icon>
                 <template #title>
-                  <span v-show="isExpanded || isMobile">Logs de Atividades</span>
+                  <span v-show="isExpanded || isMobile">{{ $t('navigation.activityLogs') }}</span>
                 </template>
               </el-menu-item>
             </el-menu>
@@ -43,12 +43,12 @@
           <el-divider v-if="authStore.isAdmin" />
 
           <div class="navigation-section">
-            <h4 v-show="isExpanded || isMobile">Navegação</h4>
+            <h4 v-show="isExpanded || isMobile">{{ $t('navigation.navigation') }}</h4>
             <el-menu :default-active="activeMenu" class="main-menu" @select="handleMenuSelect">
               <el-menu-item index="dashboard">
                 <el-icon><House /></el-icon>
                 <template #title>
-                  <span v-show="isExpanded || isMobile">Dashboard</span>
+                  <span v-show="isExpanded || isMobile">{{ $t('navigation.dashboard') }}</span>
                 </template>
               </el-menu-item>
             </el-menu>

@@ -3,34 +3,34 @@
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
-          <h1 class="page-title">Pedidos de Viagem</h1>
+          <h1 class="page-title">{{ $t('dashboard.title') }}</h1>
           <el-button type="primary" :icon="Plus" @click="showCreateDialog = true">
-            Novo Pedido
+            {{ $t('dashboard.newRequest') }}
           </el-button>
         </div>
 
         <!-- Filtros -->
         <el-card class="filter-card" shadow="never">
           <el-form :inline="true" :model="filters">
-            <el-form-item label="Status">
+            <el-form-item :label="$t('dashboard.status')">
               <el-select
                 v-model="filters.status"
-                placeholder="Todos"
+                :placeholder="$t('common.all')"
                 clearable
                 style="width: 150px"
                 @change="handleFilter"
               >
-                <el-option label="Solicitado" value="requested" />
-                <el-option label="Aprovado" value="approved" />
-                <el-option label="Cancelado" value="cancelled" />
+                <el-option :label="$t('status.requested')" value="requested" />
+                <el-option :label="$t('status.approved')" value="approved" />
+                <el-option :label="$t('status.cancelled')" value="cancelled" />
               </el-select>
             </el-form-item>
 
-            <el-form-item label="Destino">
+            <el-form-item :label="$t('dashboard.destination')">
               <el-select-v2
                 v-model="filters.destination"
                 :options="destinationOptions"
-                placeholder="Selecione destino"
+                :placeholder="$t('dashboard.selectDestination')"
                 style="width: 340px"
                 clearable
                 filterable
@@ -56,13 +56,13 @@
               </el-select-v2>
             </el-form-item>
 
-            <el-form-item label="Período">
+            <el-form-item :label="$t('dashboard.period')">
               <el-date-picker
                 v-model="dateRange"
                 type="daterange"
-                range-separator="até"
-                start-placeholder="Data início"
-                end-placeholder="Data fim"
+                :range-separator="$t('dashboard.dateRangeSeparator')"
+                :start-placeholder="$t('dashboard.startDate')"
+                :end-placeholder="$t('dashboard.endDate')"
                 format="DD/MM/YYYY"
                 value-format="YYYY-MM-DD"
                 @change="handleDateChange"
@@ -70,7 +70,7 @@
             </el-form-item>
 
             <el-form-item>
-              <el-button :icon="Refresh" @click="handleReset"> Limpar </el-button>
+              <el-button :icon="Refresh" @click="handleReset"> {{ $t('common.clear') }} </el-button>
             </el-form-item>
           </el-form>
         </el-card>
@@ -91,7 +91,7 @@
     <!-- Dialog de criação -->
     <el-dialog
       v-model="showCreateDialog"
-      title="Novo Pedido de Viagem"
+      :title="$t('travelRequest.title')"
       width="600"
       :close-on-click-modal="false"
     >
@@ -106,9 +106,12 @@ import { useTravelRequestStore } from '@/stores/travelRequest'
 import { useThemeStore } from '@/stores/theme'
 import { useDestinationsStore } from '@/stores/destinations'
 import { useTextUtils } from '@/composables/useTextUtils'
+import { useI18n } from 'vue-i18n'
 import TravelRequestTable from '@/components/TravelRequestTable.vue'
 import TravelRequestForm from '@/components/TravelRequestForm.vue'
 import { Plus, Refresh, LocationFilled } from '@element-plus/icons-vue'
+
+const { t } = useI18n()
 
 const travelRequestStore = useTravelRequestStore()
 const themeStore = useThemeStore()
@@ -137,7 +140,7 @@ const loadDestinations = async () => {
   try {
     await destinationsStore.getDestinations()
   } catch (error) {
-    console.error('Erro ao carregar destinos:', error)
+    console.error(t('travelRequest.loadDestinationsError'), error)
   }
 }
 

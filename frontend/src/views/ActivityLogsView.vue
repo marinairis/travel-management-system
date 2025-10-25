@@ -3,32 +3,32 @@
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
-          <h1 class="page-title">Logs de Atividades</h1>
+          <h1 class="page-title">{{ $t('activityLogs.title') }}</h1>
         </div>
 
         <!-- Filtros -->
         <el-card class="filter-card" shadow="never">
           <el-form :inline="true" :model="filters">
-            <el-form-item label="Ação">
+            <el-form-item :label="$t('activityLogs.action')">
               <el-select
                 v-model="filters.action"
-                placeholder="Todas"
+                :placeholder="$t('common.all')"
                 clearable
                 style="width: 150px"
                 @change="handleFilter"
               >
-                <el-option label="Criar" value="create" />
-                <el-option label="Atualizar" value="update" />
-                <el-option label="Deletar" value="delete" />
-                <el-option label="Alterar Status" value="status_change" />
-                <el-option label="Cancelar" value="cancel" />
+                <el-option :label="$t('activityLogs.create')" value="create" />
+                <el-option :label="$t('activityLogs.update')" value="update" />
+                <el-option :label="$t('activityLogs.delete')" value="delete" />
+                <el-option :label="$t('activityLogs.statusChange')" value="status_change" />
+                <el-option :label="$t('activityLogs.cancel')" value="cancel" />
               </el-select>
             </el-form-item>
 
-            <el-form-item label="Usuário">
+            <el-form-item :label="$t('activityLogs.user')">
               <el-select
                 v-model="filters.user_id"
-                placeholder="Todos"
+                :placeholder="$t('common.all')"
                 clearable
                 filterable
                 style="width: 200px"
@@ -43,21 +43,24 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="Tipo">
+            <el-form-item :label="$t('activityLogs.type')">
               <el-select
                 v-model="filters.model_type"
-                placeholder="Todos"
+                :placeholder="$t('common.all')"
                 clearable
                 style="width: 200px"
                 @change="handleFilter"
               >
-                <el-option label="Pedido de Viagem" value="App\Models\TravelRequest" />
-                <el-option label="Usuário" value="App\Models\User" />
+                <el-option
+                  :label="$t('activityLogs.travelRequest')"
+                  value="App\Models\TravelRequest"
+                />
+                <el-option :label="$t('activityLogs.userModel')" value="App\Models\User" />
               </el-select>
             </el-form-item>
 
             <el-form-item>
-              <el-button :icon="Refresh" @click="handleReset"> Limpar </el-button>
+              <el-button :icon="Refresh" @click="handleReset"> {{ $t('common.clear') }} </el-button>
             </el-form-item>
           </el-form>
         </el-card>
@@ -69,16 +72,16 @@
             v-loading="activityLogStore.loading"
             style="width: 100%"
           >
-            <el-table-column prop="id" label="ID" width="80" />
+            <el-table-column prop="id" :label="$t('users.id')" width="80" />
 
             <el-table-column
               prop="user.name"
-              label="Usuário"
+              :label="$t('activityLogs.user')"
               min-width="200"
               show-overflow-tooltip
             />
 
-            <el-table-column prop="action" label="Ação" width="140">
+            <el-table-column prop="action" :label="$t('activityLogs.action')" width="140">
               <template #default="scope">
                 <el-tag
                   :type="getActionType(scope.row.action)"
@@ -91,26 +94,36 @@
 
             <el-table-column
               prop="description"
-              label="Descrição"
+              :label="$t('activityLogs.description')"
               min-width="250"
               show-overflow-tooltip
             />
 
-            <el-table-column prop="model_type" label="Tipo" min-width="200" show-overflow-tooltip>
+            <el-table-column
+              prop="model_type"
+              :label="$t('activityLogs.type')"
+              min-width="200"
+              show-overflow-tooltip
+            >
               <template #default="scope">
                 {{ translateModelType(scope.row.model_type) }}
               </template>
             </el-table-column>
 
-            <el-table-column prop="ip_address" label="IP" width="130" show-overflow-tooltip />
+            <el-table-column
+              prop="ip_address"
+              :label="$t('activityLogs.ip')"
+              width="130"
+              show-overflow-tooltip
+            />
 
-            <el-table-column prop="created_at" label="Data/Hora" width="180">
+            <el-table-column prop="created_at" :label="$t('activityLogs.dateTime')" width="180">
               <template #default="scope">
                 {{ formatDateTime(scope.row.created_at) }}
               </template>
             </el-table-column>
 
-            <el-table-column label="Detalhes" width="100" fixed="right">
+            <el-table-column :label="$t('activityLogs.details')" width="100" fixed="right">
               <template #default="scope">
                 <el-button
                   type="primary"
@@ -138,15 +151,15 @@
     </el-container>
 
     <!-- Dialog de detalhes -->
-    <el-dialog v-model="showViewDialog" title="Detalhes do Log" width="700">
+    <el-dialog v-model="showViewDialog" :title="$t('activityLogs.logDetails')" width="700">
       <el-descriptions v-if="selectedLog" :column="1" border>
-        <el-descriptions-item label="ID">
+        <el-descriptions-item :label="$t('users.id')">
           {{ selectedLog.id }}
         </el-descriptions-item>
-        <el-descriptions-item label="Usuário">
-          {{ selectedLog.user?.name || 'Sistema' }}
+        <el-descriptions-item :label="$t('activityLogs.user')">
+          {{ selectedLog.user?.name || $t('activityLogs.system') }}
         </el-descriptions-item>
-        <el-descriptions-item label="Ação">
+        <el-descriptions-item :label="$t('activityLogs.action')">
           <el-tag
             :type="getActionType(selectedLog.action)"
             :class="`action-tag action-${selectedLog.action}`"
@@ -154,33 +167,33 @@
             {{ translateAction(selectedLog.action) }}
           </el-tag>
         </el-descriptions-item>
-        <el-descriptions-item label="Descrição">
+        <el-descriptions-item :label="$t('activityLogs.description')">
           {{ selectedLog.description }}
         </el-descriptions-item>
-        <el-descriptions-item label="Tipo">
+        <el-descriptions-item :label="$t('activityLogs.type')">
           {{ translateModelType(selectedLog.model_type) }}
         </el-descriptions-item>
-        <el-descriptions-item label="ID do Registro">
+        <el-descriptions-item :label="$t('activityLogs.userId')">
           {{ selectedLog.model_id || '-' }}
         </el-descriptions-item>
-        <el-descriptions-item label="IP">
+        <el-descriptions-item :label="$t('activityLogs.ip')">
           {{ selectedLog.ip_address }}
         </el-descriptions-item>
-        <el-descriptions-item label="User Agent">
+        <el-descriptions-item :label="$t('activityLogs.userAgent')">
           {{ selectedLog.user_agent }}
         </el-descriptions-item>
-        <el-descriptions-item label="Data/Hora">
+        <el-descriptions-item :label="$t('activityLogs.dateTime')">
           {{ formatDateTime(selectedLog.created_at) }}
         </el-descriptions-item>
       </el-descriptions>
 
       <div v-if="selectedLog?.old_values" style="margin-top: 20px">
-        <h4>Valores Antigos:</h4>
+        <h4>{{ $t('activityLogs.oldValues') }}:</h4>
         <pre>{{ JSON.stringify(selectedLog.old_values, null, 2) }}</pre>
       </div>
 
       <div v-if="selectedLog?.new_values" style="margin-top: 20px">
-        <h4>Valores Novos:</h4>
+        <h4>{{ $t('activityLogs.newValues') }}:</h4>
         <pre>{{ JSON.stringify(selectedLog.new_values, null, 2) }}</pre>
       </div>
     </el-dialog>

@@ -1,12 +1,15 @@
 <template>
   <div class="auth-container">
+    <div class="language-selector-container">
+      <LanguageSelector />
+    </div>
     <el-card class="auth-card">
       <template #header>
         <div class="auth-card-header">
           <el-icon :size="32" color="#409EFF">
             <MapLocation />
           </el-icon>
-          <h2>Criar Conta</h2>
+          <h2>{{ $t('auth.register') }}</h2>
         </div>
       </template>
 
@@ -17,29 +20,37 @@
         label-position="top"
         @submit.prevent="handleRegister"
       >
-        <el-form-item label="Nome" prop="name">
-          <el-input v-model="formData.name" placeholder="Seu nome completo" :prefix-icon="User" />
+        <el-form-item :label="$t('users.name')" prop="name">
+          <el-input
+            v-model="formData.name"
+            :placeholder="$t('auth.namePlaceholder')"
+            :prefix-icon="User"
+          />
         </el-form-item>
 
-        <el-form-item label="Email" prop="email">
-          <el-input v-model="formData.email" placeholder="seu@email.com" :prefix-icon="Message" />
+        <el-form-item :label="$t('auth.email')" prop="email">
+          <el-input
+            v-model="formData.email"
+            :placeholder="$t('auth.emailPlaceholder')"
+            :prefix-icon="Message"
+          />
         </el-form-item>
 
-        <el-form-item label="Senha" prop="password">
+        <el-form-item :label="$t('auth.password')" prop="password">
           <el-input
             v-model="formData.password"
             type="password"
-            placeholder="Mínimo 6 caracteres"
+            :placeholder="$t('auth.passwordPlaceholder')"
             :prefix-icon="Lock"
             show-password
           />
         </el-form-item>
 
-        <el-form-item label="Confirmar Senha" prop="password_confirmation">
+        <el-form-item :label="$t('auth.confirmPassword')" prop="password_confirmation">
           <el-input
             v-model="formData.password_confirmation"
             type="password"
-            placeholder="Digite a senha novamente"
+            :placeholder="$t('auth.confirmPasswordPlaceholder')"
             :prefix-icon="Lock"
             show-password
           />
@@ -47,12 +58,12 @@
 
         <el-form-item>
           <el-button type="primary" class="auth-button" :loading="loading" @click="handleRegister">
-            Criar Conta
+            {{ $t('auth.register') }}
           </el-button>
         </el-form-item>
 
         <div class="auth-form-links center">
-          <router-link to="/login">Já tem uma conta? Faça login</router-link>
+          <router-link to="/login">{{ $t('auth.alreadyHaveAccount') }}</router-link>
         </div>
       </el-form>
     </el-card>
@@ -62,7 +73,11 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useI18n } from 'vue-i18n'
+import LanguageSelector from '@/components/LanguageSelector.vue'
 import { MapLocation, Message, Lock, User } from '@element-plus/icons-vue'
+
+const { t } = useI18n()
 
 const authStore = useAuthStore()
 
@@ -78,24 +93,24 @@ const formData = reactive({
 
 const validatePasswordMatch = (rule, value, callback) => {
   if (value !== formData.password) {
-    callback(new Error('As senhas não coincidem'))
+    callback(new Error(t('auth.passwordsDoNotMatch')))
   } else {
     callback()
   }
 }
 
 const rules = {
-  name: [{ required: true, message: 'Nome é obrigatório', trigger: 'blur' }],
+  name: [{ required: true, message: t('users.nameRequired'), trigger: 'blur' }],
   email: [
-    { required: true, message: 'Email é obrigatório', trigger: 'blur' },
-    { type: 'email', message: 'Email inválido', trigger: 'blur' },
+    { required: true, message: t('auth.emailRequired'), trigger: 'blur' },
+    { type: 'email', message: t('auth.emailInvalid'), trigger: 'blur' },
   ],
   password: [
-    { required: true, message: 'Senha é obrigatória', trigger: 'blur' },
-    { min: 6, message: 'A senha deve ter no mínimo 6 caracteres', trigger: 'blur' },
+    { required: true, message: t('auth.passwordRequired'), trigger: 'blur' },
+    { min: 6, message: t('auth.passwordMinLength'), trigger: 'blur' },
   ],
   password_confirmation: [
-    { required: true, message: 'Confirmação de senha é obrigatória', trigger: 'blur' },
+    { required: true, message: t('auth.confirmPasswordRequired'), trigger: 'blur' },
     { validator: validatePasswordMatch, trigger: 'blur' },
   ],
 }
@@ -109,7 +124,7 @@ const handleRegister = async () => {
       try {
         await authStore.register(formData)
       } catch (error) {
-        console.error('Erro no registro:', error)
+        console.error(t('auth.registerError'), error)
       } finally {
         loading.value = false
       }
@@ -118,4 +133,11 @@ const handleRegister = async () => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.language-selector-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+</style>

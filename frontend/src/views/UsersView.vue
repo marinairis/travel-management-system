@@ -3,29 +3,29 @@
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
-          <h1 class="page-title">Gestão de Usuários</h1>
+          <h1 class="page-title">{{ $t('users.title') }}</h1>
         </div>
 
         <!-- Filtros -->
         <el-card class="filters-card">
           <el-form :model="filters" inline>
-            <el-form-item label="Tipo de Usuário">
+            <el-form-item :label="$t('users.userType')">
               <el-select
                 v-model="filters.userType"
-                placeholder="Todos"
+                :placeholder="$t('common.all')"
                 clearable
                 style="width: 150px"
                 @change="applyFilters"
               >
-                <el-option label="Admin" value="admin" />
-                <el-option label="Básico" value="basic" />
+                <el-option :label="$t('users.admin')" value="admin" />
+                <el-option :label="$t('users.basic')" value="basic" />
               </el-select>
             </el-form-item>
 
-            <el-form-item label="Email">
+            <el-form-item :label="$t('users.email')">
               <el-input
                 v-model="filters.email"
-                placeholder="Digite o email"
+                :placeholder="$t('users.emailPlaceholder')"
                 clearable
                 style="width: 250px"
                 @input="onEmailInput"
@@ -33,36 +33,42 @@
             </el-form-item>
 
             <el-form-item>
-              <el-button :icon="Refresh" @click="clearFilters"> Limpar </el-button>
+              <el-button :icon="Refresh" @click="clearFilters">
+                {{ $t('common.clear') }}
+              </el-button>
             </el-form-item>
           </el-form>
         </el-card>
 
         <el-card class="table-card">
           <el-table :data="userStore.users" v-loading="userStore.loading" style="width: 100%">
-            <el-table-column prop="id" label="ID" width="80" />
+            <el-table-column prop="id" :label="$t('users.id')" width="80" />
 
-            <el-table-column prop="name" label="Nome" min-width="200" />
+            <el-table-column prop="name" :label="$t('users.name')" min-width="200" />
 
-            <el-table-column prop="email" label="Email" min-width="200" />
+            <el-table-column prop="email" :label="$t('users.email')" min-width="200" />
 
-            <el-table-column prop="is_admin" label="Tipo" width="120">
+            <el-table-column prop="is_admin" :label="$t('users.type')" width="120">
               <template #default="scope">
                 <el-tag :type="scope.row.is_admin ? 'success' : 'info'">
-                  {{ scope.row.is_admin ? 'Admin' : 'Básico' }}
+                  {{ scope.row.is_admin ? $t('users.admin') : $t('users.basic') }}
                 </el-tag>
               </template>
             </el-table-column>
 
-            <el-table-column prop="travel_requests_count" label="Pedidos" width="100" />
+            <el-table-column
+              prop="travel_requests_count"
+              :label="$t('users.requests')"
+              width="100"
+            />
 
-            <el-table-column prop="created_at" label="Cadastrado em" width="180">
+            <el-table-column prop="created_at" :label="$t('users.registeredAt')" width="180">
               <template #default="scope">
                 {{ formatDateTime(scope.row.created_at) }}
               </template>
             </el-table-column>
 
-            <el-table-column label="Ações" width="120" fixed="right">
+            <el-table-column :label="$t('users.actions')" width="120" fixed="right">
               <template #default="scope">
                 <el-button
                   type="primary"
@@ -87,32 +93,41 @@
     </el-container>
 
     <!-- Dialog de edição -->
-    <el-dialog v-model="showEditDialog" title="Editar Usuário" width="500">
+    <el-dialog v-model="showEditDialog" :title="$t('users.editUser')" width="500">
       <el-form ref="formRef" :model="editForm" :rules="rules" label-position="top">
-        <el-form-item label="Nome" prop="name">
+        <el-form-item :label="$t('users.name')" prop="name">
           <el-input v-model="editForm.name" />
         </el-form-item>
 
-        <el-form-item label="Tipo de Usuário" prop="is_admin">
+        <el-form-item :label="$t('users.userType')" prop="is_admin">
           <el-radio-group v-model="editForm.is_admin">
-            <el-radio :label="false">Básico</el-radio>
-            <el-radio :label="true">Admin</el-radio>
+            <el-radio :label="false">{{ $t('users.basic') }}</el-radio>
+            <el-radio :label="true">{{ $t('users.admin') }}</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
 
       <template #footer>
-        <el-button @click="showEditDialog = false">Cancelar</el-button>
-        <el-button type="primary" @click="handleUpdate" :loading="updating"> Salvar </el-button>
+        <el-button @click="showEditDialog = false">{{ $t('common.cancel') }}</el-button>
+        <el-button type="primary" @click="handleUpdate" :loading="updating">
+          {{ $t('common.save') }}
+        </el-button>
       </template>
     </el-dialog>
 
     <!-- Dialog de confirmação de exclusão -->
-    <el-dialog v-model="showDeleteDialog" title="Confirmar Exclusão" width="400" align-center>
-      <p>Tem certeza que deseja excluir este usuário?</p>
+    <el-dialog
+      v-model="showDeleteDialog"
+      :title="$t('users.confirmDelete')"
+      width="400"
+      align-center
+    >
+      <p>{{ $t('users.deleteUserConfirm') }}</p>
       <template #footer>
-        <el-button @click="showDeleteDialog = false">Cancelar</el-button>
-        <el-button type="danger" @click="confirmDelete" :loading="deleting"> Excluir </el-button>
+        <el-button @click="showDeleteDialog = false">{{ $t('common.cancel') }}</el-button>
+        <el-button type="danger" @click="confirmDelete" :loading="deleting">
+          {{ $t('common.delete') }}
+        </el-button>
       </template>
     </el-dialog>
   </div>
@@ -123,7 +138,10 @@ import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { Edit, Delete, Refresh } from '@element-plus/icons-vue'
+
+const { t } = useI18n()
 
 const userStore = useUserStore()
 const authStore = useAuthStore()
@@ -147,7 +165,7 @@ const editForm = reactive({
 })
 
 const rules = {
-  name: [{ required: true, message: 'Nome é obrigatório', trigger: 'blur' }],
+  name: [{ required: true, message: t('users.nameRequired'), trigger: 'blur' }],
 }
 
 onMounted(() => {

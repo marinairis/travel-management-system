@@ -8,30 +8,45 @@
         :default-sort="{ prop: 'created_at', order: 'descending' }"
         :scroll-x="true"
       >
-        <el-table-column prop="id" label="ID" sortable />
+        <el-table-column prop="id" :label="$t('users.id')" sortable />
 
         <el-table-column
           prop="requester_name"
-          label="Solicitante"
+          :label="$t('travelRequest.requesterName')"
           min-width="200"
           show-overflow-tooltip
         />
 
-        <el-table-column prop="destination" label="Destino" min-width="200" show-overflow-tooltip />
+        <el-table-column
+          prop="destination"
+          :label="$t('travelRequest.destination')"
+          min-width="200"
+          show-overflow-tooltip
+        />
 
-        <el-table-column prop="departure_date" label="Data de Ida" min-width="200" sortable>
+        <el-table-column
+          prop="departure_date"
+          :label="$t('travelRequest.departureDate')"
+          min-width="200"
+          sortable
+        >
           <template #default="scope">
             {{ formatDate(scope.row.departure_date) }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="return_date" label="Data de Volta" min-width="200" sortable>
+        <el-table-column
+          prop="return_date"
+          :label="$t('travelRequest.returnDate')"
+          min-width="200"
+          sortable
+        >
           <template #default="scope">
             {{ formatDate(scope.row.return_date) }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="status" label="Status" width="140" sortable>
+        <el-table-column prop="status" :label="$t('dashboard.status')" width="140" sortable>
           <template #default="scope">
             <el-tag
               :type="getStatusType(scope.row.status)"
@@ -46,7 +61,7 @@
         <el-table-column
           v-if="showApprover"
           prop="approved_by"
-          label="Aprovado Por"
+          :label="$t('travelRequest.approvedBy')"
           min-width="200"
           show-overflow-tooltip
         >
@@ -58,7 +73,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column label="Ações" width="120" fixed="right">
+        <el-table-column :label="$t('users.actions')" width="120" fixed="right">
           <template #default="scope">
             <el-button
               v-if="showDelete && canDelete(scope.row)"
@@ -79,63 +94,86 @@
         </el-table-column>
       </el-table>
 
-      <el-dialog v-model="deleteDialogVisible" title="Confirmar Exclusão" width="400" align-center>
-        <p>Tem certeza que deseja excluir este pedido de viagem?</p>
+      <el-dialog
+        v-model="deleteDialogVisible"
+        :title="$t('travelRequest.confirmDelete')"
+        width="400"
+        align-center
+      >
+        <p>{{ $t('travelRequest.deleteConfirmMessage') }}</p>
         <template #footer>
-          <el-button @click="deleteDialogVisible = false">Cancelar</el-button>
-          <el-button type="danger" @click="confirmDelete" :loading="deleting"> Excluir </el-button>
-        </template>
-      </el-dialog>
-
-      <el-dialog v-model="statusDialogVisible" title="Alterar Status" width="400" align-center>
-        <el-form>
-          <el-form-item label="Novo Status">
-            <el-select v-model="newStatus" placeholder="Selecione o status" style="width: 100%">
-              <el-option label="Aprovado" value="approved" />
-              <el-option label="Cancelado" value="cancelled" />
-            </el-select>
-          </el-form-item>
-        </el-form>
-        <template #footer>
-          <el-button @click="statusDialogVisible = false">Cancelar</el-button>
-          <el-button type="primary" @click="confirmStatusChange" :loading="changingStatus">
-            Confirmar
+          <el-button @click="deleteDialogVisible = false">{{ $t('common.cancel') }}</el-button>
+          <el-button type="danger" @click="confirmDelete" :loading="deleting">
+            {{ $t('common.delete') }}
           </el-button>
         </template>
       </el-dialog>
 
-      <el-dialog v-model="viewDialogVisible" title="Detalhes do Pedido" width="600">
+      <el-dialog
+        v-model="statusDialogVisible"
+        :title="$t('travelRequest.changeStatus')"
+        width="400"
+        align-center
+      >
+        <el-form>
+          <el-form-item :label="$t('travelRequest.newStatus')">
+            <el-select
+              v-model="newStatus"
+              :placeholder="$t('travelRequest.selectStatus')"
+              style="width: 100%"
+            >
+              <el-option :label="$t('status.approved')" value="approved" />
+              <el-option :label="$t('status.cancelled')" value="cancelled" />
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <el-button @click="statusDialogVisible = false">{{ $t('common.cancel') }}</el-button>
+          <el-button type="primary" @click="confirmStatusChange" :loading="changingStatus">
+            {{ $t('common.confirm') }}
+          </el-button>
+        </template>
+      </el-dialog>
+
+      <el-dialog
+        v-model="viewDialogVisible"
+        :title="$t('travelRequest.requestDetails')"
+        width="600"
+      >
         <el-descriptions v-if="selectedRequest" :column="1" border>
-          <el-descriptions-item label="ID">
+          <el-descriptions-item :label="$t('users.id')">
             {{ selectedRequest.id }}
           </el-descriptions-item>
-          <el-descriptions-item label="Solicitante">
+          <el-descriptions-item :label="$t('travelRequest.requesterName')">
             {{ selectedRequest.requester_name }}
           </el-descriptions-item>
-          <el-descriptions-item label="Usuário">
+          <el-descriptions-item :label="$t('users.user')">
             {{ selectedRequest.user?.name }}
           </el-descriptions-item>
-          <el-descriptions-item label="Destino">
+          <el-descriptions-item :label="$t('travelRequest.destination')">
             {{ selectedRequest.destination }}
           </el-descriptions-item>
-          <el-descriptions-item label="Data de Ida">
+          <el-descriptions-item :label="$t('travelRequest.departureDate')">
             {{ formatDate(selectedRequest.departure_date) }}
           </el-descriptions-item>
-          <el-descriptions-item label="Data de Volta">
+          <el-descriptions-item :label="$t('travelRequest.returnDate')">
             {{ formatDate(selectedRequest.return_date) }}
           </el-descriptions-item>
-          <el-descriptions-item label="Status">
+          <el-descriptions-item :label="$t('dashboard.status')">
             <el-tag :type="getStatusType(selectedRequest.status)">
               {{ translateStatus(selectedRequest.status) }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item v-if="selectedRequest.approved_by" label="Aprovado Por">
+          <el-descriptions-item
+            v-if="selectedRequest.approved_by"
+            :label="$t('travelRequest.approvedBy')"
+          >
             {{ selectedRequest.approved_by?.name }}
           </el-descriptions-item>
-          <el-descriptions-item v-if="selectedRequest.notes" label="Observações">
+          <el-descriptions-item v-if="selectedRequest.notes" :label="$t('travelRequest.notes')">
             {{ selectedRequest.notes }}
           </el-descriptions-item>
-          <el-descriptions-item label="Criado em">
+          <el-descriptions-item :label="$t('travelRequest.createdAt')">
             {{ formatDateTime(selectedRequest.created_at) }}
           </el-descriptions-item>
         </el-descriptions>
@@ -148,7 +186,9 @@
 import { ref, computed } from 'vue'
 import { Delete, View } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
-import { ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   data: {
@@ -196,9 +236,9 @@ const getStatusType = (status) => {
 
 const translateStatus = (status) => {
   const translations = {
-    requested: 'Solicitado',
-    approved: 'Aprovado',
-    cancelled: 'Cancelado',
+    requested: t('status.requested'),
+    approved: t('status.approved'),
+    cancelled: t('status.cancelled'),
   }
   return translations[status] || status
 }
