@@ -83,6 +83,7 @@
               size="small"
               @click="handleDelete(scope.row)"
             />
+
             <el-button
               type="primary"
               :icon="View"
@@ -101,8 +102,10 @@
         align-center
       >
         <p>{{ $t('travelRequest.deleteConfirmMessage') }}</p>
+
         <template #footer>
           <el-button @click="deleteDialogVisible = false">{{ $t('common.cancel') }}</el-button>
+
           <el-button type="danger" @click="confirmDelete" :loading="deleting">
             {{ $t('common.delete') }}
           </el-button>
@@ -123,12 +126,15 @@
               style="width: 100%"
             >
               <el-option :label="$t('status.approved')" value="approved" />
+
               <el-option :label="$t('status.cancelled')" value="cancelled" />
             </el-select>
           </el-form-item>
         </el-form>
+
         <template #footer>
           <el-button @click="statusDialogVisible = false">{{ $t('common.cancel') }}</el-button>
+
           <el-button type="primary" @click="confirmStatusChange" :loading="changingStatus">
             {{ $t('common.confirm') }}
           </el-button>
@@ -144,35 +150,43 @@
           <el-descriptions-item :label="$t('users.id')">
             {{ selectedRequest.id }}
           </el-descriptions-item>
+
           <el-descriptions-item :label="$t('travelRequest.requesterName')">
             {{ selectedRequest.requester_name }}
           </el-descriptions-item>
+
           <el-descriptions-item :label="$t('users.user')">
             {{ selectedRequest.user?.name }}
           </el-descriptions-item>
+
           <el-descriptions-item :label="$t('travelRequest.destination')">
             {{ selectedRequest.destination }}
           </el-descriptions-item>
+
           <el-descriptions-item :label="$t('travelRequest.departureDate')">
             {{ formatDate(selectedRequest.departure_date) }}
           </el-descriptions-item>
           <el-descriptions-item :label="$t('travelRequest.returnDate')">
             {{ formatDate(selectedRequest.return_date) }}
           </el-descriptions-item>
+
           <el-descriptions-item :label="$t('dashboard.status')">
             <el-tag :type="getStatusType(selectedRequest.status)">
               {{ translateStatus(selectedRequest.status) }}
             </el-tag>
           </el-descriptions-item>
+
           <el-descriptions-item
             v-if="selectedRequest.approved_by"
             :label="$t('travelRequest.approvedBy')"
           >
             {{ selectedRequest.approved_by?.name }}
           </el-descriptions-item>
+
           <el-descriptions-item v-if="selectedRequest.notes" :label="$t('travelRequest.notes')">
             {{ selectedRequest.notes }}
           </el-descriptions-item>
+
           <el-descriptions-item :label="$t('travelRequest.createdAt')">
             {{ formatDateTime(selectedRequest.created_at) }}
           </el-descriptions-item>

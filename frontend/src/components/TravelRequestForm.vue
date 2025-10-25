@@ -47,6 +47,7 @@
           />
         </el-form-item>
       </el-col>
+
       <el-col :xs="24" :sm="12">
         <el-form-item :label="$t('travelRequest.returnDate')" prop="return_date">
           <el-date-picker
@@ -75,6 +76,7 @@
       <el-button type="primary" @click="handleSubmit" :loading="loading">
         {{ isEdit ? $t('travelRequest.updateRequest') : $t('travelRequest.createRequest') }}
       </el-button>
+
       <el-button @click="handleCancel">{{ $t('common.cancel') }}</el-button>
     </el-form-item>
   </el-form>

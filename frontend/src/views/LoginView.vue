@@ -1,7 +1,6 @@
 <template>
   <div class="auth-container">
     <div class="language-selector-container">
-      <LanguageSelector />
     </div>
     <el-card class="auth-card">
       <template #header>
@@ -57,7 +56,6 @@
 import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
-import LanguageSelector from '@/components/LanguageSelector.vue'
 import { MapLocation, Message, Lock } from '@element-plus/icons-vue'
 
 const { t } = useI18n()

@@ -24,11 +24,9 @@ app.use(pinia)
 app.use(router)
 app.use(i18n)
 
-// Inicializar o locale store
 const localeStore = useLocaleStore()
 localeStore.initLocale()
 
-// Configurar Element Plus com locale reativo
 app.use(ElementPlus, {
   locale: localeStore.currentElementPlusLocale,
 })

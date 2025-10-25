@@ -3,13 +3,15 @@
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
-          <h1 class="page-title">{{ $t('dashboard.title') }}</h1>
+          <h1 class="page-title" :class="{ 'dark-theme': themeStore.isDark }">
+            {{ $t('dashboard.title') }}
+          </h1>
+
           <el-button type="primary" :icon="Plus" @click="showCreateDialog = true">
             {{ $t('dashboard.newRequest') }}
           </el-button>
         </div>
 
-        <!-- Filtros -->
         <el-card class="filter-card" shadow="never">
           <el-form :inline="true" :model="filters">
             <el-form-item :label="$t('dashboard.status')">
@@ -75,7 +77,6 @@
           </el-form>
         </el-card>
 
-        <!-- Tabela -->
         <el-card class="table-card">
           <TravelRequestTable
             :data="travelRequestStore.travelRequests"
@@ -88,7 +89,6 @@
       </el-main>
     </el-container>
 
-    <!-- Dialog de criação -->
     <el-dialog
       v-model="showCreateDialog"
       :title="$t('travelRequest.title')"
@@ -188,4 +188,16 @@ const handleView = (data) => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--el-text-color-primary);
+  transition: color 0.3s ease;
+}
+
+.page-title.dark-theme {
+  color: #ffffff;
+}
+</style>

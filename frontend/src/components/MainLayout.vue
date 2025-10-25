@@ -3,14 +3,12 @@
     <TheHeader />
 
     <div class="layout-content">
-      <!-- Overlay para mobile -->
       <div
         v-if="isMobile && sidebarOpen && authStore.isAdmin"
         class="sidebar-overlay"
         @click="closeSidebar"
       ></div>
 
-      <!-- Sidebar - apenas para admins -->
       <div
         v-if="authStore.isAdmin"
         class="sidebar"
@@ -24,15 +22,19 @@
         <div class="sidebar-content">
           <div class="navigation-section" v-if="authStore.isAdmin">
             <h4 v-show="isExpanded || isMobile">{{ $t('navigation.administration') }}</h4>
+
             <el-menu :default-active="activeMenu" class="admin-menu" @select="handleMenuSelect">
               <el-menu-item index="users">
                 <el-icon><UserFilled /></el-icon>
+
                 <template #title>
                   <span v-show="isExpanded || isMobile">{{ $t('navigation.users') }}</span>
                 </template>
               </el-menu-item>
+
               <el-menu-item index="logs">
                 <el-icon><Document /></el-icon>
+
                 <template #title>
                   <span v-show="isExpanded || isMobile">{{ $t('navigation.activityLogs') }}</span>
                 </template>
@@ -44,9 +46,11 @@
 
           <div class="navigation-section">
             <h4 v-show="isExpanded || isMobile">{{ $t('navigation.navigation') }}</h4>
+
             <el-menu :default-active="activeMenu" class="main-menu" @select="handleMenuSelect">
               <el-menu-item index="dashboard">
                 <el-icon><House /></el-icon>
+
                 <template #title>
                   <span v-show="isExpanded || isMobile">{{ $t('navigation.dashboard') }}</span>
                 </template>
@@ -195,17 +199,14 @@ onUnmounted(() => {
   box-shadow: var(--shadow-lg);
 }
 
-/* Hover effect para desktop */
 .sidebar:hover {
   width: var(--sidebar-expanded-width);
 }
 
-/* Sidebar expandido no desktop */
 .sidebar.sidebar-expanded {
   width: var(--sidebar-expanded-width);
 }
 
-/* Sidebar aberto no mobile */
 .sidebar.sidebar-open {
   transform: translateX(0);
 }
@@ -255,7 +256,6 @@ onUnmounted(() => {
   transition: all var(--transition-normal);
 }
 
-/* Quando o sidebar está fechado, centralizar apenas o ícone */
 .sidebar:not(:hover):not(.sidebar-expanded) .admin-menu .el-menu-item,
 .sidebar:not(:hover):not(.sidebar-expanded) .main-menu .el-menu-item {
   justify-content: center;
@@ -270,7 +270,6 @@ onUnmounted(() => {
   margin: 0;
 }
 
-/* Quando o sidebar está expandido, alinhar à esquerda */
 .sidebar:hover .admin-menu .el-menu-item,
 .sidebar:hover .main-menu .el-menu-item,
 .sidebar.sidebar-expanded .admin-menu .el-menu-item,
@@ -303,7 +302,6 @@ onUnmounted(() => {
   width: 100%;
 }
 
-/* Scrollbar personalizada */
 .sidebar-content::-webkit-scrollbar {
   width: 4px;
 }
@@ -321,7 +319,6 @@ onUnmounted(() => {
   background: var(--el-border-color-dark);
 }
 
-/* Responsividade - Mobile */
 @media (max-width: 768px) {
   .sidebar {
     width: 280px;
@@ -339,7 +336,6 @@ onUnmounted(() => {
   }
 }
 
-/* Responsividade - Tablet */
 @media (min-width: 769px) and (max-width: 1024px) {
   .sidebar {
     width: var(--sidebar-width);
@@ -350,7 +346,6 @@ onUnmounted(() => {
   }
 }
 
-/* Responsividade - Desktop */
 @media (min-width: 1025px) {
   .sidebar {
     width: var(--sidebar-width);

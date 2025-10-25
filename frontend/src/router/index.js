@@ -57,7 +57,6 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
-  // Verificar se a rota existe (não é a rota catch-all)
   if (to.name === 'not-found') {
     next('/dashboard')
     return

@@ -3,10 +3,11 @@
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
-          <h1 class="page-title">{{ $t('users.title') }}</h1>
+          <h1 class="page-title" :class="{ 'dark-theme': themeStore.isDark }">
+            {{ $t('users.title') }}
+          </h1>
         </div>
 
-        <!-- Filtros -->
         <el-card class="filters-card">
           <el-form :model="filters" inline>
             <el-form-item :label="$t('users.userType')">
@@ -92,7 +93,6 @@
       </el-main>
     </el-container>
 
-    <!-- Dialog de edição -->
     <el-dialog v-model="showEditDialog" :title="$t('users.editUser')" width="500">
       <el-form ref="formRef" :model="editForm" :rules="rules" label-position="top">
         <el-form-item :label="$t('users.name')" prop="name">
@@ -115,7 +115,6 @@
       </template>
     </el-dialog>
 
-    <!-- Dialog de confirmação de exclusão -->
     <el-dialog
       v-model="showDeleteDialog"
       :title="$t('users.confirmDelete')"
@@ -137,6 +136,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useAuthStore } from '@/stores/auth'
+import { useThemeStore } from '@/stores/theme'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { Edit, Delete, Refresh } from '@element-plus/icons-vue'
@@ -145,6 +145,7 @@ const { t } = useI18n()
 
 const userStore = useUserStore()
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 const router = useRouter()
 
 const showEditDialog = ref(false)
@@ -241,4 +242,16 @@ const confirmDelete = async () => {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--el-text-color-primary);
+  transition: color 0.3s ease;
+}
+
+.page-title.dark-theme {
+  color: #ffffff;
+}
+</style>

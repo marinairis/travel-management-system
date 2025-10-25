@@ -9,7 +9,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Rotas de reset de senha (necessárias para o Laravel Password)
 Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])
     ->name('password.reset');
 

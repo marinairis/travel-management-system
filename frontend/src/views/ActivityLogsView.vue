@@ -3,10 +3,11 @@
     <el-container>
       <el-main class="main-content">
         <div class="page-header">
-          <h1 class="page-title">{{ $t('activityLogs.title') }}</h1>
+          <h1 class="page-title" :class="{ 'dark-theme': themeStore.isDark }">
+            {{ $t('activityLogs.title') }}
+          </h1>
         </div>
 
-        <!-- Filtros -->
         <el-card class="filter-card" shadow="never">
           <el-form :inline="true" :model="filters">
             <el-form-item :label="$t('activityLogs.action')">
@@ -65,7 +66,6 @@
           </el-form>
         </el-card>
 
-        <!-- Tabela -->
         <el-card class="table-card">
           <el-table
             :data="activityLogStore.logs"
@@ -136,7 +136,6 @@
             </el-table-column>
           </el-table>
 
-          <!-- Paginação -->
           <div class="pagination-container">
             <el-pagination
               v-model:current-page="currentPage"
@@ -150,15 +149,16 @@
       </el-main>
     </el-container>
 
-    <!-- Dialog de detalhes -->
     <el-dialog v-model="showViewDialog" :title="$t('activityLogs.logDetails')" width="700">
       <el-descriptions v-if="selectedLog" :column="1" border>
         <el-descriptions-item :label="$t('users.id')">
           {{ selectedLog.id }}
         </el-descriptions-item>
+
         <el-descriptions-item :label="$t('activityLogs.user')">
           {{ selectedLog.user?.name || $t('activityLogs.system') }}
         </el-descriptions-item>
+
         <el-descriptions-item :label="$t('activityLogs.action')">
           <el-tag
             :type="getActionType(selectedLog.action)"
@@ -167,21 +167,27 @@
             {{ translateAction(selectedLog.action) }}
           </el-tag>
         </el-descriptions-item>
+
         <el-descriptions-item :label="$t('activityLogs.description')">
           {{ selectedLog.description }}
         </el-descriptions-item>
+
         <el-descriptions-item :label="$t('activityLogs.type')">
           {{ translateModelType(selectedLog.model_type) }}
         </el-descriptions-item>
+
         <el-descriptions-item :label="$t('activityLogs.userId')">
           {{ selectedLog.model_id || '-' }}
         </el-descriptions-item>
+
         <el-descriptions-item :label="$t('activityLogs.ip')">
           {{ selectedLog.ip_address }}
         </el-descriptions-item>
+
         <el-descriptions-item :label="$t('activityLogs.userAgent')">
           {{ selectedLog.user_agent }}
         </el-descriptions-item>
+
         <el-descriptions-item :label="$t('activityLogs.dateTime')">
           {{ formatDateTime(selectedLog.created_at) }}
         </el-descriptions-item>
@@ -203,9 +209,11 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useActivityLogStore } from '@/stores/activityLog'
+import { useThemeStore } from '@/stores/theme'
 import { View, Refresh } from '@element-plus/icons-vue'
 
 const activityLogStore = useActivityLogStore()
+const themeStore = useThemeStore()
 
 const showViewDialog = ref(false)
 const selectedLog = ref(null)
@@ -300,19 +308,6 @@ const formatDateTime = (date) => {
 </script>
 
 <style scoped>
-/* Classes de layout já estão definidas em layout.css:
-   - page-container
-   - main-content
-   - page-header
-   - page-title
-   - filter-card
-   - table-card
-   - pagination-container
-*/
-
-/* pre tag já está em utilities.css */
-
-/* Estilos personalizados para as ações */
 .action-tag {
   font-weight: 600;
   border-radius: 6px;
@@ -320,7 +315,6 @@ const formatDateTime = (date) => {
   padding: 4px 8px;
 }
 
-/* Cores específicas para cada ação */
 .action-create {
   background-color: #f0fdf4 !important;
   color: #166534 !important;
@@ -393,5 +387,15 @@ const formatDateTime = (date) => {
   border-color: #eab308 !important;
 }
 
-/* Media queries já estão em layout.css */
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--el-text-color-primary);
+  transition: color 0.3s ease;
+}
+
+.page-title.dark-theme {
+  color: #ffffff;
+}
 </style>
