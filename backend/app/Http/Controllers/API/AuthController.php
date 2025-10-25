@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AuthFormRequest;
 use App\Models\User;
 use App\Traits\HasActivityLogging;
+use App\Traits\HasTranslations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -15,7 +16,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-    use HasActivityLogging;
+    use HasActivityLogging, HasTranslations;
 
     public function register(AuthFormRequest $request)
     {
@@ -26,18 +27,14 @@ class AuthController extends Controller
             'is_admin' => false,
         ]);
 
-        $this->logActivityCreate($user, $request, 'Usuário registrado');
+        $this->logActivityCreate($user, $request, $this->translate('auth.register_success'));
 
         $token = JWTAuth::fromUser($user);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Usuário registrado com sucesso',
-            'data' => [
-                'user' => $user,
-                'token' => $token,
-                'token_type' => 'bearer'
-            ]
+        return $this->successResponse('auth.register_success', [
+            'user' => $user,
+            'token' => $token,
+            'token_type' => 'bearer'
         ], 201);
     }
 
@@ -49,51 +46,34 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro de validação',
-                'errors' => $validator->errors()
-            ], 422);
+            return $this->validationErrorResponse($validator->errors());
         }
 
         $credentials = $request->only('email', 'password');
 
         if (!$token = JWTAuth::attempt($credentials)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Credenciais inválidas'
-            ], 401);
+            return $this->errorResponse('auth.invalid_credentials', null, 401);
         }
 
         $user = Auth::user();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Login realizado com sucesso',
-            'data' => [
-                'user' => $user,
-                'token' => $token,
-                'token_type' => 'bearer'
-            ]
+        return $this->successResponse('auth.login_success', [
+            'user' => $user,
+            'token' => $token,
+            'token_type' => 'bearer'
         ]);
     }
 
     public function me(Request $request)
     {
-        return response()->json([
-            'success' => true,
-            'data' => $request->user()
-        ]);
+        return $this->successResponse('general.success', $request->user());
     }
 
     public function logout(Request $request)
     {
         JWTAuth::invalidate(JWTAuth::getToken());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logout realizado com sucesso'
-        ]);
+        return $this->successResponse('auth.logout_success');
     }
 
     public function refresh()
@@ -101,19 +81,12 @@ class AuthController extends Controller
         try {
             $token = JWTAuth::refresh(JWTAuth::getToken());
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Token renovado com sucesso',
-                'data' => [
-                    'token' => $token,
-                    'token_type' => 'bearer'
-                ]
+            return $this->successResponse('auth.token_refresh_success', [
+                'token' => $token,
+                'token_type' => 'bearer'
             ]);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Não foi possível renovar o token'
-            ], 401);
+            return $this->errorResponse('auth.token_refresh_error', null, 401);
         }
     }
 
@@ -124,11 +97,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro de validação',
-                'errors' => $validator->errors()
-            ], 422);
+            return $this->validationErrorResponse($validator->errors());
         }
 
         try {
@@ -137,21 +106,12 @@ class AuthController extends Controller
             );
 
             if ($status === Password::RESET_LINK_SENT) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Link de recuperação enviado para o email'
-                ]);
+                return $this->successResponse('auth.forgot_password_success');
             }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao enviar link de recuperação: ' . $status
-            ], 500);
+            return $this->errorResponse('auth.forgot_password_error', null, 500);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro no servidor: ' . $e->getMessage()
-            ], 500);
+            return $this->errorResponse('general.server_error', null, 500);
         }
     }
 
@@ -164,11 +124,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro de validação',
-                'errors' => $validator->errors()
-            ], 422);
+            return $this->validationErrorResponse($validator->errors());
         }
 
         $status = Password::reset(
@@ -181,22 +137,17 @@ class AuthController extends Controller
         );
 
         if ($status === Password::PASSWORD_RESET) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Senha alterada com sucesso'
-            ]);
+            return $this->successResponse('auth.reset_password_success');
         }
 
         $errorMessages = [
-            Password::INVALID_TOKEN => 'Token de recuperação inválido ou expirado',
-            Password::INVALID_USER => 'Não encontramos um usuário com este email',
-            Password::RESET_THROTTLED => 'Por favor, aguarde antes de tentar novamente',
+            Password::INVALID_TOKEN => 'auth.reset_password_invalid_token',
+            Password::INVALID_USER => 'auth.reset_password_invalid_user',
+            Password::RESET_THROTTLED => 'auth.reset_password_throttled',
         ];
 
-        return response()->json([
-            'success' => false,
-            'message' => $errorMessages[$status] ?? 'Erro ao alterar senha',
-            'status_code' => $status
-        ], 400);
+        $messageKey = $errorMessages[$status] ?? 'auth.reset_password_error';
+
+        return $this->errorResponse($messageKey, null, 400);
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\API\TravelRequestController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\LocationController;
 use App\Http\Controllers\API\ActivityLogController;
+use App\Http\Controllers\API\LocaleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/test', function () {
@@ -13,6 +14,10 @@ Route::get('/test', function () {
     'message' => 'Servidor está funcionando'
   ]);
 });
+
+// Locale routes (public)
+Route::get('/locales', [LocaleController::class, 'index']);
+Route::get('/locale/current', [LocaleController::class, 'current']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

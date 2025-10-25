@@ -11,12 +11,13 @@ use App\Notifications\TravelRequestStatusChanged;
 use App\Traits\HasOwnershipValidation;
 use App\Traits\HasResourceValidation;
 use App\Traits\HasActivityLogging;
+use App\Traits\HasTranslations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TravelRequestController extends Controller
 {
-    use HasOwnershipValidation, HasResourceValidation, HasActivityLogging;
+    use HasOwnershipValidation, HasResourceValidation, HasActivityLogging, HasTranslations;
 
     public function index(TravelRequestFilterRequest $request)
     {
@@ -30,10 +31,7 @@ class TravelRequestController extends Controller
 
         $travelRequests = $query->orderBy('created_at', 'desc')->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $travelRequests
-        ]);
+        return $this->successResponse('general.success', $travelRequests);
     }
 
     public function store(TravelRequestFormRequest $request)
