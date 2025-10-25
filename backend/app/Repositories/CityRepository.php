@@ -50,8 +50,8 @@ class CityRepository
         'value' => $dto->value,
         'label' => $dto->label,
         'id' => $dto->id,
-        'nome' => $dto->nome,
-        'estado' => $dto->estado,
+        'nome' => $dto->name,
+        'estado' => $dto->state,
         'uf' => $dto->uf,
       ];
     });

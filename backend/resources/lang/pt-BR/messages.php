@@ -1,7 +1,6 @@
 <?php
 
 return [
-  // Auth Messages
   'auth' => [
     'register_success' => 'Usuário registrado com sucesso',
     'login_success' => 'Login realizado com sucesso',
@@ -18,7 +17,6 @@ return [
     'reset_password_error' => 'Erro ao alterar senha',
   ],
 
-  // Validation Messages
   'validation' => [
     'error' => 'Erro de validação',
     'required' => 'O campo :attribute é obrigatório',
@@ -32,7 +30,6 @@ return [
     'before' => 'O campo :attribute deve ser uma data anterior a :date',
   ],
 
-  // Travel Request Messages
   'travel_request' => [
     'created_success' => 'Pedido de viagem criado com sucesso',
     'updated_success' => 'Pedido de viagem atualizado com sucesso',
@@ -44,7 +41,6 @@ return [
     'cannot_change_own_status' => 'Você não pode alterar o status do seu próprio pedido',
   ],
 
-  // User Messages
   'user' => [
     'created_success' => 'Usuário criado com sucesso',
     'updated_success' => 'Usuário atualizado com sucesso',
@@ -54,14 +50,12 @@ return [
     'cannot_delete_self' => 'Você não pode excluir sua própria conta',
   ],
 
-  // Activity Log Messages
   'activity_log' => [
     'created_success' => 'Log de atividade criado com sucesso',
     'not_found' => 'Log de atividade não encontrado',
     'unauthorized' => 'Você não tem permissão para acessar este log',
   ],
 
-  // Location Messages
   'location' => [
     'created_success' => 'Localização criada com sucesso',
     'updated_success' => 'Localização atualizada com sucesso',
@@ -70,7 +64,6 @@ return [
     'unauthorized' => 'Você não tem permissão para acessar esta localização',
   ],
 
-  // General Messages
   'general' => [
     'success' => 'Operação realizada com sucesso',
     'error' => 'Erro na operação',
@@ -82,7 +75,6 @@ return [
     'internal_error' => 'Erro interno do servidor',
   ],
 
-  // Field Names
   'fields' => [
     'name' => 'nome',
     'email' => 'email',
