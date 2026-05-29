@@ -14,6 +14,20 @@ class LocationController extends Controller
 
     public function __construct(private CityRepository $cityRepository) {}
 
+    /**
+     * @OA\Get(
+     *     path="/api/locations/cities",
+     *     tags={"Locations"},
+     *     summary="Buscar municípios brasileiros via IBGE",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="q", in="query", required=false,
+     *         description="Texto para busca por nome do município",
+     *         @OA\Schema(type="string", example="São Paulo")),
+     *     @OA\Response(response=200, description="Lista de municípios filtrada"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=500, description="Erro ao consultar API do IBGE")
+     * )
+     */
     public function getCities(Request $request): JsonResponse
     {
         try {
@@ -37,6 +51,15 @@ class LocationController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/locations/destinations",
+     *     tags={"Locations"},
+     *     summary="Listar destinos já utilizados em pedidos (público)",
+     *     @OA\Response(response=200, description="Lista de destinos em cache"),
+     *     @OA\Response(response=500, description="Erro ao buscar destinos")
+     * )
+     */
     public function getDestinations(): JsonResponse
     {
         try {

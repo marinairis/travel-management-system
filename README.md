@@ -123,8 +123,7 @@ touch .env
 Adicione as seguintes variáveis:
 
 ```env
-VITE_API_URL=http://localhost:8000/api
-VITE_APP_TITLE="Travel Management System"
+VITE_API_URL=http://localhost:8000
 ```
 
 ## 🏃 Executando o Projeto
@@ -216,14 +215,28 @@ php artisan test --coverage
 - `tests/Unit/` - Testes unitários (funções isoladas, models, etc.)
 - `tests/Feature/` - Testes de integração (APIs, controllers, etc.)
 
-### Testes do Front-end
+### Testes do Front-end (Vitest)
 
 ```bash
 cd frontend
-npm run test
+npm install           # instalar dependências incluindo vitest
+npm run test          # executar testes uma vez
+npm run test:watch    # modo watch (re-executa ao salvar)
+npm run test:coverage # relatório de cobertura
 ```
 
-**Nota:** Configure os testes do front-end conforme necessário (Vitest, Jest, etc.)
+Ou via Docker (sem precisar instalar Node localmente):
+
+```bash
+make test-frontend
+```
+
+#### Estrutura de Testes Frontend
+
+- `src/__tests__/stores/auth.spec.js` — login, logout, persistência de token
+- `src/__tests__/stores/travelRequest.spec.js` — CRUD e filtros de pedidos
+- `src/__tests__/components/TravelRequestForm.spec.js` — validação do formulário e eventos
+- `src/__tests__/components/TravelRequestTable.spec.js` — renderização e ações por papel
 
 ## 📦 Build para Produção
 
@@ -293,18 +306,147 @@ npm run format
 npm run preview
 ```
 
-## 🐳 Docker (Opcional)
+## 🐳 Docker (Recomendado)
 
-Se o projeto possui configuração Docker:
+O método mais simples para executar o projeto completo (backend + frontend + MySQL) com um único comando.
+
+### Pré-requisitos
+
+Você precisa de dois softwares instalados: **Docker** e **make**.
+
+---
+
+#### 🐧 Linux (Ubuntu/Debian)
 
 ```bash
-# Backend
-cd backend/docker
-docker-compose up -d
+# Docker
+sudo apt update
+sudo apt install docker.io docker-compose-plugin
 
-# Frontend
-cd frontend/docker
-docker-compose up -d
+# make
+sudo apt install make
+
+# Adicionar seu usuário ao grupo docker (evita usar sudo)
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+---
+
+#### 🪟 Windows (WSL2) — Recomendado para Windows
+
+> O projeto roda dentro do WSL2 (subsistema Linux). É a forma mais confiável no Windows.
+
+1. Instale o [Docker Desktop para Windows](https://www.docker.com/products/docker-desktop/) e ative a integração com WSL2 em **Settings → Resources → WSL Integration**
+2. Abra o terminal WSL2 e instale o `make`:
+
+```bash
+sudo apt install make
+```
+
+3. Clone e rode o projeto dentro do terminal WSL2 (não no PowerShell/CMD)
+
+---
+
+#### 🪟 Windows (sem WSL2)
+
+1. Instale o [Docker Desktop para Windows](https://www.docker.com/products/docker-desktop/)
+2. Instale o `make` via [Chocolatey](https://chocolatey.org/) (abra o PowerShell como administrador):
+
+```powershell
+choco install make
+```
+
+Ou via [Scoop](https://scoop.sh/):
+
+```powershell
+scoop install make
+```
+
+3. Use o **PowerShell** ou **Git Bash** para rodar os comandos `make`
+
+---
+
+#### 🍎 macOS
+
+```bash
+# Docker Desktop
+# Baixe em: https://www.docker.com/products/docker-desktop/
+
+# make (já vem com o Xcode Command Line Tools)
+xcode-select --install
+
+# Ou via Homebrew
+brew install make
+```
+
+---
+
+### Passos para rodar o projeto
+
+Após instalar os pré-requisitos, os passos são iguais em qualquer sistema:
+
+```bash
+# 1. Clonar o repositório
+git clone <url-do-repositorio>
+cd travel-management-system
+
+# 2. Subir todos os serviços (primeira vez leva ~2 minutos)
+make up
+
+# 3. Verificar se os 3 containers estão rodando
+make ps
+
+# 4. Acompanhar a inicialização (opcional)
+make logs-backend
+```
+
+Serviços disponíveis após iniciar:
+
+| Serviço  | URL                                      |
+|----------|------------------------------------------|
+| Frontend | http://localhost:5173                    |
+| Backend  | http://localhost:8000                    |
+| Swagger  | http://localhost:8000/api/documentation  |
+| MySQL    | localhost:3306                           |
+
+### Comandos disponíveis (Makefile)
+
+```bash
+make up              # Sobe todos os containers em background
+make down            # Para todos os containers
+make build           # Reconstrói as imagens sem cache
+make logs            # Acompanha todos os logs em tempo real
+make logs-backend    # Logs apenas do backend
+make logs-frontend   # Logs apenas do frontend
+make reset           # Para, remove volumes e sobe do zero (banco limpo)
+make test            # Roda testes do backend
+make test-frontend   # Roda testes do frontend
+make ps              # Lista status dos containers
+make shell-backend   # Abre shell no container backend
+make shell-frontend  # Abre shell no container frontend
+```
+
+### Primeira execução
+
+Na primeira vez, o Docker vai:
+1. Construir as imagens (PHP 8.3 + Node 20)
+2. Instalar dependências (composer install + npm install)
+3. Aguardar MySQL estar pronto
+4. Gerar APP_KEY e JWT_SECRET automaticamente
+5. Executar as migrations
+
+### Solução de problemas Docker
+
+```bash
+# Ver o que está acontecendo nos containers
+make logs
+
+# Reiniciar do zero (apaga banco de dados)
+make reset
+
+# Reconstruir imagens do zero
+make build && make up
 ```
 
 ## 🗂️ Estrutura do Projeto
@@ -354,6 +496,29 @@ O sistema utiliza JWT (JSON Web Tokens) para autenticação:
 - Element Plus (componentes UI)
 - Axios (requisições HTTP)
 - Vite (build tool)
+
+## 📖 Documentação da API (Swagger)
+
+A documentação interativa da API é gerada automaticamente via OpenAPI (Swagger).
+
+**Acesso:** http://localhost:8000/api/documentation
+
+Para regenerar a documentação após alterar anotações nos controllers:
+
+```bash
+# Via Docker
+docker compose exec backend php artisan l5-swagger:generate
+
+# Localmente
+cd backend
+php artisan l5-swagger:generate
+```
+
+Endpoints documentados:
+- **Auth**: register, login, logout, me, refresh, forgot-password, reset-password
+- **Travel Requests**: CRUD completo, atualizar status, cancelar
+- **Users**: listagem (admin), consulta, atualização, exclusão
+- **Locations**: busca de municípios IBGE, listar destinos
 
 ## 📝 Variáveis de Ambiente Importantes
 

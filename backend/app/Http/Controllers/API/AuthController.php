@@ -18,6 +18,23 @@ class AuthController extends Controller
 {
     use HasActivityLogging, HasTranslations;
 
+    /**
+     * @OA\Post(
+     *     path="/api/register",
+     *     tags={"Auth"},
+     *     summary="Registrar novo usuário",
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(required={"name","email","password","password_confirmation"},
+     *             @OA\Property(property="name", type="string", example="Maria Silva"),
+     *             @OA\Property(property="email", type="string", format="email", example="maria@example.com"),
+     *             @OA\Property(property="password", type="string", minLength=6, example="secret123"),
+     *             @OA\Property(property="password_confirmation", type="string", example="secret123")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Usuário registrado com token JWT"),
+     *     @OA\Response(response=422, description="Dados inválidos")
+     * )
+     */
     public function register(AuthFormRequest $request)
     {
         $user = User::create([
@@ -38,6 +55,22 @@ class AuthController extends Controller
         ], 201);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/login",
+     *     tags={"Auth"},
+     *     summary="Autenticar usuário e obter token JWT",
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email", example="admin@example.com"),
+     *             @OA\Property(property="password", type="string", example="secret123")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Token JWT retornado com dados do usuário"),
+     *     @OA\Response(response=401, description="Credenciais inválidas"),
+     *     @OA\Response(response=422, description="Dados inválidos")
+     * )
+     */
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -64,11 +97,31 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/me",
+     *     tags={"Auth"},
+     *     summary="Retornar dados do usuário autenticado",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Dados do usuário autenticado"),
+     *     @OA\Response(response=401, description="Não autenticado")
+     * )
+     */
     public function me(Request $request)
     {
         return $this->successResponse('general.success', $request->user());
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/logout",
+     *     tags={"Auth"},
+     *     summary="Encerrar sessão e invalidar token",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Logout realizado com sucesso"),
+     *     @OA\Response(response=401, description="Não autenticado")
+     * )
+     */
     public function logout(Request $request)
     {
         JWTAuth::invalidate(JWTAuth::getToken());
@@ -76,6 +129,16 @@ class AuthController extends Controller
         return $this->successResponse('auth.logout_success');
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/refresh",
+     *     tags={"Auth"},
+     *     summary="Renovar token JWT",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(response=200, description="Novo token JWT"),
+     *     @OA\Response(response=401, description="Token inválido ou expirado")
+     * )
+     */
     public function refresh()
     {
         try {
@@ -90,6 +153,20 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/forgot-password",
+     *     tags={"Auth"},
+     *     summary="Solicitar link de redefinição de senha",
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(required={"email"},
+     *             @OA\Property(property="email", type="string", format="email", example="maria@example.com")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Link enviado por e-mail"),
+     *     @OA\Response(response=422, description="E-mail não encontrado")
+     * )
+     */
     public function forgotPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -115,6 +192,24 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/reset-password",
+     *     tags={"Auth"},
+     *     summary="Redefinir senha com token recebido por e-mail",
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(required={"token","email","password","password_confirmation"},
+     *             @OA\Property(property="token", type="string"),
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="password", type="string", minLength=6),
+     *             @OA\Property(property="password_confirmation", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Senha redefinida com sucesso"),
+     *     @OA\Response(response=400, description="Token inválido ou expirado"),
+     *     @OA\Response(response=422, description="Dados inválidos")
+     * )
+     */
     public function resetPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [

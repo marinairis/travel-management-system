@@ -19,6 +19,21 @@ class UserController extends Controller
 {
     use HasOwnershipValidation, HasResourceValidation, HasActivityLogging;
 
+    /**
+     * @OA\Get(
+     *     path="/api/users",
+     *     tags={"Users"},
+     *     summary="Listar todos os usuários (apenas admin)",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="user_type", in="query", required=false,
+     *         @OA\Schema(type="string", enum={"admin","basic"})),
+     *     @OA\Parameter(name="email", in="query", required=false,
+     *         @OA\Schema(type="string", example="maria@")),
+     *     @OA\Response(response=200, description="Lista de usuários com contagem de pedidos"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=403, description="Acesso negado — não é admin")
+     * )
+     */
     public function index(UserFilterRequest $request)
     {
         $query = User::withCount('travelRequests');
@@ -33,6 +48,20 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/users/{id}",
+     *     tags={"Users"},
+     *     summary="Consultar dados de um usuário",
+     *     description="Admin pode ver qualquer usuário. Usuário comum vê apenas a si mesmo.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Dados do usuário"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=403, description="Sem permissão"),
+     *     @OA\Response(response=404, description="Usuário não encontrado")
+     * )
+     */
     public function show($id)
     {
         $currentUser = Auth::user();
@@ -54,6 +83,26 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/users/{id}",
+     *     tags={"Users"},
+     *     summary="Atualizar usuário (apenas admin)",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Maria Silva"),
+     *             @OA\Property(property="is_admin", type="boolean", example=false)
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Usuário atualizado"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=403, description="Acesso negado"),
+     *     @OA\Response(response=404, description="Usuário não encontrado"),
+     *     @OA\Response(response=422, description="Dados inválidos")
+     * )
+     */
     public function update(UserFormRequest $request, $id)
     {
         $user = User::find($id);
@@ -84,6 +133,20 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/users/{id}",
+     *     tags={"Users"},
+     *     summary="Excluir usuário (apenas admin)",
+     *     description="Admin não pode excluir a si mesmo.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Usuário excluído"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=403, description="Sem permissão ou tentativa de auto-exclusão"),
+     *     @OA\Response(response=404, description="Usuário não encontrado")
+     * )
+     */
     public function destroy(Request $request, $id)
     {
         $user = User::find($id);

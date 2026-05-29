@@ -42,7 +42,14 @@ class TravelRequest extends Model
 
     public function getCanBeCancelledAttribute()
     {
-        return $this->status !== 'approved';
+        if ($this->status === 'cancelled') {
+            return false;
+        }
+        if ($this->status === 'approved') {
+            // Pedido aprovado só pode ser cancelado se a viagem ainda não começou
+            return $this->departure_date >= now()->startOfDay();
+        }
+        return true;
     }
 
     public function scopeByStatus($query, $status)

@@ -44,6 +44,11 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
+      if (!this.token) {
+        this.user = null
+        router.push('/login')
+        return
+      }
       try {
         await api.post('/logout')
       } catch (error) {
@@ -63,7 +68,9 @@ export const useAuthStore = defineStore('auth', {
           this.user = response.data.data
         }
       } catch (error) {
-        this.logout()
+        this.user = null
+        this.token = null
+        router.push('/login')
       }
     },
 

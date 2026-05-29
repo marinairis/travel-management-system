@@ -289,18 +289,59 @@ class TravelRequestFeatureTest extends TestCase
     $this->assertEquals('cancelled', $travelRequest->status);
   }
 
-  public function test_user_cannot_cancel_approved_travel_request()
+  public function test_user_can_cancel_approved_request_with_future_departure()
   {
     $user = User::factory()->create();
-    $travelRequest = TravelRequest::factory()->approved()->create(['user_id' => $user->id]);
+    $travelRequest = TravelRequest::factory()->approved()->create([
+      'user_id' => $user->id,
+      'departure_date' => now()->addDays(5),
+      'return_date' => now()->addDays(10),
+    ]);
 
     $response = $this->actingAs($user, 'api')
       ->patchJson("/api/travel-requests/{$travelRequest->id}/cancel");
 
-    $response->assertStatus(403)
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Pedido cancelado com sucesso',
+      ]);
+
+    $travelRequest->refresh();
+    $this->assertEquals('cancelled', $travelRequest->status);
+  }
+
+  public function test_user_cannot_cancel_approved_request_with_past_departure()
+  {
+    $user = User::factory()->create();
+    $travelRequest = TravelRequest::factory()->approved()->create([
+      'user_id' => $user->id,
+      'departure_date' => now()->subDays(3),
+      'return_date' => now()->addDays(1),
+    ]);
+
+    $response = $this->actingAs($user, 'api')
+      ->patchJson("/api/travel-requests/{$travelRequest->id}/cancel");
+
+    $response->assertStatus(422)
       ->assertJson([
         'success' => false,
-        'message' => 'Não é possível cancelar um pedido já aprovado',
+        'message' => 'Não é possível cancelar um pedido aprovado cuja data de partida já passou',
+      ]);
+  }
+
+  public function test_user_cannot_cancel_already_cancelled_request()
+  {
+    $user = User::factory()->create();
+    $travelRequest = TravelRequest::factory()->cancelled()->create(['user_id' => $user->id]);
+
+    $response = $this->actingAs($user, 'api')
+      ->patchJson("/api/travel-requests/{$travelRequest->id}/cancel");
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+        'message' => 'Este pedido já está cancelado',
       ]);
   }
 

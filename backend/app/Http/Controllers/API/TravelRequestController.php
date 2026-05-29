@@ -19,6 +19,25 @@ class TravelRequestController extends Controller
 {
     use HasOwnershipValidation, HasResourceValidation, HasActivityLogging, HasTranslations;
 
+    /**
+     * @OA\Get(
+     *     path="/api/travel-requests",
+     *     tags={"Travel Requests"},
+     *     summary="Listar pedidos de viagem",
+     *     description="Admin vê todos os pedidos. Usuário comum vê apenas os próprios.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="status", in="query", required=false,
+     *         @OA\Schema(type="string", enum={"requested","approved","cancelled"})),
+     *     @OA\Parameter(name="destination", in="query", required=false,
+     *         @OA\Schema(type="string", example="São Paulo")),
+     *     @OA\Parameter(name="start_date", in="query", required=false,
+     *         @OA\Schema(type="string", format="date", example="2025-01-01")),
+     *     @OA\Parameter(name="end_date", in="query", required=false,
+     *         @OA\Schema(type="string", format="date", example="2025-12-31")),
+     *     @OA\Response(response=200, description="Lista de pedidos"),
+     *     @OA\Response(response=401, description="Não autenticado")
+     * )
+     */
     public function index(TravelRequestFilterRequest $request)
     {
         $user = Auth::user();
@@ -34,6 +53,26 @@ class TravelRequestController extends Controller
         return $this->successResponse('general.success', $travelRequests);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/travel-requests",
+     *     tags={"Travel Requests"},
+     *     summary="Criar novo pedido de viagem",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(required={"requester_name","destination","departure_date","return_date"},
+     *             @OA\Property(property="requester_name", type="string", example="Maria Silva"),
+     *             @OA\Property(property="destination", type="string", example="São Paulo, SP"),
+     *             @OA\Property(property="departure_date", type="string", format="date", example="2025-08-01"),
+     *             @OA\Property(property="return_date", type="string", format="date", example="2025-08-05"),
+     *             @OA\Property(property="notes", type="string", example="Reunião com cliente")
+     *         )
+     *     ),
+     *     @OA\Response(response=201, description="Pedido criado com sucesso"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=422, description="Dados inválidos")
+     * )
+     */
     public function store(TravelRequestFormRequest $request)
     {
         $travelRequest = TravelRequest::create([
@@ -59,6 +98,19 @@ class TravelRequestController extends Controller
         ], 201);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/travel-requests/{id}",
+     *     tags={"Travel Requests"},
+     *     summary="Consultar pedido de viagem por ID",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Dados do pedido"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=403, description="Sem permissão"),
+     *     @OA\Response(response=404, description="Pedido não encontrado")
+     * )
+     */
     public function show($id)
     {
         $user = Auth::user();
@@ -80,6 +132,29 @@ class TravelRequestController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Put(
+     *     path="/api/travel-requests/{id}",
+     *     tags={"Travel Requests"},
+     *     summary="Atualizar dados de um pedido de viagem",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(
+     *             @OA\Property(property="requester_name", type="string"),
+     *             @OA\Property(property="destination", type="string"),
+     *             @OA\Property(property="departure_date", type="string", format="date"),
+     *             @OA\Property(property="return_date", type="string", format="date"),
+     *             @OA\Property(property="notes", type="string")
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Pedido atualizado"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=403, description="Sem permissão ou pedido já aprovado"),
+     *     @OA\Response(response=404, description="Pedido não encontrado"),
+     *     @OA\Response(response=422, description="Dados inválidos")
+     * )
+     */
     public function update(TravelRequestFormRequest $request, $id)
     {
         $user = Auth::user();
@@ -113,6 +188,26 @@ class TravelRequestController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Patch(
+     *     path="/api/travel-requests/{id}/status",
+     *     tags={"Travel Requests"},
+     *     summary="Atualizar status de um pedido (aprovado/cancelado)",
+     *     description="O usuário que criou o pedido não pode alterar seu próprio status.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\RequestBody(required=true,
+     *         @OA\JsonContent(required={"status"},
+     *             @OA\Property(property="status", type="string", enum={"approved","cancelled"})
+     *         )
+     *     ),
+     *     @OA\Response(response=200, description="Status atualizado com sucesso"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=403, description="Sem permissão — usuário tentando alterar o próprio pedido"),
+     *     @OA\Response(response=404, description="Pedido não encontrado"),
+     *     @OA\Response(response=422, description="Status inválido")
+     * )
+     */
     public function updateStatus(TravelRequestStatusRequest $request, $id)
     {
         $user = Auth::user();
@@ -158,6 +253,20 @@ class TravelRequestController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/travel-requests/{id}",
+     *     tags={"Travel Requests"},
+     *     summary="Excluir pedido de viagem (apenas admin)",
+     *     description="Pedidos aprovados não podem ser excluídos.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Pedido excluído"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=403, description="Sem permissão — não é admin ou pedido aprovado"),
+     *     @OA\Response(response=404, description="Pedido não encontrado")
+     * )
+     */
     public function destroy(Request $request, $id)
     {
         $user = Auth::user();
@@ -201,6 +310,21 @@ class TravelRequestController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Patch(
+     *     path="/api/travel-requests/{id}/cancel",
+     *     tags={"Travel Requests"},
+     *     summary="Cancelar pedido de viagem",
+     *     description="Pedidos aprovados só podem ser cancelados se a data de partida ainda não passou.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Pedido cancelado com sucesso"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=403, description="Sem permissão"),
+     *     @OA\Response(response=404, description="Pedido não encontrado"),
+     *     @OA\Response(response=422, description="Pedido já cancelado ou data de partida passou")
+     * )
+     */
     public function cancel(Request $request, $id)
     {
         $user = Auth::user();
@@ -216,16 +340,29 @@ class TravelRequestController extends Controller
             return $error;
         }
 
-        if ($travelRequest->status === 'approved') {
+        if ($travelRequest->status === 'cancelled') {
             return response()->json([
                 'success' => false,
-                'message' => 'Não é possível cancelar um pedido já aprovado'
-            ], 403);
+                'message' => 'Este pedido já está cancelado'
+            ], 422);
+        }
+
+        if ($travelRequest->status === 'approved') {
+            if ($travelRequest->departure_date < now()->startOfDay()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Não é possível cancelar um pedido aprovado cuja data de partida já passou'
+                ], 422);
+            }
         }
 
         $oldStatus = $travelRequest->status;
         $travelRequest->status = 'cancelled';
         $travelRequest->save();
+
+        $travelRequest->user->notify(
+            new TravelRequestStatusChanged($travelRequest, $oldStatus)
+        );
 
         $this->logActivityStatusChange(
             $travelRequest,
