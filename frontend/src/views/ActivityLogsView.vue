@@ -2,10 +2,10 @@
   <div class="page-container">
     <el-container>
       <el-main class="main-content">
-        <div class="page-header">
-          <h1 class="page-title" :class="{ 'dark-theme': themeStore.isDark }">
-            {{ $t('activityLogs.title') }}
-          </h1>
+        <div class="voa-page-head">
+          <div>
+            <h1 class="voa-page-title">{{ $t('activityLogs.title') }}</h1>
+          </div>
         </div>
 
         <el-card class="filter-card" shadow="never">
@@ -26,7 +26,7 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item :label="$t('activityLogs.user')">
+            <el-form-item v-if="authStore.isAdmin" :label="$t('activityLogs.user')">
               <el-select
                 v-model="filters.user_id"
                 :placeholder="$t('common.all')"
@@ -209,11 +209,11 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useActivityLogStore } from '@/stores/activityLog'
-import { useThemeStore } from '@/stores/theme'
+import { useAuthStore } from '@/stores/auth'
 import { View, Refresh } from '@element-plus/icons-vue'
 
 const activityLogStore = useActivityLogStore()
-const themeStore = useThemeStore()
+const authStore = useAuthStore()
 
 const showViewDialog = ref(false)
 const selectedLog = ref(null)
@@ -228,7 +228,9 @@ const filters = reactive({
 
 onMounted(() => {
   activityLogStore.fetchLogs()
-  activityLogStore.fetchUsers()
+  if (authStore.isAdmin) {
+    activityLogStore.fetchUsers()
+  }
 })
 
 const handleFilter = () => {

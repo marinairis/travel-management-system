@@ -1,69 +1,47 @@
 <template>
-  <div id="app">
-    <MainLayout v-if="showMainLayout" />
-    <router-view v-else />
-  </div>
+  <el-config-provider :locale="localeStore.currentElementPlusLocale">
+    <div id="app">
+      <MainLayout v-if="showMainLayout" />
+      <router-view v-else />
+    </div>
+  </el-config-provider>
 </template>
 
 <script setup>
 import { computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useThemeStore } from './stores/theme'
+import { useLocaleStore } from './stores/locale'
+import { useI18n } from 'vue-i18n'
 import MainLayout from './components/MainLayout.vue'
 
 const themeStore = useThemeStore()
+const localeStore = useLocaleStore()
+const { locale } = useI18n()
 const route = useRoute()
 
 const showMainLayout = computed(() => {
-  const guestPages = ['/login', '/register', '/forgot-password']
-  return !guestPages.includes(route.path)
+  const guestPages = ['/login', '/forgot-password']
+  return !guestPages.includes(route.path) && !route.path.startsWith('/invitation/')
 })
 
-const updatePageTitle = () => {
-  const baseTitle = 'Viagens Corporativas'
-  let pageTitle = baseTitle
-
-  switch (route.path) {
-    case '/':
-    case '/dashboard':
-      pageTitle = `${baseTitle} | Pedidos de Viagem`
-      break
-    case '/logs':
-      pageTitle = `${baseTitle} | Logs de Atividades`
-      break
-    case '/users':
-      pageTitle = `${baseTitle} | Gestão de Usuários`
-      break
-    case '/login':
-      pageTitle = `${baseTitle} | Login`
-      break
-    case '/register':
-      pageTitle = `${baseTitle} | Cadastro`
-      break
-    case '/forgot-password':
-      pageTitle = `${baseTitle} | Recuperar Senha`
-      break
-    default:
-      pageTitle = baseTitle
+watch(
+  () => localeStore.currentLocale,
+  (newLocale) => {
+    locale.value = newLocale
   }
-
-  document.title = pageTitle
-}
+)
 
 onMounted(() => {
   themeStore.initTheme()
-  updatePageTitle()
-})
-
-watch(route, () => {
-  updatePageTitle()
+  locale.value = localeStore.currentLocale
 })
 </script>
 
 <style>
 #app {
   font-family:
-    'Rec Mono Casual',
+    'Geist',
     Inter,
     -apple-system,
     BlinkMacSystemFont,

@@ -36,12 +36,12 @@ describe('auth store', () => {
 
   it('login com sucesso armazena token e usuário', async () => {
     const store = useAuthStore()
-    const fakeUser = { id: 1, name: 'Maria', is_admin: false }
+    const fakeUser = { id: 1, name: 'Maria', role: 'requester' }
     api.post.mockResolvedValueOnce({
       data: { success: true, data: { token: 'jwt-token', user: fakeUser } },
     })
 
-    await store.login({ email: 'maria@test.com', password: '123456' })
+    await store.login({ email: 'maria@test.com', password: 'Abc@1234' })
 
     expect(store.token).toBe('jwt-token')
     expect(store.user).toEqual(fakeUser)
@@ -52,12 +52,25 @@ describe('auth store', () => {
   it('isAdmin retorna true para usuário admin', async () => {
     const store = useAuthStore()
     api.post.mockResolvedValueOnce({
-      data: { success: true, data: { token: 'tok', user: { id: 2, name: 'Admin', is_admin: true } } },
+      data: { success: true, data: { token: 'tok', user: { id: 2, name: 'Admin', role: 'admin' } } },
     })
 
-    await store.login({ email: 'admin@test.com', password: '123456' })
+    await store.login({ email: 'admin@test.com', password: 'Admin@123' })
 
     expect(store.isAdmin).toBe(true)
+  })
+
+  it('isManager retorna true para gestor', async () => {
+    const store = useAuthStore()
+    api.post.mockResolvedValueOnce({
+      data: { success: true, data: { token: 'tok', user: { id: 3, name: 'Gestor', role: 'manager' } } },
+    })
+
+    await store.login({ email: 'gestor@test.com', password: 'Gestor@123' })
+
+    expect(store.isManager).toBe(true)
+    expect(store.isApprover).toBe(true)
+    expect(store.isAdmin).toBe(false)
   })
 
   it('logout limpa estado e redireciona para /login', async () => {
@@ -86,7 +99,7 @@ describe('auth store', () => {
 
   it('fetchUser atualiza dados do usuário', async () => {
     const store = useAuthStore()
-    const fakeUser = { id: 1, name: 'Maria', is_admin: false }
+    const fakeUser = { id: 1, name: 'Maria', role: 'requester' }
     api.get.mockResolvedValueOnce({ data: { success: true, data: fakeUser } })
 
     await store.fetchUser()
@@ -96,12 +109,12 @@ describe('auth store', () => {
 
   it('register armazena token e redireciona', async () => {
     const store = useAuthStore()
-    const fakeUser = { id: 3, name: 'João', is_admin: false }
+    const fakeUser = { id: 3, name: 'João', role: 'requester' }
     api.post.mockResolvedValueOnce({
       data: { success: true, data: { token: 'new-token', user: fakeUser } },
     })
 
-    await store.register({ name: 'João', email: 'joao@test.com', password: '123456', password_confirmation: '123456' })
+    await store.register({ name: 'João', email: 'joao@test.com', password: 'Joao@1234', password_confirmation: 'Joao@1234' })
 
     expect(store.token).toBe('new-token')
     expect(store.user).toEqual(fakeUser)

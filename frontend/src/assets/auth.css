@@ -10,12 +10,15 @@
   min-height: 100vh;
   background: var(--auth-gradient);
   padding: var(--spacing-xl);
+  position: relative;
 }
 
 /* Auth card */
 .auth-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: 0 20px 60px rgba(26, 37, 23, 0.35) !important;
 }
 
 /* Card header */
@@ -29,6 +32,12 @@
 .auth-card-header h2 {
   margin: 0;
   font-size: 24px;
+  color: var(--color-olive);
+  font-weight: 700;
+}
+
+.dark .auth-card-header h2 {
+  color: var(--el-text-color-primary);
 }
 
 /* Auth form links */
@@ -36,6 +45,8 @@
   display: flex;
   justify-content: space-between;
   margin-top: var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
 }
 
 .auth-form-links.center {
@@ -43,17 +54,37 @@
 }
 
 .auth-form-links a {
-  color: var(--el-color-primary);
+  color: var(--color-sage-dark);
   text-decoration: none;
   font-size: 14px;
+  font-weight: 500;
 }
 
 .auth-form-links a:hover {
+  color: var(--color-olive);
   text-decoration: underline;
 }
 
 /* Full width button utility for auth forms */
 .auth-button {
   width: 100%;
+  background-color: var(--color-olive) !important;
+  border-color: var(--color-olive) !important;
+  color: var(--color-sage-light) !important;
+  font-weight: 600;
+  height: 42px;
+  font-size: 15px;
 }
 
+.auth-button:hover {
+  background-color: var(--color-olive-light) !important;
+  border-color: var(--color-olive-light) !important;
+}
+
+/* Language selector on auth pages */
+.language-selector-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}

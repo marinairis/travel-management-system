@@ -6,13 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserFormRequest;
 use App\Http\Requests\UserFilterRequest;
 use App\Models\User;
-use App\Models\ActivityLog;
 use App\Traits\HasOwnershipValidation;
 use App\Traits\HasResourceValidation;
 use App\Traits\HasActivityLogging;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
@@ -26,10 +23,10 @@ class UserController extends Controller
      *     summary="Listar todos os usuários (apenas admin)",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(name="user_type", in="query", required=false,
-     *         @OA\Schema(type="string", enum={"admin","basic"})),
+     *         @OA\Schema(type="string", enum={"admin","manager","requester","basic"})),
      *     @OA\Parameter(name="email", in="query", required=false,
      *         @OA\Schema(type="string", example="maria@")),
-     *     @OA\Response(response=200, description="Lista de usuários com contagem de pedidos"),
+     *     @OA\Response(response=200, description="Lista de usuários"),
      *     @OA\Response(response=401, description="Não autenticado"),
      *     @OA\Response(response=403, description="Acesso negado — não é admin")
      * )
@@ -53,7 +50,6 @@ class UserController extends Controller
      *     path="/api/users/{id}",
      *     tags={"Users"},
      *     summary="Consultar dados de um usuário",
-     *     description="Admin pode ver qualquer usuário. Usuário comum vê apenas a si mesmo.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
      *     @OA\Response(response=200, description="Dados do usuário"),
@@ -93,7 +89,7 @@ class UserController extends Controller
      *     @OA\RequestBody(required=true,
      *         @OA\JsonContent(
      *             @OA\Property(property="name", type="string", example="Maria Silva"),
-     *             @OA\Property(property="is_admin", type="boolean", example=false)
+     *             @OA\Property(property="role", type="string", enum={"requester","manager","admin"})
      *         )
      *     ),
      *     @OA\Response(response=200, description="Usuário atualizado"),
@@ -117,7 +113,7 @@ class UserController extends Controller
         }
 
         $oldValues = $user->toArray();
-        $user->update($request->only(['name', 'is_admin']));
+        $user->update($request->only(['name', 'role']));
 
         $this->logActivityUpdate(
             $user,
@@ -138,12 +134,11 @@ class UserController extends Controller
      *     path="/api/users/{id}",
      *     tags={"Users"},
      *     summary="Excluir usuário (apenas admin)",
-     *     description="Admin não pode excluir a si mesmo.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
      *     @OA\Response(response=200, description="Usuário excluído"),
      *     @OA\Response(response=401, description="Não autenticado"),
-     *     @OA\Response(response=403, description="Sem permissão ou tentativa de auto-exclusão"),
+     *     @OA\Response(response=403, description="Sem permissão"),
      *     @OA\Response(response=404, description="Usuário não encontrado")
      * )
      */
@@ -177,6 +172,15 @@ class UserController extends Controller
         ]);
     }
 
+    public function basicList()
+    {
+        $users = User::select('id', 'name')->orderBy('name')->get();
+        return response()->json([
+            'success' => true,
+            'data' => $users
+        ]);
+    }
+
     private function applyFilters($query, UserFilterRequest $request)
     {
         $this->filterByUserType($query, $request);
@@ -186,10 +190,11 @@ class UserController extends Controller
     private function filterByUserType($query, UserFilterRequest $request)
     {
         if ($request->has('user_type') && $request->user_type) {
-            if ($request->user_type === 'admin') {
-                $query->where('is_admin', true);
-            } elseif ($request->user_type === 'basic') {
-                $query->where('is_admin', false);
+            $type = $request->user_type;
+            if ($type === 'basic') {
+                $query->where('role', '!=', 'admin');
+            } else {
+                $query->where('role', $type);
             }
         }
     }

@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 export const useUserStore = defineStore('user', {
   state: () => ({
     users: [],
+    basicUsers: [],
     loading: false,
     filters: {
       userType: '',
@@ -73,6 +74,30 @@ export const useUserStore = defineStore('user', {
         }
       } catch (error) {
         console.error('Erro ao deletar usuário:', error)
+        return false
+      }
+    },
+
+    async fetchBasicUsers() {
+      try {
+        const response = await api.get('/users/basic')
+        if (response.data.success) {
+          this.basicUsers = response.data.data
+        }
+      } catch (error) {
+        console.error('Erro ao buscar lista de usuários:', error)
+      }
+    },
+
+    async inviteUser(data) {
+      try {
+        const response = await api.post('/users/invite', data)
+        if (response.data.success) {
+          ElMessage.success(response.data.message)
+          return true
+        }
+      } catch (error) {
+        console.error('Erro ao convidar usuário:', error)
         return false
       }
     },

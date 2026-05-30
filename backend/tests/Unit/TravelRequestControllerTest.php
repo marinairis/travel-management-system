@@ -27,7 +27,7 @@ class TravelRequestControllerTest extends TestCase
 
   public function test_index_returns_user_travel_requests_for_regular_user()
   {
-    $user = User::factory()->create(['is_admin' => false]);
+    $user = User::factory()->create(['role' => 'requester']);
     $travelRequest = TravelRequest::factory()->create(['user_id' => $user->id]);
 
     $request = Request::create('/travel-requests', 'GET');
@@ -328,7 +328,7 @@ class TravelRequestControllerTest extends TestCase
 
   public function test_destroy_returns_error_for_non_admin()
   {
-    $user = User::factory()->create(['is_admin' => false]);
+    $user = User::factory()->create(['role' => 'requester']);
     $travelRequest = TravelRequest::factory()->create();
 
     $request = Request::create("/travel-requests/{$travelRequest->id}", 'DELETE');

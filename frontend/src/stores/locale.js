@@ -1,13 +1,15 @@
 import { defineStore } from 'pinia'
 import ptBr from 'element-plus/dist/locale/pt-br.mjs'
 import en from 'element-plus/dist/locale/en.mjs'
+import es from 'element-plus/dist/locale/es.mjs'
 
 export const useLocaleStore = defineStore('locale', {
   state: () => ({
-    currentLocale: 'pt-BR',
+    currentLocale: detectBrowserLocale(),
     elementPlusLocales: {
       'pt-BR': ptBr,
-      'en-US': en,
+      'en': en,
+      'es': es,
     },
   }),
 
@@ -20,14 +22,20 @@ export const useLocaleStore = defineStore('locale', {
   actions: {
     setLocale(locale) {
       this.currentLocale = locale
-      localStorage.setItem('locale', locale)
-    },
-
-    initLocale() {
-      const savedLocale = localStorage.getItem('locale')
-      if (savedLocale && ['pt-BR', 'en-US'].includes(savedLocale)) {
-        this.currentLocale = savedLocale
-      }
     },
   },
+
+  persist: {
+    storage: localStorage,
+    paths: ['currentLocale'],
+  },
 })
+
+function detectBrowserLocale() {
+  const saved = localStorage.getItem('locale-currentLocale')
+  if (saved) return saved
+  const lang = navigator.language || 'pt-BR'
+  if (lang.startsWith('pt')) return 'pt-BR'
+  if (lang.startsWith('es')) return 'es'
+  return 'en'
+}

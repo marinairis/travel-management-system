@@ -10,267 +10,282 @@ use Tests\TestCase;
 
 class AuthFeatureTest extends TestCase
 {
-  use RefreshDatabase;
+    use RefreshDatabase;
 
-  public function test_user_can_register()
-  {
-    $userData = [
-      'name' => 'John Doe',
-      'email' => 'john@example.com',
-      'password' => 'password123',
-      'password_confirmation' => 'password123',
-    ];
-
-    $response = $this->postJson('/api/register', $userData);
-
-    $response->assertStatus(201)
-      ->assertJsonStructure([
-        'success',
-        'message',
-        'data' => [
-          'user' => [
-            'id',
-            'name',
-            'email',
-            'is_admin',
-            'created_at',
-            'updated_at',
-          ],
-          'token',
-          'token_type',
-        ],
-      ])
-      ->assertJson([
-        'success' => true,
-        'data' => [
-          'user' => [
+    public function test_user_can_register()
+    {
+        $userData = [
             'name' => 'John Doe',
             'email' => 'john@example.com',
-            'is_admin' => false,
-          ],
-          'token_type' => 'bearer',
-        ],
-      ]);
+            'password' => 'Password@123',
+            'password_confirmation' => 'Password@123',
+        ];
 
-    $this->assertDatabaseHas('users', [
-      'name' => 'John Doe',
-      'email' => 'john@example.com',
-      'is_admin' => false,
-    ]);
+        $response = $this->postJson('/api/register', $userData);
 
-    $user = User::where('email', 'john@example.com')->first();
-    $this->assertTrue(Hash::check('password123', $user->password));
-  }
+        $response->assertStatus(201)
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'user' => [
+                        'id',
+                        'name',
+                        'email',
+                        'role',
+                        'created_at',
+                        'updated_at',
+                    ],
+                    'token',
+                    'token_type',
+                ],
+            ])
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'name' => 'John Doe',
+                        'email' => 'john@example.com',
+                        'role' => 'requester',
+                    ],
+                    'token_type' => 'bearer',
+                ],
+            ]);
 
-  public function test_user_can_login()
-  {
-    $user = User::factory()->create([
-      'email' => 'john@example.com',
-      'password' => Hash::make('password123'),
-    ]);
-
-    $loginData = [
-      'email' => 'john@example.com',
-      'password' => 'password123',
-    ];
-
-    $response = $this->postJson('/api/login', $loginData);
-
-    $response->assertStatus(200)
-      ->assertJsonStructure([
-        'success',
-        'message',
-        'data' => [
-          'user' => [
-            'id',
-            'name',
-            'email',
-            'is_admin',
-          ],
-          'token',
-          'token_type',
-        ],
-      ])
-      ->assertJson([
-        'success' => true,
-        'data' => [
-          'user' => [
+        $this->assertDatabaseHas('users', [
+            'name' => 'John Doe',
             'email' => 'john@example.com',
-          ],
-          'token_type' => 'bearer',
-        ],
-      ]);
-  }
+            'role' => 'requester',
+        ]);
 
-  public function test_user_cannot_login_with_invalid_credentials()
-  {
-    $user = User::factory()->create([
-      'email' => 'john@example.com',
-      'password' => Hash::make('password123'),
-    ]);
+        $user = User::where('email', 'john@example.com')->first();
+        $this->assertTrue(Hash::check('Password@123', $user->password));
+    }
 
-    $loginData = [
-      'email' => 'john@example.com',
-      'password' => 'wrongpassword',
-    ];
+    public function test_user_can_login()
+    {
+        $user = User::factory()->create([
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+        ]);
 
-    $response = $this->postJson('/api/login', $loginData);
+        $loginData = [
+            'email' => 'john@example.com',
+            'password' => 'password123',
+        ];
 
-    $response->assertStatus(401)
-      ->assertJson([
-        'success' => false,
-      ]);
-  }
+        $response = $this->postJson('/api/login', $loginData);
 
-  public function test_authenticated_user_can_get_profile()
-  {
-    $user = User::factory()->create();
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'user' => [
+                        'id',
+                        'name',
+                        'email',
+                        'role',
+                    ],
+                    'token',
+                    'token_type',
+                ],
+            ])
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'user' => [
+                        'email' => 'john@example.com',
+                    ],
+                    'token_type' => 'bearer',
+                ],
+            ]);
+    }
 
-    $response = $this->actingAs($user, 'api')
-      ->getJson('/api/me');
+    public function test_user_cannot_login_with_invalid_credentials()
+    {
+        User::factory()->create([
+            'email' => 'john@example.com',
+            'password' => Hash::make('password123'),
+        ]);
 
-    $response->assertStatus(200)
-      ->assertJsonStructure([
-        'success',
-        'message',
-        'data' => [
-          'id',
-          'name',
-          'email',
-          'is_admin',
-        ],
-      ])
-      ->assertJson([
-        'success' => true,
-        'data' => [
-          'id' => $user->id,
-          'name' => $user->name,
-          'email' => $user->email,
-        ],
-      ]);
-  }
+        $loginData = [
+            'email' => 'john@example.com',
+            'password' => 'wrongpassword',
+        ];
 
-  public function test_authenticated_user_can_logout()
-  {
-    $user = User::factory()->create();
+        $response = $this->postJson('/api/login', $loginData);
 
-    $response = $this->actingAs($user, 'api')
-      ->postJson('/api/logout');
+        $response->assertStatus(401)
+            ->assertJson([
+                'success' => false,
+            ]);
+    }
 
-    $response->assertStatus(200)
-      ->assertJson([
-        'success' => true,
-      ]);
-  }
+    public function test_authenticated_user_can_get_profile()
+    {
+        $user = User::factory()->create();
 
-  public function test_user_can_refresh_token()
-  {
-    $user = User::factory()->create();
+        $response = $this->actingAs($user, 'api')
+            ->getJson('/api/me');
 
-    $response = $this->actingAs($user, 'api')
-      ->postJson('/api/refresh');
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'id',
+                    'name',
+                    'email',
+                    'role',
+                ],
+            ])
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ],
+            ]);
+    }
 
-    $response->assertStatus(200)
-      ->assertJsonStructure([
-        'success',
-        'message',
-        'data' => [
-          'token',
-          'token_type',
-        ],
-      ])
-      ->assertJson([
-        'success' => true,
-        'data' => [
-          'token_type' => 'bearer',
-        ],
-      ]);
-  }
+    public function test_authenticated_user_can_logout()
+    {
+        $user = User::factory()->create();
 
-  public function test_user_can_request_password_reset()
-  {
-    $user = User::factory()->create(['email' => 'john@example.com']);
+        $response = $this->actingAs($user, 'api')
+            ->postJson('/api/logout');
 
-    $response = $this->postJson('/api/forgot-password', [
-      'email' => 'john@example.com',
-    ]);
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ]);
+    }
 
-    $response->assertStatus(200)
-      ->assertJson([
-        'success' => true,
-      ]);
-  }
+    public function test_user_can_refresh_token()
+    {
+        $user = User::factory()->create();
 
-  public function test_user_cannot_request_password_reset_with_invalid_email()
-  {
-    $response = $this->postJson('/api/forgot-password', [
-      'email' => 'nonexistent@example.com',
-    ]);
+        $response = $this->actingAs($user, 'api')
+            ->postJson('/api/refresh');
 
-    $response->assertStatus(422)
-      ->assertJsonValidationErrors(['email']);
-  }
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'data' => [
+                    'token',
+                    'token_type',
+                ],
+            ])
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'token_type' => 'bearer',
+                ],
+            ]);
+    }
 
-  public function test_registration_validation_works()
-  {
-    $response = $this->postJson('/api/register', []);
+    public function test_user_can_request_password_reset()
+    {
+        $user = User::factory()->create(['email' => 'john@example.com']);
 
-    $response->assertStatus(422)
-      ->assertJsonValidationErrors(['name', 'email', 'password']);
-  }
+        $response = $this->postJson('/api/forgot-password', [
+            'email' => 'john@example.com',
+        ]);
 
-  public function test_login_validation_works()
-  {
-    $response = $this->postJson('/api/login', []);
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ]);
+    }
 
-    $response->assertStatus(422)
-      ->assertJsonValidationErrors(['email', 'password']);
-  }
+    public function test_user_cannot_request_password_reset_with_invalid_email()
+    {
+        $response = $this->postJson('/api/forgot-password', [
+            'email' => 'nonexistent@example.com',
+        ]);
 
-  public function test_password_reset_validation_works()
-  {
-    $response = $this->postJson('/api/reset-password', []);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email']);
+    }
 
-    $response->assertStatus(422)
-      ->assertJsonValidationErrors(['token', 'email', 'password']);
-  }
+    public function test_registration_validation_works()
+    {
+        $response = $this->postJson('/api/register', []);
 
-  public function test_guest_cannot_access_protected_routes()
-  {
-    $response = $this->getJson('/api/me');
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['name', 'email', 'password']);
+    }
 
-    $response->assertStatus(401);
-  }
+    public function test_login_validation_works()
+    {
+        $response = $this->postJson('/api/login', []);
 
-  public function test_user_cannot_register_with_existing_email()
-  {
-    User::factory()->create(['email' => 'john@example.com']);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email', 'password']);
+    }
 
-    $userData = [
-      'name' => 'John Doe',
-      'email' => 'john@example.com',
-      'password' => 'password123',
-      'password_confirmation' => 'password123',
-    ];
+    public function test_password_reset_validation_works()
+    {
+        $response = $this->postJson('/api/reset-password', []);
 
-    $response = $this->postJson('/api/register', $userData);
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['token', 'email', 'password']);
+    }
 
-    $response->assertStatus(422)
-      ->assertJsonValidationErrors(['email']);
-  }
+    public function test_guest_cannot_access_protected_routes()
+    {
+        $response = $this->getJson('/api/me');
 
-  public function test_password_confirmation_validation()
-  {
-    $userData = [
-      'name' => 'John Doe',
-      'email' => 'john@example.com',
-      'password' => 'password123',
-      'password_confirmation' => 'differentpassword',
-    ];
+        $response->assertStatus(401);
+    }
 
-    $response = $this->postJson('/api/register', $userData);
+    public function test_user_cannot_register_with_existing_email()
+    {
+        User::factory()->create(['email' => 'john@example.com']);
 
-    $response->assertStatus(422)
-      ->assertJsonValidationErrors(['password']);
-  }
+        $userData = [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'Password@123',
+            'password_confirmation' => 'Password@123',
+        ];
+
+        $response = $this->postJson('/api/register', $userData);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['email']);
+    }
+
+    public function test_password_confirmation_validation()
+    {
+        $userData = [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'Password@123',
+            'password_confirmation' => 'DifferentPassword@123',
+        ];
+
+        $response = $this->postJson('/api/register', $userData);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
+
+    public function test_password_complexity_validation()
+    {
+        $userData = [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'simplepassword',
+            'password_confirmation' => 'simplepassword',
+        ];
+
+        $response = $this->postJson('/api/register', $userData);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
 }

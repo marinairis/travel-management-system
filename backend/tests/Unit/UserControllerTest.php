@@ -41,7 +41,7 @@ class UserControllerTest extends TestCase
 
   public function test_index_filters_by_user_type_admin()
   {
-    $user1 = User::factory()->create(['is_admin' => false]);
+    $user1 = User::factory()->create(['role' => 'requester']);
     $user2 = User::factory()->admin()->create();
     $user3 = User::factory()->admin()->create();
 
@@ -57,14 +57,14 @@ class UserControllerTest extends TestCase
     $this->assertCount(2, $responseData['data']);
 
     foreach ($responseData['data'] as $user) {
-      $this->assertTrue($user['is_admin']);
+      $this->assertEquals('admin', $user['role']);
     }
   }
 
   public function test_index_filters_by_user_type_basic()
   {
-    $user1 = User::factory()->create(['is_admin' => false]);
-    $user2 = User::factory()->create(['is_admin' => false]);
+    $user1 = User::factory()->create(['role' => 'requester']);
+    $user2 = User::factory()->create(['role' => 'requester']);
     $user3 = User::factory()->admin()->create();
 
     $request = Request::create('/users', 'GET', ['user_type' => 'basic']);
@@ -79,7 +79,7 @@ class UserControllerTest extends TestCase
     $this->assertCount(2, $responseData['data']);
 
     foreach ($responseData['data'] as $user) {
-      $this->assertFalse($user['is_admin']);
+      $this->assertNotEquals('admin', $user['role']);
     }
   }
 
@@ -179,12 +179,12 @@ class UserControllerTest extends TestCase
   {
     $user = User::factory()->create([
       'name' => 'John Doe',
-      'is_admin' => false,
+      'role' => 'requester',
     ]);
 
     $requestData = [
       'name' => 'John Updated',
-      'is_admin' => true,
+      'role' => 'admin',
     ];
 
     $request = Request::create("/users/{$user->id}", 'PUT', $requestData);
@@ -200,7 +200,7 @@ class UserControllerTest extends TestCase
 
     $user->refresh();
     $this->assertEquals('John Updated', $user->name);
-    $this->assertTrue($user->is_admin);
+    $this->assertEquals('admin', $user->role);
   }
 
   public function test_update_returns_error_for_nonexistent_user()

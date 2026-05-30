@@ -20,6 +20,7 @@ class TravelRequest extends Model
         'approved_by',
         'approved_at',
         'notes',
+        'travel_type',
     ];
 
     protected $casts = [
@@ -45,11 +46,7 @@ class TravelRequest extends Model
         if ($this->status === 'cancelled') {
             return false;
         }
-        if ($this->status === 'approved') {
-            // Pedido aprovado só pode ser cancelado se a viagem ainda não começou
-            return $this->departure_date >= now()->startOfDay();
-        }
-        return true;
+        return $this->departure_date >= now()->startOfDay();
     }
 
     public function scopeByStatus($query, $status)

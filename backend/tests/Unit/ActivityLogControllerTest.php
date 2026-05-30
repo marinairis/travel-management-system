@@ -50,7 +50,7 @@ class ActivityLogControllerTest extends TestCase
 
   public function test_index_returns_error_for_non_admin()
   {
-    $user = User::factory()->create(['is_admin' => false]);
+    $user = User::factory()->create(['role' => 'requester']);
 
     $request = Request::create('/activity-logs', 'GET');
     $request->setUserResolver(function () use ($user) {

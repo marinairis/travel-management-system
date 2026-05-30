@@ -41,7 +41,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'is_admin' => false,
+            'role' => 'requester',
         ]);
 
         $this->logActivityCreate($user, $request, $this->translate('auth.register_success'));

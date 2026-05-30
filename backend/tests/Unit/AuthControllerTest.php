@@ -54,21 +54,20 @@ class AuthControllerTest extends TestCase
     $this->assertDatabaseHas('users', [
       'name' => 'John Doe',
       'email' => 'john@example.com',
-      'is_admin' => false,
+      'role' => 'requester',
     ]);
 
     $user = User::where('email', 'john@example.com')->first();
     $this->assertTrue(Hash::check('password123', $user->password));
   }
 
-  public function test_register_creates_admin_user_when_specified()
+  public function test_register_always_creates_requester_role()
   {
     $requestData = [
-      'name' => 'Admin User',
-      'email' => 'admin@example.com',
+      'name' => 'New User',
+      'email' => 'newuser@example.com',
       'password' => 'password123',
       'password_confirmation' => 'password123',
-      'is_admin' => true,
     ];
 
     $request = Request::create('/register', 'POST', $requestData);
@@ -83,9 +82,9 @@ class AuthControllerTest extends TestCase
     $this->assertEquals(201, $response->getStatusCode());
 
     $this->assertDatabaseHas('users', [
-      'name' => 'Admin User',
-      'email' => 'admin@example.com',
-      'is_admin' => true,
+      'name' => 'New User',
+      'email' => 'newuser@example.com',
+      'role' => 'requester',
     ]);
   }
 

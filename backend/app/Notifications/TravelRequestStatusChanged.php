@@ -23,7 +23,18 @@ class TravelRequestStatusChanged extends Notification implements ShouldQueue
 
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail', 'database'];
+    }
+
+    public function toDatabase($notifiable)
+    {
+        return [
+            'travel_request_id' => $this->travelRequest->id,
+            'destination' => $this->travelRequest->destination,
+            'old_status' => $this->oldStatus,
+            'new_status' => $this->travelRequest->status,
+            'departure_date' => $this->travelRequest->departure_date->format('Y-m-d'),
+        ];
     }
 
     public function toMail($notifiable)

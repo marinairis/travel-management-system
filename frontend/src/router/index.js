@@ -23,9 +23,9 @@ const router = createRouter({
       meta: { guest: true },
     },
     {
-      path: '/register',
-      name: 'register',
-      component: () => import('@/views/RegisterView.vue'),
+      path: '/invitation/:token',
+      name: 'accept-invitation',
+      component: () => import('@/views/AcceptInvitationView.vue'),
       meta: { guest: true },
     },
     {
@@ -44,7 +44,31 @@ const router = createRouter({
       path: '/logs',
       name: 'logs',
       component: () => import('@/views/ActivityLogsView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true },
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/requests',
+      name: 'requests',
+      component: () => import('@/views/TravelRequestsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/requests/:id',
+      name: 'request-detail',
+      component: () => import('@/views/TravelRequestDetailView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/notifications',
+      name: 'notifications',
+      component: () => import('@/views/NotificationsView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('@/views/SettingsView.vue'),
+      meta: { requiresAuth: true },
     },
     {
       path: '/:pathMatch(.*)*',

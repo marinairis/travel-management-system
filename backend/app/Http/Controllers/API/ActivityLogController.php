@@ -12,14 +12,12 @@ class ActivityLogController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        if (!$user || !$user->is_admin) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Apenas administradores podem visualizar logs'
-            ], 403);
-        }
 
         $query = ActivityLog::with('user')->orderBy('created_at', 'desc');
+
+        if ($user->isRequester()) {
+            $query->where('user_id', $user->id);
+        }
 
         $this->applyFilters($query, $request);
 
@@ -36,6 +34,7 @@ class ActivityLogController extends Controller
         $this->filterByUser($query, $request);
         $this->filterByAction($query, $request);
         $this->filterByModelType($query, $request);
+        $this->filterByModelId($query, $request);
     }
 
     private function filterByUser($query, Request $request)
@@ -56,6 +55,13 @@ class ActivityLogController extends Controller
     {
         if ($request->has('model_type') && $request->model_type) {
             $query->where('model_type', $request->model_type);
+        }
+    }
+
+    private function filterByModelId($query, Request $request)
+    {
+        if ($request->has('model_id') && $request->model_id) {
+            $query->where('model_id', $request->model_id);
         }
     }
 }

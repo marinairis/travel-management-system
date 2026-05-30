@@ -1,6 +1,8 @@
 <template>
   <div class="auth-container">
-    <div class="language-selector-container"></div>
+    <div class="language-selector-container">
+      <LanguageSelector />
+    </div>
     <el-card class="auth-card">
       <template #header>
         <div class="auth-card-header">
@@ -73,6 +75,7 @@ import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
 import { MapLocation, Message, Lock, User } from '@element-plus/icons-vue'
+import LanguageSelector from '@/components/LanguageSelector.vue'
 
 const { t } = useI18n()
 
@@ -104,7 +107,17 @@ const rules = {
   ],
   password: [
     { required: true, message: t('auth.passwordRequired'), trigger: 'blur' },
-    { min: 6, message: t('auth.passwordMinLength'), trigger: 'blur' },
+    { min: 8, message: t('auth.passwordMinLength'), trigger: 'blur' },
+    {
+      validator: (rule, value, cb) => {
+        if (!/[A-Z]/.test(value) || !/[0-9]/.test(value) || !/[^A-Za-z0-9]/.test(value)) {
+          cb(new Error(t('auth.passwordComplexity')))
+        } else {
+          cb()
+        }
+      },
+      trigger: 'blur',
+    },
   ],
   password_confirmation: [
     { required: true, message: t('auth.confirmPasswordRequired'), trigger: 'blur' },

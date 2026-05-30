@@ -7,10 +7,20 @@
     @submit.prevent="handleSubmit"
   >
     <el-form-item :label="$t('travelRequest.requesterName')" prop="requester_name">
-      <el-input
+      <el-select
         v-model="formData.requester_name"
         :placeholder="$t('travelRequest.requesterNamePlaceholder')"
-      />
+        filterable
+        style="width: 100%"
+        :loading="userStore.loading"
+      >
+        <el-option
+          v-for="u in userStore.basicUsers"
+          :key="u.id"
+          :label="u.name"
+          :value="u.name"
+        />
+      </el-select>
     </el-form-item>
 
     <el-form-item :label="$t('travelRequest.destination')" prop="destination">
@@ -33,35 +43,33 @@
       </el-select-v2>
     </el-form-item>
 
-    <el-row :gutter="20">
-      <el-col :xs="24" :sm="12">
-        <el-form-item :label="$t('travelRequest.departureDate')" prop="departure_date">
-          <el-date-picker
-            v-model="formData.departure_date"
-            type="date"
-            :placeholder="$t('travelRequest.datePlaceholder')"
-            style="width: 100%"
-            format="DD/MM/YYYY"
-            value-format="YYYY-MM-DD"
-            :disabled-date="disabledDepartureDate"
-          />
-        </el-form-item>
-      </el-col>
+    <el-form-item :label="$t('travelRequest.travelType')" prop="travel_type">
+      <el-select
+        v-model="formData.travel_type"
+        :placeholder="$t('travelRequest.travelTypePlaceholder')"
+        clearable
+        style="width: 100%"
+      >
+        <el-option :label="$t('travelRequest.travelTypeOnibus')" value="onibus" />
+        <el-option :label="$t('travelRequest.travelTypeAereo')" value="aereo" />
+        <el-option :label="$t('travelRequest.travelTypeCarro')" value="carro" />
+        <el-option :label="$t('travelRequest.travelTypeHotel')" value="hotel" />
+      </el-select>
+    </el-form-item>
 
-      <el-col :xs="24" :sm="12">
-        <el-form-item :label="$t('travelRequest.returnDate')" prop="return_date">
-          <el-date-picker
-            v-model="formData.return_date"
-            type="date"
-            :placeholder="$t('travelRequest.datePlaceholder')"
-            style="width: 100%"
-            format="DD/MM/YYYY"
-            value-format="YYYY-MM-DD"
-            :disabled-date="disabledReturnDate"
-          />
-        </el-form-item>
-      </el-col>
-    </el-row>
+    <el-form-item :label="$t('travelRequest.dateRange')" prop="date_range">
+      <el-date-picker
+        v-model="formData.date_range"
+        type="daterange"
+        :range-separator="$t('dashboard.dateRangeSeparator')"
+        :start-placeholder="$t('travelRequest.departureDate')"
+        :end-placeholder="$t('travelRequest.returnDate')"
+        style="width: 100%"
+        format="DD/MM/YYYY"
+        value-format="YYYY-MM-DD"
+        :disabled-date="disabledDepartureDate"
+      />
+    </el-form-item>
 
     <el-form-item :label="$t('travelRequest.notes')" prop="notes">
       <el-input
@@ -86,6 +94,7 @@
 import { ref, reactive, watch, computed, onMounted } from 'vue'
 import { LocationFilled } from '@element-plus/icons-vue'
 import { useDestinationsStore } from '@/stores/destinations'
+import { useUserStore } from '@/stores/user'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -106,27 +115,34 @@ const emit = defineEmits(['submit', 'cancel', 'update:modelValue'])
 const formRef = ref(null)
 const loading = ref(false)
 const destinationsStore = useDestinationsStore()
+const userStore = useUserStore()
 
 const formData = reactive({
   requester_name: '',
   destination: '',
-  departure_date: '',
-  return_date: '',
+  travel_type: '',
+  date_range: [],
   notes: '',
 })
 
 const rules = {
   requester_name: [
-    { required: true, message: t('travelRequest.requesterNameRequired'), trigger: 'blur' },
+    { required: true, message: t('travelRequest.requesterNameRequired'), trigger: 'change' },
   ],
   destination: [
     { required: true, message: t('travelRequest.destinationRequired'), trigger: 'blur' },
   ],
-  departure_date: [
-    { required: true, message: t('travelRequest.departureDateRequired'), trigger: 'change' },
-  ],
-  return_date: [
-    { required: true, message: t('travelRequest.returnDateRequired'), trigger: 'change' },
+  date_range: [
+    {
+      validator: (rule, value, callback) => {
+        if (!value || value.length < 2 || !value[0] || !value[1]) {
+          callback(new Error(t('travelRequest.dateRangeRequired')))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change',
+    },
   ],
 }
 
@@ -136,14 +152,23 @@ watch(
   () => props.modelValue,
   (newVal) => {
     if (newVal && Object.keys(newVal).length > 0) {
-      Object.assign(formData, newVal)
+      formData.requester_name = newVal.requester_name || ''
+      formData.destination = newVal.destination || ''
+      formData.travel_type = newVal.travel_type || ''
+      formData.notes = newVal.notes || ''
+      const toDateStr = (d) => d ? (typeof d === 'string' && d.includes('T') ? d.split('T')[0] : d) : ''
+      if (newVal.departure_date && newVal.return_date) {
+        formData.date_range = [toDateStr(newVal.departure_date), toDateStr(newVal.return_date)]
+      } else {
+        formData.date_range = []
+      }
     }
   },
   { immediate: true },
 )
 
 onMounted(async () => {
-  await loadDestinations()
+  await Promise.all([loadDestinations(), userStore.fetchBasicUsers()])
 })
 
 const loadDestinations = async () => {
@@ -158,19 +183,21 @@ const disabledDepartureDate = (time) => {
   return time.getTime() < Date.now() - 8.64e7
 }
 
-const disabledReturnDate = (time) => {
-  if (!formData.departure_date) return time.getTime() < Date.now() - 8.64e7
-  const departureTime = new Date(formData.departure_date).getTime()
-  return time.getTime() < departureTime
-}
-
 const handleSubmit = async () => {
   if (!formRef.value) return
 
   await formRef.value.validate((valid) => {
     if (valid) {
       loading.value = true
-      emit('submit', { ...formData })
+      const payload = {
+        requester_name: formData.requester_name,
+        destination: formData.destination,
+        travel_type: formData.travel_type || null,
+        departure_date: formData.date_range[0],
+        return_date: formData.date_range[1],
+        notes: formData.notes,
+      }
+      emit('submit', payload)
       loading.value = false
     }
   })

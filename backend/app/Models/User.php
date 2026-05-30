@@ -17,7 +17,7 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
-        'is_admin',
+        'role',
     ];
 
     protected $hidden = [
@@ -27,7 +27,6 @@ class User extends Authenticatable implements JWTSubject
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'is_admin' => 'boolean',
     ];
 
     public function getJWTIdentifier()
@@ -38,6 +37,26 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isManager(): bool
+    {
+        return $this->role === 'manager';
+    }
+
+    public function isRequester(): bool
+    {
+        return $this->role === 'requester';
+    }
+
+    public function isApprover(): bool
+    {
+        return in_array($this->role, ['admin', 'manager']);
     }
 
     public function travelRequests()

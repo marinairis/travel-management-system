@@ -1,11 +1,13 @@
 <template>
   <div class="auth-container">
     <div class="language-selector-container">
+      <LanguageSelector />
     </div>
+
     <el-card class="auth-card">
       <template #header>
         <div class="auth-card-header">
-          <el-icon :size="32" color="#409EFF">
+          <el-icon :size="36" :color="'#ACC8A2'">
             <MapLocation />
           </el-icon>
           <h2>{{ $t('auth.title') }}</h2>
@@ -44,7 +46,6 @@
         </el-form-item>
 
         <div class="auth-form-links">
-          <router-link to="/register">{{ $t('auth.register') }}</router-link>
           <router-link to="/forgot-password">{{ $t('auth.forgotPassword') }}</router-link>
         </div>
       </el-form>
@@ -57,9 +58,9 @@ import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
 import { MapLocation, Message, Lock } from '@element-plus/icons-vue'
+import LanguageSelector from '@/components/LanguageSelector.vue'
 
 const { t } = useI18n()
-
 const authStore = useAuthStore()
 
 const formRef = ref(null)
@@ -95,12 +96,3 @@ const handleLogin = async () => {
   })
 }
 </script>
-
-<style scoped>
-.language-selector-container {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-}
-</style>

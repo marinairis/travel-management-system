@@ -24,7 +24,7 @@ class TravelRequestController extends Controller
      *     path="/api/travel-requests",
      *     tags={"Travel Requests"},
      *     summary="Listar pedidos de viagem",
-     *     description="Admin vê todos os pedidos. Usuário comum vê apenas os próprios.",
+     *     description="Admin/Manager veem todos os pedidos. Solicitante vê apenas os próprios.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(name="status", in="query", required=false,
      *         @OA\Schema(type="string", enum={"requested","approved","cancelled"})),
@@ -42,9 +42,9 @@ class TravelRequestController extends Controller
     {
         $user = Auth::user();
 
-        $query = $user->is_admin
+        $query = $user->isApprover()
             ? TravelRequest::with(['user', 'approvedBy'])
-            : TravelRequest::where('user_id', $user->id)->with(['approvedBy']);
+            : TravelRequest::where('user_id', $user->id)->with(['user', 'approvedBy']);
 
         $this->applyFilters($query, $request);
 
@@ -82,6 +82,7 @@ class TravelRequestController extends Controller
             'departure_date' => $request->departure_date,
             'return_date' => $request->return_date,
             'notes' => $request->notes,
+            'travel_type' => $request->travel_type,
             'status' => 'requested',
         ]);
 
@@ -193,7 +194,7 @@ class TravelRequestController extends Controller
      *     path="/api/travel-requests/{id}/status",
      *     tags={"Travel Requests"},
      *     summary="Atualizar status de um pedido (aprovado/cancelado)",
-     *     description="O usuário que criou o pedido não pode alterar seu próprio status.",
+     *     description="Apenas Gestor ou Admin. O usuário que criou o pedido não pode alterar seu próprio status.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
      *     @OA\RequestBody(required=true,
@@ -203,7 +204,7 @@ class TravelRequestController extends Controller
      *     ),
      *     @OA\Response(response=200, description="Status atualizado com sucesso"),
      *     @OA\Response(response=401, description="Não autenticado"),
-     *     @OA\Response(response=403, description="Sem permissão — usuário tentando alterar o próprio pedido"),
+     *     @OA\Response(response=403, description="Sem permissão"),
      *     @OA\Response(response=404, description="Pedido não encontrado"),
      *     @OA\Response(response=422, description="Status inválido")
      * )
@@ -257,13 +258,13 @@ class TravelRequestController extends Controller
      * @OA\Delete(
      *     path="/api/travel-requests/{id}",
      *     tags={"Travel Requests"},
-     *     summary="Excluir pedido de viagem (apenas admin)",
+     *     summary="Excluir pedido de viagem (Gestor ou Admin)",
      *     description="Pedidos aprovados não podem ser excluídos.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
      *     @OA\Response(response=200, description="Pedido excluído"),
      *     @OA\Response(response=401, description="Não autenticado"),
-     *     @OA\Response(response=403, description="Sem permissão — não é admin ou pedido aprovado"),
+     *     @OA\Response(response=403, description="Sem permissão ou pedido aprovado"),
      *     @OA\Response(response=404, description="Pedido não encontrado")
      * )
      */
@@ -271,7 +272,7 @@ class TravelRequestController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->is_admin) {
+        if (!$user->isAdmin()) {
             return response()->json([
                 'success' => false,
                 'message' => 'Apenas administradores podem excluir pedidos'
@@ -347,13 +348,11 @@ class TravelRequestController extends Controller
             ], 422);
         }
 
-        if ($travelRequest->status === 'approved') {
-            if ($travelRequest->departure_date < now()->startOfDay()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Não é possível cancelar um pedido aprovado cuja data de partida já passou'
-                ], 422);
-            }
+        if ($travelRequest->departure_date < now()->startOfDay()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Não é possível cancelar um pedido cuja data de partida já passou'
+            ], 422);
         }
 
         $oldStatus = $travelRequest->status;

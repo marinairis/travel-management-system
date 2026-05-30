@@ -19,6 +19,7 @@ class TravelRequestFormRequest extends FormRequest
       'departure_date' => 'required|date|after_or_equal:today',
       'return_date' => 'required|date|after:departure_date',
       'notes' => 'nullable|string',
+      'travel_type' => 'nullable|string|in:onibus,aereo,carro,hotel',
     ];
 
     if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
@@ -28,6 +29,7 @@ class TravelRequestFormRequest extends FormRequest
         'departure_date' => 'sometimes|date|after_or_equal:today',
         'return_date' => 'sometimes|date|after:departure_date',
         'notes' => 'nullable|string',
+        'travel_type' => 'nullable|string|in:onibus,aereo,carro,hotel',
       ];
     }
 

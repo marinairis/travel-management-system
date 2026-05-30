@@ -13,7 +13,7 @@ class AdminOnly
   {
     $user = Auth::user();
 
-    if (!$user || !$user->is_admin) {
+    if (!$user || !$user->isAdmin()) {
       return response()->json([
         'success' => false,
         'message' => 'Apenas administradores podem acessar este recurso'

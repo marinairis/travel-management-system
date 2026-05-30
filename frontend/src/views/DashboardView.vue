@@ -1,99 +1,184 @@
 <template>
-  <div class="page-container">
-    <el-container>
-      <el-main class="main-content">
-        <div class="page-header">
-          <h1 class="page-title" :class="{ 'dark-theme': themeStore.isDark }">
-            {{ $t('dashboard.title') }}
-          </h1>
+  <div>
+    <!-- Page header -->
+    <div class="voa-page-head">
+      <div>
+        <h1 class="voa-page-title">{{ $t('dashboard.title') }}</h1>
+        <p class="voa-page-sub">{{ $t('dashboard.subtitle') }}</p>
+      </div>
+      <el-button v-if="!authStore.isAdmin" type="primary" @click="showCreateDialog = true">
+        <el-icon style="margin-right:6px"><Plus /></el-icon>
+        {{ $t('dashboard.newRequest') }}
+      </el-button>
+    </div>
 
-          <el-button type="primary" :icon="Plus" @click="showCreateDialog = true">
-            {{ $t('dashboard.newRequest') }}
+    <!-- Stats grid (status) -->
+    <div class="voa-stats-grid">
+      <el-card shadow="never">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="voa-stat-label">{{ $t('dashboard.statTotal') }}</div>
+          <el-icon style="font-size:22px;color:var(--el-color-primary);opacity:.7"><DataLine /></el-icon>
+        </div>
+        <div class="voa-stat-val">{{ stats.total }}</div>
+      </el-card>
+      <el-card shadow="never">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="voa-stat-label">{{ $t('dashboard.statPending') }}</div>
+          <el-icon style="font-size:22px;color:var(--el-color-warning);opacity:.8"><Clock /></el-icon>
+        </div>
+        <div class="voa-stat-val accent">{{ stats.pending }}</div>
+      </el-card>
+      <el-card shadow="never">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="voa-stat-label">{{ $t('dashboard.statApproved') }}</div>
+          <el-icon style="font-size:22px;color:var(--el-color-success);opacity:.8"><CircleCheck /></el-icon>
+        </div>
+        <div class="voa-stat-val">{{ stats.approved }}</div>
+      </el-card>
+      <el-card shadow="never">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="voa-stat-label">{{ $t('dashboard.statCancelled') }}</div>
+          <el-icon style="font-size:22px;color:var(--el-color-danger);opacity:.8"><CircleClose /></el-icon>
+        </div>
+        <div class="voa-stat-val">{{ stats.cancelled }}</div>
+      </el-card>
+    </div>
+
+    <!-- Travel type metrics -->
+    <div class="voa-stats-grid" style="margin-bottom:20px">
+      <el-card shadow="never" v-for="type in travelTypeStats" :key="type.key">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="voa-stat-label">{{ $t('travelRequest.travelType_' + type.key) }}</div>
+          <el-icon :style="{ fontSize: '22px', color: type.color, opacity: .85 }">
+            <component :is="type.icon" />
+          </el-icon>
+        </div>
+        <div class="voa-stat-val" :style="{ color: type.color }">{{ type.count }}</div>
+      </el-card>
+    </div>
+
+    <!-- Two-column cards: pending + top destinations -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <!-- Pending approval -->
+      <el-card shadow="never" v-loading="travelRequestStore.loading">
+        <template #header>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:8px">
+              <el-icon style="color:var(--el-color-warning)"><Warning /></el-icon>
+              <span style="font-weight:700">{{ $t('dashboard.pendingApproval') }}</span>
+            </div>
+            <el-badge :value="stats.pending" type="warning" v-if="stats.pending > 0" />
+          </div>
+        </template>
+        <el-empty
+          v-if="pendingRequests.length === 0"
+          :description="$t('dashboard.pendingEmpty')"
+          :image-size="50"
+        />
+        <div
+          v-for="req in pendingRequests.slice(0, 5)"
+          :key="req.id"
+          style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--el-border-color)"
+        >
+          <div style="flex:1;cursor:pointer" @click="$router.push('/requests/' + req.id)">
+            <div style="font-weight:600;font-size:13.5px">{{ req.destination }}</div>
+            <div style="font-size:12px;color:var(--el-text-color-secondary)">
+              {{ req.requester_name }} · {{ formatDate(req.departure_date) }}
+            </div>
+          </div>
+          <el-button
+            v-if="authStore.isApprover"
+            size="small"
+            type="success"
+            @click.stop="handleApprove(req)"
+            :loading="approvingId === req.id"
+          >
+            {{ $t('dashboard.approve') }}
           </el-button>
         </div>
+      </el-card>
 
-        <el-card class="filter-card" shadow="never">
-          <el-form :inline="true" :model="filters">
-            <el-form-item :label="$t('dashboard.status')">
-              <el-select
-                v-model="filters.status"
-                :placeholder="$t('common.all')"
-                clearable
-                style="width: 150px"
-                @change="handleFilter"
-              >
-                <el-option :label="$t('status.requested')" value="requested" />
-                <el-option :label="$t('status.approved')" value="approved" />
-                <el-option :label="$t('status.cancelled')" value="cancelled" />
-              </el-select>
-            </el-form-item>
+      <!-- Top 10 destinations -->
+      <el-card shadow="never">
+        <template #header>
+          <div style="display:flex;align-items:center;gap:8px">
+            <el-icon style="color:var(--el-color-primary)"><TrophyBase /></el-icon>
+            <span style="font-weight:700">{{ $t('dashboard.topDestinations') }}</span>
+          </div>
+        </template>
+        <el-empty
+          v-if="topDestinations.length === 0"
+          :description="$t('dashboard.recentEmpty')"
+          :image-size="50"
+        />
+        <div
+          v-for="(dest, i) in topDestinations"
+          :key="dest.name"
+          style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--el-border-color)"
+        >
+          <span
+            :style="{
+              width: '22px', height: '22px', borderRadius: '50%',
+              background: i < 3 ? 'var(--el-color-primary)' : 'var(--el-fill-color)',
+              color: i < 3 ? '#fff' : 'var(--el-text-color-secondary)',
+              display: 'grid', placeItems: 'center',
+              fontSize: '11px', fontWeight: 700, flexShrink: 0
+            }"
+          >{{ i + 1 }}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+              <el-icon style="font-size:11px;margin-right:3px;vertical-align:middle"><Location /></el-icon>
+              {{ dest.name }}
+            </div>
+          </div>
+          <el-tag type="info" size="small" round>{{ dest.count }}</el-tag>
+        </div>
+      </el-card>
+    </div>
 
-            <el-form-item :label="$t('dashboard.destination')">
-              <el-select-v2
-                v-model="filters.destination"
-                :options="destinationOptions"
-                :placeholder="$t('dashboard.selectDestination')"
-                style="width: 340px"
-                clearable
-                filterable
-                :loading="destinationsStore.loading"
-                @change="handleFilter"
-                @focus="loadDestinations"
-              >
-                <template #default="{ item }">
-                  <div class="destination-item">
-                    <el-icon><LocationFilled /></el-icon>
-                    <el-tooltip
-                      v-if="isTextOverflowing(item.label)"
-                      class="box-item"
-                      effect="dark"
-                      :content="item.label"
-                      placement="right-start"
-                    >
-                      <span class="destination-text">{{ item.label }}</span>
-                    </el-tooltip>
-                    <span v-else class="destination-text">{{ item.label }}</span>
-                  </div>
-                </template>
-              </el-select-v2>
-            </el-form-item>
+    <!-- Recent requests -->
+    <el-card shadow="never" v-loading="travelRequestStore.loading">
+      <template #header>
+        <div style="display:flex;align-items:center;gap:8px">
+          <el-icon style="color:var(--el-color-primary)"><List /></el-icon>
+          <span style="font-weight:700">{{ $t('dashboard.recentRequests') }}</span>
+        </div>
+      </template>
+      <el-empty
+        v-if="recentRequests.length === 0"
+        :description="$t('dashboard.recentEmpty')"
+        :image-size="50"
+      />
+      <div
+        v-for="req in recentRequests"
+        :key="req.id"
+        style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--el-border-color);cursor:pointer"
+        @click="$router.push('/requests/' + req.id)"
+      >
+        <el-icon style="color:var(--el-text-color-secondary);flex-shrink:0">
+          <component :is="travelTypeIcon(req.travel_type)" />
+        </el-icon>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+            {{ req.destination }}
+          </div>
+          <div style="font-size:12px;color:var(--el-text-color-secondary)">
+            {{ req.requester_name }} · {{ formatDate(req.departure_date) }}
+          </div>
+        </div>
+        <el-tag :type="getStatusType(req.status)" size="small" round>
+          {{ translateStatus(req.status) }}
+        </el-tag>
+      </div>
+    </el-card>
 
-            <el-form-item :label="$t('dashboard.period')">
-              <el-date-picker
-                v-model="dateRange"
-                type="daterange"
-                :range-separator="$t('dashboard.dateRangeSeparator')"
-                :start-placeholder="$t('dashboard.startDate')"
-                :end-placeholder="$t('dashboard.endDate')"
-                format="DD/MM/YYYY"
-                value-format="YYYY-MM-DD"
-                @change="handleDateChange"
-              />
-            </el-form-item>
-
-            <el-form-item>
-              <el-button :icon="Refresh" @click="handleReset"> {{ $t('common.clear') }} </el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-
-        <el-card class="table-card">
-          <TravelRequestTable
-            :data="travelRequestStore.travelRequests"
-            :loading="travelRequestStore.loading"
-            @delete="handleDelete"
-            @status-change="handleStatusChange"
-            @view="handleView"
-          />
-        </el-card>
-      </el-main>
-    </el-container>
-
+    <!-- Create dialog -->
     <el-dialog
       v-model="showCreateDialog"
       :title="$t('travelRequest.title')"
-      width="600"
+      width="600px"
       :close-on-click-modal="false"
+      destroy-on-close
     >
       <TravelRequestForm @submit="handleCreate" @cancel="showCreateDialog = false" />
     </el-dialog>
@@ -101,103 +186,105 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useTravelRequestStore } from '@/stores/travelRequest'
+import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
-import { useDestinationsStore } from '@/stores/destinations'
-import { useTextUtils } from '@/composables/useTextUtils'
 import { useI18n } from 'vue-i18n'
-import TravelRequestTable from '@/components/TravelRequestTable.vue'
 import TravelRequestForm from '@/components/TravelRequestForm.vue'
-import { Plus, Refresh, LocationFilled } from '@element-plus/icons-vue'
+import {
+  Plus, DataLine, Clock, CircleCheck, CircleClose,
+  Warning, Location, List, TrophyBase,
+  Van, Promotion, MapLocation, House,
+} from '@element-plus/icons-vue'
 
 const { t } = useI18n()
-
 const travelRequestStore = useTravelRequestStore()
+const authStore = useAuthStore()
 const themeStore = useThemeStore()
-const destinationsStore = useDestinationsStore()
-const { isTextOverflowing } = useTextUtils()
 
 const showCreateDialog = ref(false)
-const dateRange = ref([])
+const approvingId = ref(null)
 
-const filters = reactive({
-  status: '',
-  destination: '',
-  start_date: '',
-  end_date: '',
+const requests = computed(() => travelRequestStore.travelRequests || [])
+
+const stats = computed(() => ({
+  total: requests.value.length,
+  pending: requests.value.filter(r => r.status === 'requested').length,
+  approved: requests.value.filter(r => r.status === 'approved').length,
+  cancelled: requests.value.filter(r => r.status === 'cancelled').length,
+}))
+
+const travelTypeStats = computed(() => [
+  { key: 'aereo',  icon: Promotion,    color: '#3b82f6', count: requests.value.filter(r => r.travel_type === 'aereo').length },
+  { key: 'onibus', icon: Van,          color: '#f59e0b', count: requests.value.filter(r => r.travel_type === 'onibus').length },
+  { key: 'carro',  icon: MapLocation,  color: '#8b5cf6', count: requests.value.filter(r => r.travel_type === 'carro').length },
+  { key: 'hotel',  icon: House,        color: '#10b981', count: requests.value.filter(r => r.travel_type === 'hotel').length },
+])
+
+const topDestinations = computed(() => {
+  const counts = {}
+  requests.value.forEach(r => {
+    if (r.destination) counts[r.destination] = (counts[r.destination] || 0) + 1
+  })
+  return Object.entries(counts)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10)
 })
 
-const destinationOptions = computed(() => destinationsStore.getDestinationsForSelect)
+const pendingRequests = computed(() =>
+  requests.value.filter(r => r.status === 'requested')
+)
 
-onMounted(async () => {
-  themeStore.initTheme()
-  travelRequestStore.fetchTravelRequests()
-  await loadDestinations()
-})
+const recentRequests = computed(() =>
+  [...requests.value]
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    .slice(0, 8)
+)
 
-const loadDestinations = async () => {
-  try {
-    await destinationsStore.getDestinations()
-  } catch (error) {
-    console.error(t('travelRequest.loadDestinationsError'), error)
-  }
+const travelTypeIcon = (type) => {
+  return { aereo: Promotion, onibus: Van, carro: MapLocation, hotel: House }[type] || Location
 }
 
-const handleFilter = () => {
-  travelRequestStore.fetchTravelRequests(filters)
+const getStatusType = (status) => {
+  const types = { requested: 'warning', approved: 'success', cancelled: 'danger' }
+  return types[status] || ''
 }
 
-const handleDateChange = (dates) => {
-  if (dates) {
-    filters.start_date = dates[0]
-    filters.end_date = dates[1]
-  } else {
-    filters.start_date = ''
-    filters.end_date = ''
-  }
-  handleFilter()
+const translateStatus = (status) => ({
+  requested: t('status.requested'),
+  approved: t('status.approved'),
+  cancelled: t('status.cancelled'),
+}[status] || status)
+
+const formatDate = (date) => {
+  if (!date) return '-'
+  const d = typeof date === 'string' && date.includes('T') ? date.split('T')[0] : date
+  return new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
 }
 
-const handleReset = () => {
-  filters.status = ''
-  filters.destination = ''
-  filters.start_date = ''
-  filters.end_date = ''
-  dateRange.value = []
-  handleFilter()
+const handleApprove = async (req) => {
+  approvingId.value = req.id
+  await travelRequestStore.updateStatus(req.id, 'approved')
+  approvingId.value = null
 }
 
 const handleCreate = async (data) => {
   const success = await travelRequestStore.createTravelRequest(data)
-  if (success) {
-    showCreateDialog.value = false
-  }
+  if (success) showCreateDialog.value = false
 }
 
-const handleDelete = async (id) => {
-  await travelRequestStore.deleteTravelRequest(id)
-}
-
-const handleStatusChange = async (id, status) => {
-  await travelRequestStore.updateStatus(id, status)
-}
-
-const handleView = (data) => {
-  console.log('View:', data)
-}
+onMounted(() => {
+  themeStore.initTheme()
+  travelRequestStore.fetchTravelRequests()
+})
 </script>
 
 <style scoped>
-.page-title {
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  color: var(--el-text-color-primary);
-  transition: color 0.3s ease;
-}
-
-.page-title.dark-theme {
-  color: #ffffff;
+@media (max-width: 768px) {
+  div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
 }
 </style>
