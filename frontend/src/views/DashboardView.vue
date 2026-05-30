@@ -110,7 +110,9 @@
               <el-icon style="color: var(--el-color-warning)"><Warning /></el-icon>
               <span style="font-weight: 700">{{ $t('dashboard.pendingApproval') }}</span>
             </div>
-            <el-badge :value="stats.pending" type="warning" v-if="stats.pending > 0" />
+            <span style="font-size: 12px; color: var(--el-text-color-secondary)">
+              10 mais antigos
+            </span>
           </div>
         </template>
         <el-empty
@@ -119,7 +121,7 @@
           :image-size="50"
         />
         <div
-          v-for="req in pendingRequests.slice(0, 5)"
+          v-for="req in pendingRequests.slice(0, limitPending)"
           :key="req.id"
           style="
             display: flex;
@@ -158,15 +160,30 @@
           >
             {{ $t('dashboard.approve') }}
           </el-button>
+          <el-tooltip v-else-if="authStore.isApprover && req.user_id === authStore.user?.id" :content="$t('dashboard.cannotApproveOwn')" placement="top">
+            <el-icon style="color: var(--el-text-color-secondary); cursor: help; font-size: 18px">
+              <Lock />
+            </el-icon>
+          </el-tooltip>
+        </div>
+        <div v-if="stats.pending > limitPending" style="text-align: center; padding: 10px 0">
+          <el-button link type="primary" @click="limitPending += 10">
+            + Ver mais ({{ stats.pending - limitPending }} restantes)
+          </el-button>
         </div>
       </el-card>
 
       <!-- Recent requests -->
       <el-card shadow="never" v-loading="travelRequestStore.loading">
         <template #header>
-          <div style="display: flex; align-items: center; gap: 8px">
-            <el-icon style="color: var(--el-color-primary)"><Clock /></el-icon>
-            <span style="font-weight: 700">{{ $t('dashboard.recentRequests') }}</span>
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <div style="display: flex; align-items: center; gap: 8px">
+              <el-icon style="color: var(--el-color-primary)"><Clock /></el-icon>
+              <span style="font-weight: 700">{{ $t('dashboard.recentRequests') }}</span>
+            </div>
+            <span style="font-size: 12px; color: var(--el-text-color-secondary)">
+              10 mais recentes
+            </span>
           </div>
         </template>
         <el-empty
@@ -175,7 +192,7 @@
           :image-size="50"
         />
         <div
-          v-for="req in recentRequests"
+          v-for="req in recentRequests.slice(0, limitRecent)"
           :key="req.id"
           style="
             display: flex;
@@ -220,6 +237,11 @@
           <span :class="['voa-action-tag', req.status]">
             {{ translateStatus(req.status) }}
           </span>
+        </div>
+        <div v-if="recentRequests.length > limitRecent" style="text-align: center; padding: 10px 0">
+          <el-button link type="primary" @click="limitRecent += 8">
+            + Ver mais ({{ recentRequests.length - limitRecent }} restantes)
+          </el-button>
         </div>
       </el-card>
     </div>
@@ -377,6 +399,7 @@ import {
   Promotion,
   MapLocation,
   House,
+  Lock,
 } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
@@ -386,6 +409,8 @@ const themeStore = useThemeStore()
 
 const showCreateDialog = ref(false)
 const approvingId = ref(null)
+const limitPending = ref(10)
+const limitRecent = ref(10)
 
 const requests = computed(() => travelRequestStore.travelRequests || [])
 
@@ -444,10 +469,12 @@ const topDestinations = computed(() => {
     .slice(0, 10)
 })
 
-const pendingRequests = computed(() => requests.value.filter((r) => r.status === 'requested'))
+const pendingRequests = computed(() => 
+  [...requests.value].filter((r) => r.status === 'requested').sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+)
 
 const recentRequests = computed(() =>
-  [...requests.value].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 8),
+  [...requests.value].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 )
 
 const travelTypeIcon = (type) => {

@@ -78,6 +78,19 @@
       </div>
     </div>
 
+    <!-- Own request info -->
+    <el-alert
+      v-if="isOwner && request.status === 'requested'"
+      type="info"
+      :closable="false"
+      show-icon
+      style="margin-bottom: 16px"
+    >
+      <template #title>
+        <span>{{ $t('dashboard.cannotApproveOwn') }}</span>
+      </template>
+    </el-alert>
+
     <!-- Destination banner -->
     <el-card
       shadow="never"
@@ -290,12 +303,14 @@ const travelTypeIcon = (type) => {
 
 // Cor do tipo de viagem - usando variáveis CSS do tema
 const getTravelTypeColor = (type) => {
-  return { 
-    aereo: 'var(--travel-type-aereo)', 
-    onibus: 'var(--travel-type-onibus)', 
-    carro: 'var(--travel-type-carro)', 
-    hotel: 'var(--travel-type-hotel)' 
-  }[type] || 'var(--el-color-primary)'
+  return (
+    {
+      aereo: 'var(--travel-type-aereo)',
+      onibus: 'var(--travel-type-onibus)',
+      carro: 'var(--travel-type-carro)',
+      hotel: 'var(--travel-type-hotel)',
+    }[type] || 'var(--el-color-primary)'
+  )
 }
 
 // Formatar ID do pedido no formato VG-XXX

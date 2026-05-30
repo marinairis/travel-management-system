@@ -105,7 +105,8 @@
     "noTravelTypes": "Nenhum tipo de viagem.",
     "ofTotalRequests": "do total",
     "requests": "pedidos",
-    "dateRange": "Período da Viagem"
+    "dateRange": "Período da Viagem",
+    "cannotApproveOwn": "Não é possível aprovar sua própria solicitação"
   },
   "travelRequest": {
     "title": "Novo Pedido de Viagem",

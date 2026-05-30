@@ -104,7 +104,8 @@
     "travelTypesMostUsed": "Tipos de Viaje Más Usados",
     "noTravelTypes": "Sin tipos de viaje.",
     "ofTotalRequests": "del total",
-    "requests": "solicitudes"
+    "requests": "solicitudes",
+    "cannotApproveOwn": "No puedes aprobar tu propia solicitud"
   },
   "travelRequest": {
     "title": "Nueva Solicitud de Viaje",

@@ -104,7 +104,8 @@
     "travelTypesMostUsed": "Most Used Travel Types",
     "noTravelTypes": "No travel types.",
     "ofTotalRequests": "of total",
-    "requests": "requests"
+    "requests": "requests",
+    "cannotApproveOwn": "Cannot approve your own request"
   },
   "travelRequest": {
     "title": "New Travel Request",
