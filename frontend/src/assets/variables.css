@@ -171,8 +171,17 @@ body {
 }
 
 /* ── App shell ────────────────────────────────────────── */
-.voa-app { height: 100vh; overflow: hidden; }
-.voa-app > .el-container { height: 100vh; }
+.voa-app { 
+  height: 100vh; 
+  overflow: hidden; 
+  display: flex;
+  flex-direction: column;
+}
+.voa-app > .el-container { 
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 .voa-aside {
   background: var(--voa-sidebar-bg) !important;
   border-right: none !important;

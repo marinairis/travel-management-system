@@ -100,7 +100,11 @@
     "recentRequests": "Solicitudes Recientes",
     "recentEmpty": "Sin solicitudes.",
     "approve": "Aprobar",
-    "topDestinations": "Top 10 Destinos"
+    "topDestinations": "Top 10 Destinos",
+    "travelTypesMostUsed": "Tipos de Viaje Más Usados",
+    "noTravelTypes": "Sin tipos de viaje.",
+    "ofTotalRequests": "del total",
+    "requests": "solicitudes"
   },
   "travelRequest": {
     "title": "Nueva Solicitud de Viaje",
@@ -135,6 +139,7 @@
     "returnDateRequired": "La fecha de vuelta es obligatoria",
     "loadDestinationsError": "Error al cargar destinos",
     "approvedBy": "Aprobado Por",
+    "requestId": "ID de Solicitud",
     "confirmDelete": "Confirmar Eliminación",
     "deleteConfirmMessage": "¿Está seguro de que desea eliminar esta solicitud de viaje?",
     "changeStatus": "Cambiar Estado",

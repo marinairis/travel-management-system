@@ -100,7 +100,11 @@
     "recentRequests": "Pedidos Recentes",
     "recentEmpty": "Nenhum pedido.",
     "approve": "Aprovar",
-    "topDestinations": "Top 10 Destinos"
+    "topDestinations": "Top 10 Destinos",
+    "travelTypesMostUsed": "Tipos de Viagem Mais Usados",
+    "noTravelTypes": "Nenhum tipo de viagem.",
+    "ofTotalRequests": "do total",
+    "requests": "pedidos"
   },
   "travelRequest": {
     "title": "Novo Pedido de Viagem",
@@ -135,6 +139,7 @@
     "returnDateRequired": "Data de volta é obrigatória",
     "loadDestinationsError": "Erro ao carregar destinos",
     "approvedBy": "Aprovado Por",
+    "requestId": "ID do Pedido",
     "confirmDelete": "Confirmar Exclusão",
     "deleteConfirmMessage": "Tem certeza que deseja excluir este pedido de viagem?",
     "changeStatus": "Alterar Status",
@@ -268,6 +273,11 @@
     "inviteAnother": "Convidar outro",
     "roleDescRequester": "Cria e acompanha os próprios pedidos de viagem.",
     "roleDescManager": "Aprova ou cancela pedidos da equipe.",
-    "roleDescAdmin": "Acesso completo: usuários, logs e todos os pedidos."
+    "roleDescAdmin": "Acesso completo: usuários, logs e todos os pedidos.",
+    "status": "Status",
+    "active": "Ativo",
+    "inactive": "Inativo",
+    "activate": "Ativar usuário",
+    "deactivate": "Desativar usuário"
   }
 }

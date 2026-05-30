@@ -7,17 +7,27 @@
     <!-- Back + header -->
     <div class="voa-page-head">
       <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <el-button link @click="$router.push('/requests')">
+        <el-button link @click="handleGoBack">
           ← {{ $t('travelRequest.detailBack') }}
         </el-button>
         <span style="color:var(--el-border-color)">|</span>
-        <span style="font-size:15px;font-weight:700;color:var(--el-text-color-secondary)">#{{ request.id }}</span>
+        <span style="font-family:var(--voa-mono,monospace);font-size:15px;font-weight:700;color:var(--el-color-primary)">{{ formatRequestId(request.id) }}</span>
         <el-tag :type="getStatusType(request.status)" round>
           {{ translateStatus(request.status) }}
         </el-tag>
       </div>
       <!-- Actions -->
       <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <!-- Botão Editar - só mostra se for o dono do pedido -->
+        <el-button
+          v-if="isOwner && request.status === 'requested'"
+          type="primary"
+          plain
+          @click="editDrawerOpen = true"
+        >
+          <el-icon style="margin-right:4px"><Edit /></el-icon>
+          {{ $t('common.edit') }}
+        </el-button>
         <el-button
           v-if="request.status === 'requested' && authStore.isApprover"
           type="success"
@@ -47,7 +57,11 @@
     <!-- Destination banner -->
     <el-card shadow="never" style="margin-bottom:16px;background:var(--el-color-primary-light-9)">
       <div style="display:flex;align-items:center;gap:14px">
-        <div style="font-size:32px">✈</div>
+        <div style="font-size:32px">
+          <el-icon :style="{ fontSize: '32px', color: getTravelTypeColor(request.travel_type) }">
+            <component :is="travelTypeIcon(request.travel_type)" />
+          </el-icon>
+        </div>
         <div>
           <div style="font-size:20px;font-weight:800;letter-spacing:-.02em">{{ request.destination }}</div>
           <div style="font-size:13px;color:var(--el-text-color-secondary);margin-top:3px">
@@ -80,7 +94,12 @@
         </div>
         <div v-if="request.travel_type" class="voa-kv">
           <div class="voa-kv-label">{{ $t('travelRequest.detailType') }}</div>
-          <div class="voa-kv-value">{{ $t('travelRequest.travelType_' + request.travel_type) }}</div>
+          <div class="voa-kv-value" style="display:flex;align-items:center;gap:8px">
+            <el-icon :style="{ color: getTravelTypeColor(request.travel_type) }">
+              <component :is="travelTypeIcon(request.travel_type)" />
+            </el-icon>
+            {{ $t('travelRequest.travelType_' + request.travel_type) }}
+          </div>
         </div>
         <div class="voa-kv">
           <div class="voa-kv-label">{{ $t('travelRequest.detailCreated') }}</div>
@@ -135,16 +154,35 @@
         </el-button>
       </template>
     </el-dialog>
+
+    <!-- Edit Drawer -->
+    <el-drawer
+      v-model="editDrawerOpen"
+      :title="$t('travelRequest.updateRequest')"
+      size="500px"
+      direction="rtl"
+      :before-close="handleEditDrawerClose"
+    >
+      <TravelRequestForm
+        ref="editFormRef"
+        :model-value="editFormData"
+        :is-edit="true"
+        @submit="handleEditSubmit"
+        @cancel="editDrawerOpen = false"
+      />
+    </el-drawer>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useTravelRequestStore } from '@/stores/travelRequest'
 import { useI18n } from 'vue-i18n'
 import api from '@/plugins/axios'
+import TravelRequestForm from '@/components/TravelRequestForm.vue'
+import { Edit, Van, Promotion, MapLocation, House, Location } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -158,6 +196,43 @@ const loading = ref(true)
 const cancelOpen = ref(false)
 const cancelReason = ref('')
 const actionLoading = ref(null)
+const editDrawerOpen = ref(false)
+const editFormRef = ref(null)
+
+// Dados para o formulário de edição
+const editFormData = ref({})
+
+// Verificar se o usuário logado é o dono do pedido
+const isOwner = computed(() => {
+  return request.value && authStore.user && 
+    (request.value.user_id === authStore.user.id || 
+     request.value.requester_name === authStore.user.name)
+})
+
+// Ícone do tipo de viagem
+const travelTypeIcon = (type) => {
+  return { aereo: Promotion, onibus: Van, carro: MapLocation, hotel: House }[type] || Location
+}
+
+// Cor do tipo de viagem
+const getTravelTypeColor = (type) => {
+  return { aereo: '#3b82f6', onibus: '#f59e0b', carro: '#8b5cf6', hotel: '#10b981' }[type] || '#666'
+}
+
+// Formatar ID do pedido no formato VG-XXX
+const formatRequestId = (id) => {
+  if (!id) return '-'
+  return `VG-${String(id).padStart(3, '0')}`
+}
+
+// Voltar para a página anterior ou para a dashboard
+const handleGoBack = () => {
+  if (window.history.length > 2) {
+    router.back()
+  } else {
+    router.push('/')
+  }
+}
 
 const getStatusType = (status) =>
   ({ requested: 'warning', approved: 'success', cancelled: 'danger' }[status] || '')
@@ -188,6 +263,15 @@ const fetchRequest = async () => {
     const res = await api.get(`/travel-requests/${route.params.id}`)
     if (res.data.success) {
       request.value = res.data.data
+      // Preparar dados para edição
+      editFormData.value = {
+        requester_name: request.value.requester_name,
+        destination: request.value.destination,
+        travel_type: request.value.travel_type,
+        notes: request.value.notes,
+        departure_date: request.value.departure_date,
+        return_date: request.value.return_date,
+      }
     }
   } catch {
     request.value = null
@@ -228,6 +312,21 @@ const handleReopen = async () => {
   await travelRequestStore.updateStatus(route.params.id, 'requested')
   actionLoading.value = null
   await fetchRequest()
+}
+
+const handleEditDrawerClose = (done) => {
+  editFormRef.value?.resetFields()
+  done()
+}
+
+const handleEditSubmit = async (data) => {
+  loading.value = true
+  const success = await travelRequestStore.updateTravelRequest(route.params.id, data)
+  loading.value = false
+  if (success) {
+    editDrawerOpen.value = false
+    await fetchRequest()
+  }
 }
 
 onMounted(fetchRequest)

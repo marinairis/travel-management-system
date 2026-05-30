@@ -1,4 +1,4 @@
-<template>
+da<template>
   <div class="travel-request-table">
     <div class="table-container">
       <el-table
@@ -8,7 +8,13 @@
         :default-sort="{ prop: 'created_at', order: 'descending' }"
         scroll-x
       >
-        <el-table-column prop="id" :label="$t('users.id')" width="60" sortable />
+        <el-table-column prop="id" :label="$t('users.id')" width="80" sortable>
+          <template #default="scope">
+            <span style="font-family:var(--voa-mono,monospace);font-size:12px;font-weight:700;color:var(--el-color-primary)">
+              {{ formatRequestId(scope.row.id) }}
+            </span>
+          </template>
+        </el-table-column>
 
         <el-table-column
           prop="requester_name"
@@ -176,7 +182,9 @@
       >
         <el-descriptions v-if="selectedRequest" :column="1" border>
           <el-descriptions-item :label="$t('users.id')">
-            {{ selectedRequest.id }}
+            <span style="font-family:var(--voa-mono,monospace);font-size:14px;font-weight:700;color:var(--el-color-primary)">
+              {{ formatRequestId(selectedRequest.id) }}
+            </span>
           </el-descriptions-item>
 
           <el-descriptions-item :label="$t('travelRequest.requesterName')">
@@ -314,6 +322,12 @@ const formatDate = (date) => {
 const formatDateTime = (date) => {
   if (!date) return '-'
   return new Date(date).toLocaleString('pt-BR')
+}
+
+// Formatar ID do pedido no formato VG-XXX
+const formatRequestId = (id) => {
+  if (!id) return '-'
+  return `VG-${String(id).padStart(3, '0')}`
 }
 
 const handleDelete = (row) => {

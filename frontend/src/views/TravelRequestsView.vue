@@ -53,7 +53,7 @@
     </div>
 
     <!-- Table -->
-    <el-card shadow="never" style="padding:0">
+    <el-card shadow="never" class="voa-table-card" style="padding:0">
       <TravelRequestTable
         :data="travelRequestStore.travelRequests"
         :loading="travelRequestStore.loading"
@@ -62,7 +62,20 @@
         @status-change="handleStatusChange"
         @view="handleView"
       />
-    </el-card>
+ </el-card>
+
+    <!-- Pagination -->
+    <div class="voa-pagination">
+      <el-pagination
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :page-sizes="[10, 20, 50]"
+        :total="travelRequestStore.pagination.total"
+        layout="total, sizes, prev, pager, next"
+        @size-change="handlePageChange"
+        @current-change="handlePageChange"
+      />
+    </div>
 
     <!-- Create dialog -->
     <el-dialog
@@ -93,6 +106,8 @@ const destinationsStore = useDestinationsStore()
 
 const showCreateDialog = ref(false)
 const dateRange = ref([])
+const currentPage = ref(1)
+const pageSize = ref(10)
 
 const filters = reactive({
   status: '',
@@ -156,8 +171,23 @@ const handleView = (row) => {
   router.push('/requests/' + row.id)
 }
 
+const handlePageChange = () => {
+  travelRequestStore.fetchTravelRequests({
+    ...filters,
+    page: currentPage.value,
+    per_page: pageSize.value,
+  })
+}
+
 onMounted(async () => {
   travelRequestStore.fetchTravelRequests()
   await loadDestinations()
 })
 </script>
+
+<style scoped>
+.voa-table-card :deep(.el-table__body-wrapper) {
+  overflow-y: auto;
+  max-height: calc(100vh - 340px);
+}
+</style>

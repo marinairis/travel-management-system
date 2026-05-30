@@ -101,5 +101,19 @@ export const useUserStore = defineStore('user', {
         return false
       }
     },
+
+    async toggleUserStatus(id) {
+      try {
+        const response = await api.patch(`/users/${id}/toggle-status`)
+        if (response.data.success) {
+          ElMessage.success(response.data.message)
+          this.fetchUsers()
+          return true
+        }
+      } catch (error) {
+        console.error('Erro ao alterar status do usuário:', error)
+        return false
+      }
+    },
   },
 })

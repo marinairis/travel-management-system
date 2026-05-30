@@ -1,153 +1,149 @@
 <template>
-  <div class="page-container">
-    <el-container>
-      <el-main class="main-content">
-        <div class="voa-page-head">
-          <div>
-            <h1 class="voa-page-title">{{ $t('activityLogs.title') }}</h1>
-          </div>
-        </div>
+  <div>
+    <div class="voa-page-head">
+      <div>
+        <h1 class="voa-page-title">{{ $t('activityLogs.title') }}</h1>
+      </div>
+    </div>
 
-        <el-card class="filter-card" shadow="never">
-          <el-form :inline="true" :model="filters">
-            <el-form-item :label="$t('activityLogs.action')">
-              <el-select
-                v-model="filters.action"
-                :placeholder="$t('common.all')"
-                clearable
-                style="width: 150px"
-                @change="handleFilter"
-              >
-                <el-option :label="$t('activityLogs.create')" value="create" />
-                <el-option :label="$t('activityLogs.update')" value="update" />
-                <el-option :label="$t('activityLogs.delete')" value="delete" />
-                <el-option :label="$t('activityLogs.statusChange')" value="status_change" />
-                <el-option :label="$t('activityLogs.cancel')" value="cancel" />
-              </el-select>
-            </el-form-item>
-
-            <el-form-item v-if="authStore.isAdmin" :label="$t('activityLogs.user')">
-              <el-select
-                v-model="filters.user_id"
-                :placeholder="$t('common.all')"
-                clearable
-                filterable
-                style="width: 200px"
-                @change="handleFilter"
-              >
-                <el-option
-                  v-for="user in activityLogStore.users"
-                  :key="user.id"
-                  :label="user.name"
-                  :value="user.id"
-                />
-              </el-select>
-            </el-form-item>
-
-            <el-form-item :label="$t('activityLogs.type')">
-              <el-select
-                v-model="filters.model_type"
-                :placeholder="$t('common.all')"
-                clearable
-                style="width: 200px"
-                @change="handleFilter"
-              >
-                <el-option
-                  :label="$t('activityLogs.travelRequest')"
-                  value="App\Models\TravelRequest"
-                />
-                <el-option :label="$t('activityLogs.userModel')" value="App\Models\User" />
-              </el-select>
-            </el-form-item>
-
-            <el-form-item>
-              <el-button :icon="Refresh" @click="handleReset"> {{ $t('common.clear') }} </el-button>
-            </el-form-item>
-          </el-form>
-        </el-card>
-
-        <el-card class="table-card">
-          <el-table
-            :data="activityLogStore.logs"
-            v-loading="activityLogStore.loading"
-            style="width: 100%"
+    <el-card class="filter-card" shadow="never">
+      <el-form :inline="true" :model="filters">
+        <el-form-item :label="$t('activityLogs.action')">
+          <el-select
+            v-model="filters.action"
+            :placeholder="$t('common.all')"
+            clearable
+            style="width: 150px"
+            @change="handleFilter"
           >
-            <el-table-column prop="id" :label="$t('users.id')" width="80" />
+            <el-option :label="$t('activityLogs.create')" value="create" />
+            <el-option :label="$t('activityLogs.update')" value="update" />
+            <el-option :label="$t('activityLogs.delete')" value="delete" />
+            <el-option :label="$t('activityLogs.statusChange')" value="status_change" />
+            <el-option :label="$t('activityLogs.cancel')" value="cancel" />
+          </el-select>
+        </el-form-item>
 
-            <el-table-column
-              prop="user.name"
-              :label="$t('activityLogs.user')"
-              min-width="200"
-              show-overflow-tooltip
+        <el-form-item v-if="authStore.isAdmin" :label="$t('activityLogs.user')">
+          <el-select
+            v-model="filters.user_id"
+            :placeholder="$t('common.all')"
+            clearable
+            filterable
+            style="width: 200px"
+            @change="handleFilter"
+          >
+            <el-option
+              v-for="user in activityLogStore.users"
+              :key="user.id"
+              :label="user.name"
+              :value="user.id"
             />
+          </el-select>
+        </el-form-item>
 
-            <el-table-column prop="action" :label="$t('activityLogs.action')" width="140">
-              <template #default="scope">
-                <el-tag
-                  :type="getActionType(scope.row.action)"
-                  :class="`action-tag action-${scope.row.action}`"
-                >
-                  {{ translateAction(scope.row.action) }}
-                </el-tag>
-              </template>
-            </el-table-column>
-
-            <el-table-column
-              prop="description"
-              :label="$t('activityLogs.description')"
-              min-width="250"
-              show-overflow-tooltip
+        <el-form-item :label="$t('activityLogs.type')">
+          <el-select
+            v-model="filters.model_type"
+            :placeholder="$t('common.all')"
+            clearable
+            style="width: 200px"
+            @change="handleFilter"
+          >
+            <el-option
+              :label="$t('activityLogs.travelRequest')"
+              value="App\Models\TravelRequest"
             />
+            <el-option :label="$t('activityLogs.userModel')" value="App\Models\User" />
+          </el-select>
+        </el-form-item>
 
-            <el-table-column
-              prop="model_type"
-              :label="$t('activityLogs.type')"
-              min-width="200"
-              show-overflow-tooltip
+        <el-form-item>
+          <el-button :icon="Refresh" @click="handleReset"> {{ $t('common.clear') }} </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <el-card class="table-card voa-logs-card">
+      <el-table
+        :data="activityLogStore.logs"
+        v-loading="activityLogStore.loading"
+        style="width: 100%"
+      >
+        <el-table-column prop="id" :label="$t('users.id')" width="80" />
+
+        <el-table-column
+          prop="user.name"
+          :label="$t('activityLogs.user')"
+          min-width="200"
+          show-overflow-tooltip
+        />
+
+        <el-table-column prop="action" :label="$t('activityLogs.action')" width="140">
+          <template #default="scope">
+            <el-tag
+              :type="getActionType(scope.row.action)"
+              :class="`action-tag action-${scope.row.action}`"
             >
-              <template #default="scope">
-                {{ translateModelType(scope.row.model_type) }}
-              </template>
-            </el-table-column>
+              {{ translateAction(scope.row.action) }}
+            </el-tag>
+          </template>
+        </el-table-column>
 
-            <el-table-column
-              prop="ip_address"
-              :label="$t('activityLogs.ip')"
-              width="130"
-              show-overflow-tooltip
+        <el-table-column
+          prop="description"
+          :label="$t('activityLogs.description')"
+          min-width="250"
+          show-overflow-tooltip
+        />
+
+        <el-table-column
+          prop="model_type"
+          :label="$t('activityLogs.type')"
+          min-width="200"
+          show-overflow-tooltip
+        >
+          <template #default="scope">
+            {{ translateModelType(scope.row.model_type) }}
+          </template>
+        </el-table-column>
+
+        <el-table-column
+          prop="ip_address"
+          :label="$t('activityLogs.ip')"
+          width="130"
+          show-overflow-tooltip
+        />
+
+        <el-table-column prop="created_at" :label="$t('activityLogs.dateTime')" width="180">
+          <template #default="scope">
+            {{ formatDateTime(scope.row.created_at) }}
+          </template>
+        </el-table-column>
+
+        <el-table-column :label="$t('activityLogs.details')" width="100" fixed="right">
+          <template #default="scope">
+            <el-button
+              type="primary"
+              :icon="View"
+              circle
+              size="small"
+              @click="handleView(scope.row)"
             />
+          </template>
+        </el-table-column>
+      </el-table>
 
-            <el-table-column prop="created_at" :label="$t('activityLogs.dateTime')" width="180">
-              <template #default="scope">
-                {{ formatDateTime(scope.row.created_at) }}
-              </template>
-            </el-table-column>
-
-            <el-table-column :label="$t('activityLogs.details')" width="100" fixed="right">
-              <template #default="scope">
-                <el-button
-                  type="primary"
-                  :icon="View"
-                  circle
-                  size="small"
-                  @click="handleView(scope.row)"
-                />
-              </template>
-            </el-table-column>
-          </el-table>
-
-          <div class="pagination-container">
-            <el-pagination
-              v-model:current-page="currentPage"
-              :page-size="activityLogStore.pagination.per_page"
-              :total="activityLogStore.pagination.total"
-              layout="total, prev, pager, next"
-              @current-change="handlePageChange"
-            />
-          </div>
-        </el-card>
-      </el-main>
-    </el-container>
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          :page-size="activityLogStore.pagination.per_page"
+          :total="activityLogStore.pagination.total"
+          layout="total, prev, pager, next"
+          @current-change="handlePageChange"
+        />
+      </div>
+    </el-card>
 
     <el-dialog v-model="showViewDialog" :title="$t('activityLogs.logDetails')" width="700">
       <el-descriptions v-if="selectedLog" :column="1" border>
@@ -310,6 +306,11 @@ const formatDateTime = (date) => {
 </script>
 
 <style scoped>
+.voa-logs-card :deep(.el-table__body-wrapper) {
+  overflow-y: auto;
+  max-height: calc(100vh - 340px);
+}
+
 .action-tag {
   font-weight: 600;
   border-radius: 6px;

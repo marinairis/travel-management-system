@@ -100,7 +100,11 @@
     "recentRequests": "Recent Requests",
     "recentEmpty": "No requests found.",
     "approve": "Approve",
-    "topDestinations": "Top 10 Destinations"
+    "topDestinations": "Top 10 Destinations",
+    "travelTypesMostUsed": "Most Used Travel Types",
+    "noTravelTypes": "No travel types.",
+    "ofTotalRequests": "of total",
+    "requests": "requests"
   },
   "travelRequest": {
     "title": "New Travel Request",
@@ -135,6 +139,7 @@
     "returnDateRequired": "Return date is required",
     "loadDestinationsError": "Error loading destinations",
     "approvedBy": "Approved By",
+    "requestId": "Request ID",
     "confirmDelete": "Confirm Delete",
     "deleteConfirmMessage": "Are you sure you want to delete this travel request?",
     "changeStatus": "Change Status",

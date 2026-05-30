@@ -89,11 +89,11 @@
     </el-header>
 
     <!-- Scrollable main content -->
-    <div class="voa-main voa-main-wrapper">
+    <main class="voa-main voa-main-wrapper">
       <div class="voa-content-inner">
         <router-view />
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
@@ -185,6 +185,15 @@ onUnmounted(() => {
 <style scoped>
 .voa-main-wrapper {
   margin-left: var(--sidebar-width);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  height: calc(100vh - var(--header-height));
+}
+
+.voa-content-inner {
+  flex: 1;
 }
 
 @media (max-width: 768px) {

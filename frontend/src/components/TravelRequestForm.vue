@@ -50,10 +50,30 @@
         clearable
         style="width: 100%"
       >
-        <el-option :label="$t('travelRequest.travelTypeOnibus')" value="onibus" />
-        <el-option :label="$t('travelRequest.travelTypeAereo')" value="aereo" />
-        <el-option :label="$t('travelRequest.travelTypeCarro')" value="carro" />
-        <el-option :label="$t('travelRequest.travelTypeHotel')" value="hotel" />
+        <el-option :label="$t('travelRequest.travelTypeOnibus')" value="onibus">
+          <div style="display:flex;align-items:center;gap:8px">
+            <el-icon><Van /></el-icon>
+            <span>{{ $t('travelRequest.travelTypeOnibus') }}</span>
+          </div>
+        </el-option>
+        <el-option :label="$t('travelRequest.travelTypeAereo')" value="aereo">
+          <div style="display:flex;align-items:center;gap:8px">
+            <el-icon><Promotion /></el-icon>
+            <span>{{ $t('travelRequest.travelTypeAereo') }}</span>
+          </div>
+        </el-option>
+        <el-option :label="$t('travelRequest.travelTypeCarro')" value="carro">
+          <div style="display:flex;align-items:center;gap:8px">
+            <el-icon><MapLocation /></el-icon>
+            <span>{{ $t('travelRequest.travelTypeCarro') }}</span>
+          </div>
+        </el-option>
+        <el-option :label="$t('travelRequest.travelTypeHotel')" value="hotel">
+          <div style="display:flex;align-items:center;gap:8px">
+            <el-icon><House /></el-icon>
+            <span>{{ $t('travelRequest.travelTypeHotel') }}</span>
+          </div>
+        </el-option>
       </el-select>
     </el-form-item>
 
@@ -92,7 +112,7 @@
 
 <script setup>
 import { ref, reactive, watch, computed, onMounted } from 'vue'
-import { LocationFilled } from '@element-plus/icons-vue'
+import { LocationFilled, Van, Promotion, MapLocation, House } from '@element-plus/icons-vue'
 import { useDestinationsStore } from '@/stores/destinations'
 import { useUserStore } from '@/stores/user'
 import { useI18n } from 'vue-i18n'

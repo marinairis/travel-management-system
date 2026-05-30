@@ -6,6 +6,12 @@ export const useTravelRequestStore = defineStore('travelRequest', {
   state: () => ({
     travelRequests: [],
     loading: false,
+    pagination: {
+      current_page: 1,
+      last_page: 1,
+      per_page: 10,
+      total: 0,
+    },
   }),
 
   actions: {
@@ -17,10 +23,13 @@ export const useTravelRequestStore = defineStore('travelRequest', {
         if (filters.destination) params.append('destination', filters.destination)
         if (filters.start_date) params.append('start_date', filters.start_date)
         if (filters.end_date) params.append('end_date', filters.end_date)
+        params.append('per_page', filters.per_page || 10)
+        params.append('page', filters.page || 1)
 
         const response = await api.get(`/travel-requests?${params}`)
         if (response.data.success) {
           this.travelRequests = response.data.data
+          this.pagination = response.data.meta
         }
       } catch (error) {
         console.error('Erro ao buscar pedidos:', error)

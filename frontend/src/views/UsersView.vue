@@ -37,7 +37,7 @@
     </div>
 
     <!-- Table -->
-    <el-card shadow="never">
+    <el-card shadow="never" class="voa-users-card">
       <el-table :data="userStore.users" v-loading="userStore.loading" style="width:100%">
         <!-- Avatar + name column -->
         <el-table-column :label="$t('users.name')" min-width="200">
@@ -71,7 +71,15 @@
           </template>
         </el-table-column>
 
-        <el-table-column :label="$t('users.actions')" width="120" fixed="right">
+        <el-table-column :label="$t('users.status')" width="100">
+          <template #default="scope">
+            <el-tag :type="scope.row.is_active ? 'success' : 'danger'" size="small">
+              {{ scope.row.is_active ? $t('users.active') : $t('users.inactive') }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column :label="$t('users.actions')" width="180" fixed="right">
           <template #default="scope">
             <el-button
               type="primary"
@@ -80,6 +88,17 @@
               size="small"
               @click="handleEdit(scope.row)"
             />
+            <el-tooltip :content="scope.row.is_active ? $t('users.deactivate') : $t('users.activate')" placement="top">
+              <el-button
+                v-if="scope.row.id !== authStore.user?.id"
+                :type="scope.row.is_active ? 'warning' : 'success'"
+                circle
+                size="small"
+                @click="handleToggleStatus(scope.row)"
+              >
+                <span>{{ scope.row.is_active ? '⛔' : '✅' }}</span>
+              </el-button>
+            </el-tooltip>
             <el-button
               v-if="scope.row.id !== authStore.user?.id"
               type="danger"
@@ -304,4 +323,15 @@ const handleInvite = async () => {
   inviting.value = false
   if (success) inviteSent.value = true
 }
+
+const handleToggleStatus = async (user) => {
+  await userStore.toggleUserStatus(user.id)
+}
 </script>
+
+<style scoped>
+.voa-users-card :deep(.el-table__body-wrapper) {
+  overflow-y: auto;
+  max-height: calc(100vh - 340px);
+}
+</style>
