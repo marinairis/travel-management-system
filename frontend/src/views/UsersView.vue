@@ -6,9 +6,7 @@
         <h1 class="voa-page-title">{{ $t('users.title') }}</h1>
         <p class="voa-page-sub">{{ $t('users.subtitle') }}</p>
       </div>
-      <el-button type="primary" @click="openInvite">
-        + {{ $t('users.inviteUser') }}
-      </el-button>
+      <el-button type="primary" @click="openInvite"> + {{ $t('users.inviteUser') }} </el-button>
     </div>
 
     <!-- Filters -->
@@ -17,7 +15,7 @@
         v-model="filters.userType"
         :placeholder="$t('common.all')"
         clearable
-        style="width:160px"
+        style="width: 160px"
         @change="applyFilters"
       >
         <el-option :label="$t('users.roleAdmin')" value="admin" />
@@ -29,7 +27,7 @@
         v-model="filters.email"
         :placeholder="$t('users.emailPlaceholder')"
         clearable
-        style="width:250px"
+        style="width: 250px"
         @input="onEmailInput"
       />
 
@@ -38,20 +36,27 @@
 
     <!-- Table -->
     <el-card shadow="never" class="voa-users-card">
-      <el-table :data="userStore.users" v-loading="userStore.loading" style="width:100%">
+      <el-table :data="userStore.users" v-loading="userStore.loading" style="width: 100%">
         <!-- Avatar + name column -->
         <el-table-column :label="$t('users.name')" min-width="200">
           <template #default="scope">
-            <div style="display:flex;align-items:center;gap:10px">
+            <div style="display: flex; align-items: center; gap: 10px">
               <el-avatar
                 :size="32"
-                :style="{ background: avatarBg(scope.row.id), color: '#fff', fontSize: '12px', fontWeight: 700 }"
+                :style="{
+                  background: avatarBg(scope.row.id),
+                  color: '#fff',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                }"
               >
                 {{ initials(scope.row.name) }}
               </el-avatar>
               <div>
-                <div style="font-weight:600;font-size:13.5px">{{ scope.row.name }}</div>
-                <div style="font-size:12px;color:var(--el-text-color-secondary)">{{ scope.row.email }}</div>
+                <div style="font-weight: 600; font-size: 13.5px">{{ scope.row.name }}</div>
+                <div style="font-size: 12px; color: var(--el-text-color-secondary)">
+                  {{ scope.row.email }}
+                </div>
               </div>
             </div>
           </template>
@@ -65,9 +70,16 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="travel_requests_count" :label="$t('users.requests')" width="100" align="center">
+        <el-table-column
+          prop="travel_requests_count"
+          :label="$t('users.requests')"
+          width="100"
+          align="center"
+        >
           <template #default="scope">
-            <span style="font-family:var(--voa-mono,monospace)">{{ scope.row.travel_requests_count ?? 0 }}</span>
+            <span style="font-family: var(--voa-mono, monospace)">{{
+              scope.row.travel_requests_count ?? 0
+            }}</span>
           </template>
         </el-table-column>
 
@@ -88,7 +100,10 @@
               size="small"
               @click="handleEdit(scope.row)"
             />
-            <el-tooltip :content="scope.row.is_active ? $t('users.deactivate') : $t('users.activate')" placement="top">
+            <el-tooltip
+              :content="scope.row.is_active ? $t('users.deactivate') : $t('users.activate')"
+              placement="top"
+            >
               <el-button
                 v-if="scope.row.id !== authStore.user?.id"
                 :type="scope.row.is_active ? 'warning' : 'success'"
@@ -119,7 +134,7 @@
           <el-input v-model="editForm.name" />
         </el-form-item>
         <el-form-item :label="$t('users.userType')" prop="role">
-          <el-select v-model="editForm.role" style="width:100%">
+          <el-select v-model="editForm.role" style="width: 100%">
             <el-option value="requester" :label="$t('users.roleRequester')" />
             <el-option value="manager" :label="$t('users.roleManager')" />
             <el-option value="admin" :label="$t('users.roleAdmin')" />
@@ -128,16 +143,25 @@
       </el-form>
       <template #footer>
         <el-button @click="showEditDialog = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="primary" @click="handleUpdate" :loading="updating">{{ $t('common.save') }}</el-button>
+        <el-button type="primary" @click="handleUpdate" :loading="updating">{{
+          $t('common.save')
+        }}</el-button>
       </template>
     </el-dialog>
 
     <!-- Delete dialog -->
-    <el-dialog v-model="showDeleteDialog" :title="$t('users.confirmDelete')" width="400px" align-center>
+    <el-dialog
+      v-model="showDeleteDialog"
+      :title="$t('users.confirmDelete')"
+      width="400px"
+      align-center
+    >
       <p>{{ $t('users.deleteUserConfirm') }}</p>
       <template #footer>
         <el-button @click="showDeleteDialog = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="danger" @click="confirmDelete" :loading="deleting">{{ $t('common.delete') }}</el-button>
+        <el-button type="danger" @click="confirmDelete" :loading="deleting">{{
+          $t('common.delete')
+        }}</el-button>
       </template>
     </el-dialog>
 
@@ -152,32 +176,59 @@
       <!-- Success state -->
       <div v-if="inviteSent" class="voa-sent-center">
         <div class="voa-sent-icon">✓</div>
-        <div style="font-size:18px;font-weight:700;margin-bottom:6px">{{ $t('users.inviteSentTitle') }}</div>
-        <div style="color:var(--el-text-color-secondary);font-size:14px">{{ $t('users.inviteSentMsg') }}</div>
-        <div style="font-weight:700;margin-top:4px">{{ inviteForm.email }}</div>
-        <el-button style="margin-top:18px" @click="resetInviteForm">{{ $t('users.inviteAnother') }}</el-button>
+        <div style="font-size: 18px; font-weight: 700; margin-bottom: 6px">
+          {{ $t('users.inviteSentTitle') }}
+        </div>
+        <div style="color: var(--el-text-color-secondary); font-size: 14px">
+          {{ $t('users.inviteSentMsg') }}
+        </div>
+        <div style="font-weight: 700; margin-top: 4px">{{ inviteForm.email }}</div>
+        <el-button style="margin-top: 18px" @click="resetInviteForm">{{
+          $t('users.inviteAnother')
+        }}</el-button>
       </div>
 
       <!-- Invite form -->
       <div v-else>
-        <p style="color:var(--el-text-color-secondary);font-size:13.5px;margin:-8px 0 16px">
+        <p style="color: var(--el-text-color-secondary); font-size: 13.5px; margin: -8px 0 16px">
           {{ $t('users.inviteSubtitle') }}
         </p>
-        <div style="display:flex;flex-direction:column;gap:13px">
+        <div style="display: flex; flex-direction: column; gap: 13px">
           <div>
-            <div style="font-size:13px;font-weight:500;margin-bottom:5px;color:var(--el-text-color-regular)">
-              {{ $t('users.inviteEmail') }} <span style="color:var(--el-color-danger)">*</span>
+            <div
+              style="
+                font-size: 13px;
+                font-weight: 500;
+                margin-bottom: 5px;
+                color: var(--el-text-color-regular);
+              "
+            >
+              {{ $t('users.inviteEmail') }} <span style="color: var(--el-color-danger)">*</span>
             </div>
-            <el-input v-model="inviteForm.email" type="email" :placeholder="$t('users.inviteEmailPh')" />
-            <div v-if="inviteErrors.email" style="font-size:12px;color:var(--el-color-danger);margin-top:4px">
+            <el-input
+              v-model="inviteForm.email"
+              type="email"
+              :placeholder="$t('users.inviteEmailPh')"
+            />
+            <div
+              v-if="inviteErrors.email"
+              style="font-size: 12px; color: var(--el-color-danger); margin-top: 4px"
+            >
               {{ inviteErrors.email }}
             </div>
           </div>
           <div>
-            <div style="font-size:13px;font-weight:500;margin-bottom:5px;color:var(--el-text-color-regular)">
+            <div
+              style="
+                font-size: 13px;
+                font-weight: 500;
+                margin-bottom: 5px;
+                color: var(--el-text-color-regular);
+              "
+            >
               {{ $t('users.inviteRoleSelect') }}
             </div>
-            <el-select v-model="inviteForm.role" style="width:100%">
+            <el-select v-model="inviteForm.role" style="width: 100%">
               <el-option value="requester" :label="$t('users.roleRequester')" />
               <el-option value="manager" :label="$t('users.roleManager')" />
               <el-option value="admin" :label="$t('users.roleAdmin')" />
@@ -235,27 +286,42 @@ const rules = {
 }
 
 function initials(name) {
-  const parts = String(name || '').trim().split(' ')
+  const parts = String(name || '')
+    .trim()
+    .split(' ')
   return ((parts[0]?.[0] || '') + (parts[parts.length - 1]?.[0] || '')).toUpperCase()
 }
 
 function avatarBg(id) {
-  const c = ['#4D7A46', '#6B8E5A', '#5A7A6E', '#7A6E5A', '#6E5A7A', '#5A6E7A']
+  const c = [
+    'var(--avatar-color-1)',
+    'var(--avatar-color-2)',
+    'var(--avatar-color-3)',
+    'var(--avatar-color-4)',
+    'var(--avatar-color-5)',
+    'var(--avatar-color-6)',
+  ]
   let h = 0
   const s = String(id || '')
   for (let i = 0; i < s.length; i++) h = s.charCodeAt(i) + ((h << 5) - h)
   return c[Math.abs(h) % c.length]
 }
 
-const getRoleTagType = (role) => ({ admin: 'danger', manager: 'warning' }[role] || 'info')
-const getRoleLabel = (role) => ({ admin: t('users.roleAdmin'), manager: t('users.roleManager') }[role] || t('users.roleRequester'))
-const roleDesc = (role) => ({
-  requester: t('users.roleDescRequester'),
-  manager: t('users.roleDescManager'),
-  admin: t('users.roleDescAdmin'),
-}[role] || '')
+const getRoleTagType = (role) => ({ admin: 'danger', manager: 'warning' })[role] || 'info'
+const getRoleLabel = (role) =>
+  ({ admin: t('users.roleAdmin'), manager: t('users.roleManager') })[role] ||
+  t('users.roleRequester')
+const roleDesc = (role) =>
+  ({
+    requester: t('users.roleDescRequester'),
+    manager: t('users.roleDescManager'),
+    admin: t('users.roleDescAdmin'),
+  })[role] || ''
 
-const openInvite = () => { resetInviteForm(); showInviteDialog.value = true }
+const openInvite = () => {
+  resetInviteForm()
+  showInviteDialog.value = true
+}
 
 const resetInviteForm = () => {
   inviteForm.email = ''
@@ -264,10 +330,14 @@ const resetInviteForm = () => {
   inviteSent.value = false
 }
 
-onMounted(() => { userStore.fetchUsers() })
+onMounted(() => {
+  userStore.fetchUsers()
+})
 
 let emailTimeout = null
-const applyFilters = () => { userStore.fetchUsers(filters) }
+const applyFilters = () => {
+  userStore.fetchUsers(filters)
+}
 const onEmailInput = () => {
   if (emailTimeout) clearTimeout(emailTimeout)
   emailTimeout = setTimeout(applyFilters, 500)
@@ -304,7 +374,10 @@ const handleUpdate = async () => {
   })
 }
 
-const handleDelete = (user) => { selectedUser.value = user; showDeleteDialog.value = true }
+const handleDelete = (user) => {
+  selectedUser.value = user
+  showDeleteDialog.value = true
+}
 const confirmDelete = async () => {
   deleting.value = true
   await userStore.deleteUser(selectedUser.value.id)

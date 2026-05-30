@@ -11,49 +11,59 @@
       </el-button>
     </div>
 
-    <!-- Filters -->
-    <div class="voa-filters">
-      <el-select
-        v-model="filters.status"
-        :placeholder="$t('common.all')"
-        clearable
-        style="width:160px"
-        @change="handleFilter"
-      >
-        <el-option :label="$t('status.requested')" value="requested" />
-        <el-option :label="$t('status.approved')" value="approved" />
-        <el-option :label="$t('status.cancelled')" value="cancelled" />
-      </el-select>
+    <!-- Filters Card -->
+    <el-card class="filter-card" shadow="never" style="margin-bottom: 14px">
+      <el-form :inline="true" :model="filters">
+        <el-form-item :label="$t('dashboard.status')">
+          <el-select
+            v-model="filters.status"
+            :placeholder="$t('common.all')"
+            clearable
+            style="width: 160px"
+            @change="handleFilter"
+          >
+            <el-option :label="$t('status.requested')" value="requested" />
+            <el-option :label="$t('status.approved')" value="approved" />
+            <el-option :label="$t('status.cancelled')" value="cancelled" />
+          </el-select>
+        </el-form-item>
 
-      <el-select-v2
-        v-model="filters.destination"
-        :options="destinationOptions"
-        :placeholder="$t('dashboard.selectDestination')"
-        style="width:280px"
-        clearable
-        filterable
-        :loading="destinationsStore.loading"
-        @change="handleFilter"
-        @focus="loadDestinations"
-      />
+        <el-form-item :label="$t('travelRequest.destination')">
+          <el-select-v2
+            v-model="filters.destination"
+            :options="destinationOptions"
+            :placeholder="$t('dashboard.selectDestination')"
+            style="width: 280px"
+            clearable
+            filterable
+            :loading="destinationsStore.loading"
+            @change="handleFilter"
+            @focus="loadDestinations"
+          />
+        </el-form-item>
 
-      <el-date-picker
-        v-model="dateRange"
-        type="daterange"
-        :range-separator="$t('dashboard.dateRangeSeparator')"
-        :start-placeholder="$t('dashboard.startDate')"
-        :end-placeholder="$t('dashboard.endDate')"
-        format="DD/MM/YYYY"
-        value-format="YYYY-MM-DD"
-        style="width:300px"
-        @change="handleDateChange"
-      />
+        <el-form-item :label="$t('dashboard.dateRange')">
+          <el-date-picker
+            v-model="dateRange"
+            type="daterange"
+            :range-separator="$t('dashboard.dateRangeSeparator')"
+            :start-placeholder="$t('dashboard.startDate')"
+            :end-placeholder="$t('dashboard.endDate')"
+            format="DD/MM/YYYY"
+            value-format="YYYY-MM-DD"
+            style="width: 300px"
+            @change="handleDateChange"
+          />
+        </el-form-item>
 
-      <el-button link @click="handleReset">✕ {{ $t('common.clear') }}</el-button>
-    </div>
+        <el-form-item>
+          <el-button :icon="Refresh" @click="handleReset"> {{ $t('common.clear') }} </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
-    <!-- Table -->
-    <el-card shadow="never" class="voa-table-card" style="padding:0">
+    <!-- Table Card -->
+    <el-card shadow="never" class="voa-table-card">
       <TravelRequestTable
         :data="travelRequestStore.travelRequests"
         :loading="travelRequestStore.loading"
@@ -62,31 +72,31 @@
         @status-change="handleStatusChange"
         @view="handleView"
       />
- </el-card>
 
-    <!-- Pagination -->
-    <div class="voa-pagination">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 50]"
-        :total="travelRequestStore.pagination.total"
-        layout="total, sizes, prev, pager, next"
-        @size-change="handlePageChange"
-        @current-change="handlePageChange"
-      />
-    </div>
+      <!-- Pagination -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50]"
+          :total="travelRequestStore.pagination.total"
+          layout="total, sizes, prev, pager, next"
+          @size-change="handlePageChange"
+          @current-change="handlePageChange"
+        />
+      </div>
+    </el-card>
 
-    <!-- Create dialog -->
-    <el-dialog
+    <!-- Create Drawer -->
+    <el-drawer
       v-model="showCreateDialog"
       :title="$t('travelRequest.title')"
-      width="600px"
-      :close-on-click-modal="false"
-      destroy-on-close
+      size="500px"
+      direction="rtl"
+      :before-close="() => showCreateDialog = false"
     >
       <TravelRequestForm @submit="handleCreate" @cancel="showCreateDialog = false" />
-    </el-dialog>
+    </el-drawer>
   </div>
 </template>
 
@@ -96,6 +106,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useTravelRequestStore } from '@/stores/travelRequest'
 import { useDestinationsStore } from '@/stores/destinations'
 import { useI18n } from 'vue-i18n'
+import { Refresh } from '@element-plus/icons-vue'
 import TravelRequestTable from '@/components/TravelRequestTable.vue'
 import TravelRequestForm from '@/components/TravelRequestForm.vue'
 
@@ -221,5 +232,13 @@ onMounted(async () => {
 .voa-table-card :deep(.el-table__body-wrapper) {
   overflow-y: auto;
   max-height: calc(100vh - 340px);
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0 4px;
+  border-top: 1px solid var(--el-border-color);
 }
 </style>

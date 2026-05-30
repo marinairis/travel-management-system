@@ -33,7 +33,7 @@
           @click="handleNotificationClick(n)"
         >
           <div class="notification-icon">
-            <el-icon :color="n.data.new_status === 'approved' ? '#67c23a' : '#f56c6c'">
+            <el-icon :color="n.data.new_status === 'approved' ? 'var(--el-color-success)' : 'var(--el-color-danger)'">
               <component :is="n.data.new_status === 'approved' ? CircleCheck : CircleClose" />
             </el-icon>
           </div>

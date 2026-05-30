@@ -110,6 +110,7 @@
     "title": "Nueva Solicitud de Viaje",
     "listTitle": "Solicitudes de Viaje",
     "listSubtitle": "Gestiona todas las solicitudes",
+    "dates": "Período",
     "requesterName": "Solicitante",
     "requesterNamePlaceholder": "Seleccione el solicitante",
     "destination": "Destino",

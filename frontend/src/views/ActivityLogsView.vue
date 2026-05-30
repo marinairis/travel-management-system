@@ -81,12 +81,9 @@
 
         <el-table-column prop="action" :label="$t('activityLogs.action')" width="140">
           <template #default="scope">
-            <el-tag
-              :type="getActionType(scope.row.action)"
-              :class="`action-tag action-${scope.row.action}`"
-            >
+            <span :class="`voa-action-tag ${scope.row.action}`">
               {{ translateAction(scope.row.action) }}
-            </el-tag>
+            </span>
           </template>
         </el-table-column>
 
@@ -156,12 +153,9 @@
         </el-descriptions-item>
 
         <el-descriptions-item :label="$t('activityLogs.action')">
-          <el-tag
-            :type="getActionType(selectedLog.action)"
-            :class="`action-tag action-${selectedLog.action}`"
-          >
+          <span :class="`voa-action-tag ${selectedLog.action}`">
             {{ translateAction(selectedLog.action) }}
-          </el-tag>
+          </span>
         </el-descriptions-item>
 
         <el-descriptions-item :label="$t('activityLogs.description')">
@@ -309,96 +303,5 @@ const formatDateTime = (date) => {
 .voa-logs-card :deep(.el-table__body-wrapper) {
   overflow-y: auto;
   max-height: calc(100vh - 340px);
-}
-
-.action-tag {
-  font-weight: 600;
-  border-radius: 6px;
-  font-size: 12px;
-  padding: 4px 8px;
-}
-
-.action-create {
-  background-color: #f0fdf4 !important;
-  color: #166534 !important;
-  border-color: #22c55e !important;
-}
-
-.action-update {
-  background-color: #fef3c7 !important;
-  color: #d97706 !important;
-  border-color: #f59e0b !important;
-}
-
-.action-delete {
-  background-color: #fef2f2 !important;
-  color: #dc2626 !important;
-  border-color: #ef4444 !important;
-}
-
-.action-status_change {
-  background-color: #f0f9ff !important;
-  color: #1d4ed8 !important;
-  border-color: #3b82f6 !important;
-}
-
-.action-cancel {
-  background-color: #fef2f2 !important;
-  color: #dc2626 !important;
-  border-color: #ef4444 !important;
-}
-
-.action-login {
-  background-color: #f0fdf4 !important;
-  color: #166534 !important;
-  border-color: #22c55e !important;
-}
-
-.action-logout {
-  background-color: #f8fafc !important;
-  color: #475569 !important;
-  border-color: #94a3b8 !important;
-}
-
-.action-approve {
-  background-color: #f0fdf4 !important;
-  color: #15803d !important;
-  border-color: #16a34a !important;
-}
-
-.action-reject {
-  background-color: #fef2f2 !important;
-  color: #b91c1c !important;
-  border-color: #dc2626 !important;
-}
-
-.action-view {
-  background-color: #f0f9ff !important;
-  color: #1e40af !important;
-  border-color: #2563eb !important;
-}
-
-.action-export {
-  background-color: #f0f9ff !important;
-  color: #7c3aed !important;
-  border-color: #8b5cf6 !important;
-}
-
-.action-import {
-  background-color: #fef3c7 !important;
-  color: #a16207 !important;
-  border-color: #eab308 !important;
-}
-
-.page-title {
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  color: var(--el-text-color-primary);
-  transition: color 0.3s ease;
-}
-
-.page-title.dark-theme {
-  color: #ffffff;
 }
 </style>

@@ -110,6 +110,7 @@
     "title": "New Travel Request",
     "listTitle": "Travel Requests",
     "listSubtitle": "Manage all requests",
+    "dates": "Period",
     "requesterName": "Requester",
     "requesterNamePlaceholder": "Select requester",
     "destination": "Destination",

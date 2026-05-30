@@ -288,9 +288,14 @@ const travelTypeIcon = (type) => {
   return { aereo: Promotion, onibus: Van, carro: MapLocation, hotel: House }[type] || Location
 }
 
-// Cor do tipo de viagem
+// Cor do tipo de viagem - usando variáveis CSS do tema
 const getTravelTypeColor = (type) => {
-  return { aereo: '#3b82f6', onibus: '#f59e0b', carro: '#8b5cf6', hotel: '#10b981' }[type] || '#666'
+  return { 
+    aereo: 'var(--travel-type-aereo)', 
+    onibus: 'var(--travel-type-onibus)', 
+    carro: 'var(--travel-type-carro)', 
+    hotel: 'var(--travel-type-hotel)' 
+  }[type] || 'var(--el-color-primary)'
 }
 
 // Formatar ID do pedido no formato VG-XXX

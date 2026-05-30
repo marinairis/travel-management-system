@@ -104,12 +104,14 @@
     "travelTypesMostUsed": "Tipos de Viagem Mais Usados",
     "noTravelTypes": "Nenhum tipo de viagem.",
     "ofTotalRequests": "do total",
-    "requests": "pedidos"
+    "requests": "pedidos",
+    "dateRange": "Período da Viagem"
   },
   "travelRequest": {
     "title": "Novo Pedido de Viagem",
     "listTitle": "Pedidos de Viagem",
     "listSubtitle": "Gerencie todas as solicitações",
+    "dates": "Período",
     "requesterName": "Solicitante",
     "requesterNamePlaceholder": "Selecione o solicitante",
     "destination": "Destino",

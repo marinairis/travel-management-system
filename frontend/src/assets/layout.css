@@ -34,73 +34,11 @@
   margin: 0;
 }
 
-/* Cards */
-.filter-card,
-.filters-card {
-  margin-bottom: var(--spacing-2xl);
-}
-
-.table-card {
-  margin-bottom: var(--spacing-2xl);
-}
-
-/* Flexbox Layouts */
-.flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.flex-between {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.flex-column {
-  display: flex;
-  flex-direction: column;
-}
-
-.flex-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-/* Gap utilities */
-.gap-xs {
-  gap: var(--spacing-xs);
-}
-
-.gap-sm {
-  gap: var(--spacing-sm);
-}
-
-.gap-md {
-  gap: var(--spacing-md);
-}
-
-.gap-lg {
-  gap: var(--spacing-lg);
-}
-
-.gap-xl {
-  gap: var(--spacing-xl);
-}
-
-/* Pagination */
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  margin-top: var(--spacing-xl);
-}
-
 /* Responsive - Mobile */
 @media (max-width: 768px) {
   .main-content {
     padding: var(--spacing-lg);
-    margin-left: 0 !important; /* Forçar sem margem em mobile */
+    margin-left: 0 !important;
   }
 
   .page-header {
@@ -112,59 +50,10 @@
   .page-title {
     font-size: 24px;
   }
-
-  /* Inline forms em mobile */
-  :deep(.el-form--inline .el-form-item) {
-    display: block;
-    margin-bottom: var(--spacing-md);
-  }
-
-  /* Cards em mobile */
-  .filter-card,
-  .filters-card,
-  .table-card {
-    margin-bottom: var(--spacing-lg);
-  }
-
-  /* Melhor espaçamento para botões em mobile */
-  .flex-between {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--spacing-md);
-  }
 }
 
-/* Responsive - Tablet */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (max-width: 520px) {
   .main-content {
-    padding: var(--spacing-xl);
-  }
-
-  .page-header {
-    flex-direction: row;
-    align-items: center;
-    gap: var(--spacing-md);
-  }
-
-  .page-title {
-    font-size: 26px;
+    padding: var(--spacing-md);
   }
 }
-
-/* Responsive - Desktop */
-@media (min-width: 1025px) {
-  .main-content {
-    padding: var(--spacing-2xl);
-  }
-
-  .page-header {
-    flex-direction: row;
-    align-items: center;
-    gap: 0;
-  }
-
-  .page-title {
-    font-size: 28px;
-  }
-}
-

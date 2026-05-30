@@ -144,7 +144,14 @@ function initials(name) {
 }
 
 function avatarBg(id) {
-  const c = ['#4D7A46', '#6B8E5A', '#5A7A6E', '#7A6E5A', '#6E5A7A', '#5A6E7A']
+  const c = [
+    'var(--avatar-color-1)',
+    'var(--avatar-color-2)',
+    'var(--avatar-color-3)',
+    'var(--avatar-color-4)',
+    'var(--avatar-color-5)',
+    'var(--avatar-color-6)'
+  ]
   let h = 0
   const s = String(id)
   for (let i = 0; i < s.length; i++) h = s.charCodeAt(i) + ((h << 5) - h)

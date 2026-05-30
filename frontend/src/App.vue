@@ -1,4 +1,4 @@
-<template>
+t<template>
   <el-config-provider :locale="localeStore.currentElementPlusLocale">
     <div id="app">
       <MainLayout v-if="showMainLayout" />
@@ -39,36 +39,10 @@ onMounted(() => {
 </script>
 
 <style>
-#app {
-  font-family:
-    'Geist',
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
+/* Reset global mínimo - estilos completos estão em variables.css */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
 }
 </style>

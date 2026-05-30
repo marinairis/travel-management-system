@@ -217,9 +217,9 @@
               {{ req.requester_name }} · {{ formatDate(req.departure_date) }}
             </div>
           </div>
-          <el-tag :type="getStatusType(req.status)" size="small" round>
+          <span :class="['voa-action-tag', req.status]">
             {{ translateStatus(req.status) }}
-          </el-tag>
+          </span>
         </div>
       </el-card>
     </div>
@@ -344,16 +344,16 @@
       </el-card>
     </div>
 
-    <!-- Create dialog -->
-    <el-dialog
+    <!-- Create Drawer -->
+    <el-drawer
       v-model="showCreateDialog"
       :title="$t('travelRequest.title')"
-      width="600px"
-      :close-on-click-modal="false"
-      destroy-on-close
+      size="500px"
+      direction="rtl"
+      :before-close="() => showCreateDialog = false"
     >
       <TravelRequestForm @submit="handleCreate" @cancel="showCreateDialog = false" />
-    </el-dialog>
+    </el-drawer>
   </div>
 </template>
 
@@ -400,25 +400,25 @@ const travelTypeStats = computed(() => [
   {
     key: 'aereo',
     icon: Promotion,
-    color: '#3b82f6',
+    color: 'var(--travel-type-aereo)',
     count: requests.value.filter((r) => r.travel_type === 'aereo').length,
   },
   {
     key: 'onibus',
     icon: Van,
-    color: '#f59e0b',
+    color: 'var(--travel-type-onibus)',
     count: requests.value.filter((r) => r.travel_type === 'onibus').length,
   },
   {
     key: 'carro',
     icon: MapLocation,
-    color: '#8b5cf6',
+    color: 'var(--travel-type-carro)',
     count: requests.value.filter((r) => r.travel_type === 'carro').length,
   },
   {
     key: 'hotel',
     icon: House,
-    color: '#10b981',
+    color: 'var(--travel-type-hotel)',
     count: requests.value.filter((r) => r.travel_type === 'hotel').length,
   },
 ])
