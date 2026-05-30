@@ -887,6 +887,44 @@
                     }
                 ]
             }
+        },
+        "/api/users/{id}/toggle-status": {
+            "patch": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Ativar ou desativar um usuário (apenas admin)",
+                "operationId": "f6222699f2750eaacc1ecd011ce428a1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status do usuário alterado com sucesso"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso negado"
+                    },
+                    "404": {
+                        "description": "Usuário não encontrado"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
         }
     },
     "components": {

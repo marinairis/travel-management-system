@@ -2,15 +2,11 @@
 
 namespace App\Notifications;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class UserInvited extends Notification implements ShouldQueue
+class UserInvited extends Notification
 {
-    use Queueable;
-
     protected string $token;
     protected string $role;
 

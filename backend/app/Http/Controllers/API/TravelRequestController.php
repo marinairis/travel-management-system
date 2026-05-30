@@ -48,9 +48,19 @@ class TravelRequestController extends Controller
 
         $this->applyFilters($query, $request);
 
-        $travelRequests = $query->orderBy('created_at', 'desc')->get();
+        $perPage = $request->input('per_page', 10);
+        $travelRequests = $query->orderBy('created_at', 'desc')->paginate($perPage);
 
-        return $this->successResponse('general.success', $travelRequests);
+        return response()->json([
+            'success' => true,
+            'data' => $travelRequests->items(),
+            'meta' => [
+                'current_page' => $travelRequests->currentPage(),
+                'last_page' => $travelRequests->lastPage(),
+                'per_page' => $travelRequests->perPage(),
+                'total' => $travelRequests->total(),
+            ]
+        ]);
     }
 
     /**

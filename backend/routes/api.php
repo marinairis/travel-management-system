@@ -55,4 +55,5 @@ Route::middleware(['auth:api', 'admin'])->group(function () {
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
     Route::post('/users/invite', [InvitationController::class, 'invite']);
+    Route::patch('/users/{id}/toggle-status', [UserController::class, 'toggleStatus']);
 });

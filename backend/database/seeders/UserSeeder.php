@@ -30,5 +30,12 @@ class UserSeeder extends Seeder
             'password' => Hash::make('Solicit@1'),
             'role' => 'requester',
         ]);
+
+        User::create([
+            'name' => 'Ana Costa',
+            'email' => 'ana.costa@travelmanagement.com',
+            'password' => Hash::make('AnaCosta@1'),
+            'role' => 'requester',
+        ]);
     }
 }

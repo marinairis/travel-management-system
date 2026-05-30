@@ -181,6 +181,58 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Patch(
+     *     path="/api/users/{id}/toggle-status",
+     *     tags={"Users"},
+     *     summary="Ativar ou desativar um usuário (apenas admin)",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Status do usuário alterado com sucesso"),
+     *     @OA\Response(response=401, description="Não autenticado"),
+     *     @OA\Response(response=403, description="Acesso negado"),
+     *     @OA\Response(response=404, description="Usuário não encontrado")
+     * )
+     */
+    public function toggleStatus($id)
+    {
+        $user = User::find($id);
+
+        if (
+            $error = $this->validateResourceExists(
+                $user,
+                'Usuário não encontrado'
+            )
+        ) {
+            return $error;
+        }
+
+        if ($user->id === Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Você não pode desativar sua própria conta'
+            ], 403);
+        }
+
+        $user->is_active = !$user->is_active;
+        $user->save();
+
+        $status = $user->is_active ? 'ativado' : 'desativado';
+
+        $this->logActivityUpdate(
+            $user,
+            ['is_active' => !$user->is_active],
+            new Request(['is_active' => $user->is_active]),
+            "Usuário {$status}"
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => "Usuário {$status} com sucesso",
+            'data' => $user->fresh()
+        ]);
+    }
+
     private function applyFilters($query, UserFilterRequest $request)
     {
         $this->filterByUserType($query, $request);

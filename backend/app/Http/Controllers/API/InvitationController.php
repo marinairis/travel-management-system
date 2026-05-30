@@ -46,8 +46,16 @@ class InvitationController extends Controller
             'expires_at' => now()->addDays(7),
         ]);
 
-        Notification::route('mail', $request->email)
-            ->notify(new UserInvited($token, $request->role));
+        try {
+            Notification::route('mail', $request->email)
+                ->notify(new UserInvited($token, $request->role));
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Falha ao enviar email de convite. Verifique o endereço de email e tente novamente.',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
 
         return response()->json([
             'success' => true,
