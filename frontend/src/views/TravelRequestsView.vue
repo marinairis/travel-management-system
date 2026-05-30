@@ -92,7 +92,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useTravelRequestStore } from '@/stores/travelRequest'
 import { useDestinationsStore } from '@/stores/destinations'
 import { useI18n } from 'vue-i18n'
@@ -101,6 +101,7 @@ import TravelRequestForm from '@/components/TravelRequestForm.vue'
 
 const { t } = useI18n()
 const router = useRouter()
+const route = useRoute()
 const travelRequestStore = useTravelRequestStore()
 const destinationsStore = useDestinationsStore()
 
@@ -126,8 +127,36 @@ const loadDestinations = async () => {
   }
 }
 
+const updateQueryParams = () => {
+  const query = {}
+  if (filters.status) query.status = filters.status
+  if (filters.destination) query.destination = filters.destination
+  if (filters.start_date) query.start_date = filters.start_date
+  if (filters.end_date) query.end_date = filters.end_date
+  if (currentPage.value > 1) query.page = currentPage.value
+  if (pageSize.value !== 10) query.per_page = pageSize.value
+  
+  router.replace({ query })
+}
+
+const loadFiltersFromQuery = () => {
+  filters.status = route.query.status || ''
+  filters.destination = route.query.destination || ''
+  filters.start_date = route.query.start_date || ''
+  filters.end_date = route.query.end_date || ''
+  currentPage.value = parseInt(route.query.page) || 1
+  pageSize.value = parseInt(route.query.per_page) || 10
+  
+  if (filters.start_date && filters.end_date) {
+    dateRange.value = [filters.start_date, filters.end_date]
+  } else {
+    dateRange.value = []
+  }
+}
+
 const handleFilter = () => {
-  travelRequestStore.fetchTravelRequests({ ...filters })
+  updateQueryParams()
+  travelRequestStore.fetchTravelRequests({ ...filters, page: currentPage.value, per_page: pageSize.value })
 }
 
 const handleDateChange = (dates) => {
@@ -147,6 +176,7 @@ const handleReset = () => {
   filters.start_date = ''
   filters.end_date = ''
   dateRange.value = []
+  router.replace({ query: {} })
   handleFilter()
 }
 
@@ -172,6 +202,7 @@ const handleView = (row) => {
 }
 
 const handlePageChange = () => {
+  updateQueryParams()
   travelRequestStore.fetchTravelRequests({
     ...filters,
     page: currentPage.value,
@@ -180,7 +211,8 @@ const handlePageChange = () => {
 }
 
 onMounted(async () => {
-  travelRequestStore.fetchTravelRequests()
+  loadFiltersFromQuery()
+  travelRequestStore.fetchTravelRequests({ ...filters, page: currentPage.value, per_page: pageSize.value })
   await loadDestinations()
 })
 </script>

@@ -181,84 +181,6 @@
         </template>
       </el-dialog>
 
-      <!-- Detail / view dialog -->
-      <el-dialog
-        v-model="viewDialogVisible"
-        :title="$t('travelRequest.requestDetails')"
-        :width="isMobile ? '95%' : '620px'"
-      >
-        <el-descriptions v-if="selectedRequest" :column="1" border>
-          <el-descriptions-item :label="$t('users.id')">
-            <span style="font-family:var(--voa-mono,monospace);font-size:14px;font-weight:700;color:var(--el-color-primary)">
-              {{ formatRequestId(selectedRequest.id) }}
-            </span>
-          </el-descriptions-item>
-
-          <el-descriptions-item :label="$t('travelRequest.requesterName')">
-            {{ selectedRequest.requester_name }}
-          </el-descriptions-item>
-
-          <el-descriptions-item :label="$t('travelRequest.user')">
-            {{ selectedRequest.user?.name || '-' }}
-          </el-descriptions-item>
-
-          <el-descriptions-item :label="$t('travelRequest.destination')">
-            {{ selectedRequest.destination }}
-          </el-descriptions-item>
-
-          <el-descriptions-item v-if="selectedRequest.travel_type" :label="$t('travelRequest.travelType')">
-            {{ $t('travelRequest.travelType_' + selectedRequest.travel_type) }}
-          </el-descriptions-item>
-
-          <el-descriptions-item :label="$t('travelRequest.departureDate')">
-            {{ formatDate(selectedRequest.departure_date) }}
-          </el-descriptions-item>
-
-          <el-descriptions-item :label="$t('travelRequest.returnDate')">
-            {{ formatDate(selectedRequest.return_date) }}
-          </el-descriptions-item>
-
-          <el-descriptions-item :label="$t('dashboard.status')">
-            <template v-if="canChangeStatus(selectedRequest)">
-              <el-select v-model="detailStatus" size="small" style="width: 160px">
-                <el-option :label="$t('status.requested')" value="requested" :disabled="true" />
-                <el-option :label="$t('status.approved')" value="approved" />
-                <el-option :label="$t('status.cancelled')" value="cancelled" />
-              </el-select>
-            </template>
-            <el-tag v-else :type="getStatusType(selectedRequest.status)">
-              {{ translateStatus(selectedRequest.status) }}
-            </el-tag>
-          </el-descriptions-item>
-
-          <el-descriptions-item
-            v-if="selectedRequest.approved_by && authStore.isApprover"
-            :label="$t('travelRequest.approvedBy')"
-          >
-            {{ selectedRequest.approved_by?.name }}
-          </el-descriptions-item>
-
-          <el-descriptions-item v-if="selectedRequest.notes" :label="$t('travelRequest.notes')">
-            {{ selectedRequest.notes }}
-          </el-descriptions-item>
-
-          <el-descriptions-item :label="$t('travelRequest.createdAt')">
-            {{ formatDateTime(selectedRequest.created_at) }}
-          </el-descriptions-item>
-        </el-descriptions>
-
-        <template #footer>
-          <el-button @click="viewDialogVisible = false">{{ $t('common.close') }}</el-button>
-          <el-button
-            v-if="canChangeStatus(selectedRequest) && detailStatus !== selectedRequest?.status"
-            type="primary"
-            @click="saveDetailStatus"
-            :loading="changingStatus"
-          >
-            {{ $t('common.save') }}
-          </el-button>
-        </template>
-      </el-dialog>
     </div>
   </div>
 </template>
@@ -281,15 +203,12 @@ const authStore = useAuthStore()
 const deleteDialogVisible = ref(false)
 const cancelDialogVisible = ref(false)
 const statusDialogVisible = ref(false)
-const viewDialogVisible = ref(false)
 const deleting = ref(false)
 const cancelling = ref(false)
 const changingStatus = ref(false)
 const selectedRequest = ref(null)
 const newStatus = ref('')
-const detailStatus = ref('')
 
-const isMobile = computed(() => window.innerWidth <= 768)
 const tableData = computed(() => props.data)
 const showDelete = computed(() => authStore.isAdmin)
 const showApprover = computed(() => authStore.isApprover)
@@ -376,16 +295,7 @@ const confirmStatusChange = async () => {
 }
 
 const handleView = (row) => {
-  selectedRequest.value = row
-  detailStatus.value = row.status
-  viewDialogVisible.value = true
-}
-
-const saveDetailStatus = async () => {
-  changingStatus.value = true
-  await emit('status-change', selectedRequest.value.id, detailStatus.value)
-  changingStatus.value = false
-  viewDialogVisible.value = false
+  emit('view', row)
 }
 </script>
 
