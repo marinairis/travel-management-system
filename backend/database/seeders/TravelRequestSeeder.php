@@ -36,6 +36,8 @@ class TravelRequestSeeder extends Seeder
 
         $statuses = ['requested', 'requested', 'requested', 'approved', 'approved', 'cancelled'];
 
+        $travelTypes = ['onibus', 'aereo', 'carro', 'hotel'];
+
         $requests = [];
 
         // Generate 50 travel requests
@@ -46,6 +48,7 @@ class TravelRequestSeeder extends Seeder
             $returnDays = $departureDays + rand(2, 7);
             $status = $statuses[array_rand($statuses)];
             $note = $notes[array_rand($notes)];
+            $travelType = $travelTypes[array_rand($travelTypes)];
 
             $departureDate = $now->copy()->addDays($departureDays);
             $returnDate = $now->copy()->addDays($returnDays);
@@ -68,7 +71,7 @@ class TravelRequestSeeder extends Seeder
                 'approved_by' => $approvedBy,
                 'approved_at' => $approvedAt,
                 'notes' => $note,
-                'travel_type' => rand(0, 1) ? 'national' : 'international',
+                'travel_type' => $travelType,
             ];
         }
 

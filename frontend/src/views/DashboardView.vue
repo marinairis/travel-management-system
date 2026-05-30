@@ -7,7 +7,7 @@
         <p class="voa-page-sub">{{ $t('dashboard.subtitle') }}</p>
       </div>
       <el-button v-if="!authStore.isAdmin" type="primary" @click="showCreateDialog = true">
-        <el-icon style="margin-right:6px"><Plus /></el-icon>
+        <el-icon style="margin-right: 6px"><Plus /></el-icon>
         {{ $t('dashboard.newRequest') }}
       </el-button>
     </div>
@@ -15,41 +15,84 @@
     <!-- Stats grid (status) -->
     <div class="voa-stats-grid">
       <el-card shadow="never">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+          "
+        >
           <div class="voa-stat-label">{{ $t('dashboard.statTotal') }}</div>
-          <el-icon style="font-size:22px;color:var(--el-color-primary);opacity:.7"><DataLine /></el-icon>
+          <el-icon style="font-size: 22px; color: var(--el-color-primary); opacity: 0.7"
+            ><DataLine
+          /></el-icon>
         </div>
         <div class="voa-stat-val">{{ stats.total }}</div>
       </el-card>
       <el-card shadow="never">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+          "
+        >
           <div class="voa-stat-label">{{ $t('dashboard.statPending') }}</div>
-          <el-icon style="font-size:22px;color:var(--el-color-warning);opacity:.8"><Clock /></el-icon>
+          <el-icon style="font-size: 22px; color: var(--el-color-warning); opacity: 0.8"
+            ><Clock
+          /></el-icon>
         </div>
         <div class="voa-stat-val accent">{{ stats.pending }}</div>
       </el-card>
       <el-card shadow="never">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+          "
+        >
           <div class="voa-stat-label">{{ $t('dashboard.statApproved') }}</div>
-          <el-icon style="font-size:22px;color:var(--el-color-success);opacity:.8"><CircleCheck /></el-icon>
+          <el-icon style="font-size: 22px; color: var(--el-color-success); opacity: 0.8"
+            ><CircleCheck
+          /></el-icon>
         </div>
         <div class="voa-stat-val">{{ stats.approved }}</div>
       </el-card>
       <el-card shadow="never">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+          "
+        >
           <div class="voa-stat-label">{{ $t('dashboard.statCancelled') }}</div>
-          <el-icon style="font-size:22px;color:var(--el-color-danger);opacity:.8"><CircleClose /></el-icon>
+          <el-icon style="font-size: 22px; color: var(--el-color-danger); opacity: 0.8"
+            ><CircleClose
+          /></el-icon>
         </div>
         <div class="voa-stat-val">{{ stats.cancelled }}</div>
       </el-card>
     </div>
 
     <!-- Travel type metrics -->
-    <div class="voa-stats-grid" style="margin-bottom:20px">
+    <div class="voa-stats-grid" style="margin-bottom: 20px">
       <el-card shadow="never" v-for="type in travelTypeStats" :key="type.key">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+          "
+        >
           <div class="voa-stat-label">{{ $t('travelRequest.travelType_' + type.key) }}</div>
-          <el-icon :style="{ fontSize: '22px', color: type.color, opacity: .85 }">
+          <el-icon :style="{ fontSize: '22px', color: type.color, opacity: 0.85 }">
             <component :is="type.icon" />
           </el-icon>
         </div>
@@ -58,14 +101,14 @@
     </div>
 
     <!-- Two-column cards: pending + recent requests -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px">
       <!-- Pending approval -->
       <el-card shadow="never" v-loading="travelRequestStore.loading">
         <template #header>
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div style="display:flex;align-items:center;gap:8px">
-              <el-icon style="color:var(--el-color-warning)"><Warning /></el-icon>
-              <span style="font-weight:700">{{ $t('dashboard.pendingApproval') }}</span>
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <div style="display: flex; align-items: center; gap: 8px">
+              <el-icon style="color: var(--el-color-warning)"><Warning /></el-icon>
+              <span style="font-weight: 700">{{ $t('dashboard.pendingApproval') }}</span>
             </div>
             <el-badge :value="stats.pending" type="warning" v-if="stats.pending > 0" />
           </div>
@@ -78,22 +121,36 @@
         <div
           v-for="req in pendingRequests.slice(0, 5)"
           :key="req.id"
-          style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--el-border-color)"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 0;
+            border-bottom: 1px solid var(--el-border-color);
+          "
         >
-          <el-icon style="color:var(--el-text-color-secondary);flex-shrink:0">
+          <el-icon style="color: var(--el-text-color-secondary); flex-shrink: 0">
             <component :is="travelTypeIcon(req.travel_type)" />
           </el-icon>
-          <div style="flex:1;cursor:pointer" @click="$router.push('/requests/' + req.id)">
-            <div style="display:flex;align-items:center;gap:6px">
-              <span style="font-family:var(--voa-mono,monospace);font-size:11px;font-weight:700;color:var(--el-color-primary)">{{ formatRequestId(req.id) }}</span>
-              <span style="font-weight:600;font-size:13.5px">{{ req.destination }}</span>
+          <div style="flex: 1; cursor: pointer" @click="$router.push('/requests/' + req.id)">
+            <div style="display: flex; align-items: center; gap: 6px">
+              <span
+                style="
+                  font-family: var(--voa-mono, monospace);
+                  font-size: 11px;
+                  font-weight: 700;
+                  color: var(--el-color-primary);
+                "
+                >{{ formatRequestId(req.id) }}</span
+              >
+              <span style="font-weight: 600; font-size: 13.5px">{{ req.destination }}</span>
             </div>
-            <div style="font-size:12px;color:var(--el-text-color-secondary)">
+            <div style="font-size: 12px; color: var(--el-text-color-secondary)">
               {{ req.requester_name }} · {{ formatDate(req.departure_date) }}
             </div>
           </div>
           <el-button
-            v-if="authStore.isApprover"
+            v-if="authStore.isApprover && req.user_id !== authStore.user?.id"
             size="small"
             type="success"
             @click.stop="handleApprove(req)"
@@ -107,9 +164,9 @@
       <!-- Recent requests -->
       <el-card shadow="never" v-loading="travelRequestStore.loading">
         <template #header>
-          <div style="display:flex;align-items:center;gap:8px">
-            <el-icon style="color:var(--el-color-primary)"><Clock /></el-icon>
-            <span style="font-weight:700">{{ $t('dashboard.recentRequests') }}</span>
+          <div style="display: flex; align-items: center; gap: 8px">
+            <el-icon style="color: var(--el-color-primary)"><Clock /></el-icon>
+            <span style="font-weight: 700">{{ $t('dashboard.recentRequests') }}</span>
           </div>
         </template>
         <el-empty
@@ -120,20 +177,43 @@
         <div
           v-for="req in recentRequests"
           :key="req.id"
-          style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--el-border-color);cursor:pointer"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--el-border-color);
+            cursor: pointer;
+          "
           @click="$router.push('/requests/' + req.id)"
         >
-          <el-icon style="color:var(--el-text-color-secondary);flex-shrink:0">
+          <el-icon style="color: var(--el-text-color-secondary); flex-shrink: 0">
             <component :is="travelTypeIcon(req.travel_type)" />
           </el-icon>
-          <div style="flex:1;min-width:0">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
-              <span style="font-family:var(--voa-mono,monospace);font-size:11px;font-weight:700;color:var(--el-color-primary)">{{ formatRequestId(req.id) }}</span>
-              <span style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          <div style="flex: 1; min-width: 0">
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px">
+              <span
+                style="
+                  font-family: var(--voa-mono, monospace);
+                  font-size: 11px;
+                  font-weight: 700;
+                  color: var(--el-color-primary);
+                "
+                >{{ formatRequestId(req.id) }}</span
+              >
+              <span
+                style="
+                  font-weight: 600;
+                  font-size: 13px;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                "
+              >
                 {{ req.destination }}
               </span>
             </div>
-            <div style="font-size:12px;color:var(--el-text-color-secondary)">
+            <div style="font-size: 12px; color: var(--el-text-color-secondary)">
               {{ req.requester_name }} · {{ formatDate(req.departure_date) }}
             </div>
           </div>
@@ -145,13 +225,13 @@
     </div>
 
     <!-- Two-column cards: top destinations + travel types most used -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
       <!-- Top 10 destinations -->
       <el-card shadow="never">
         <template #header>
-          <div style="display:flex;align-items:center;gap:8px">
-            <el-icon style="color:var(--el-color-primary)"><TrophyBase /></el-icon>
-            <span style="font-weight:700">{{ $t('dashboard.topDestinations') }}</span>
+          <div style="display: flex; align-items: center; gap: 8px">
+            <el-icon style="color: var(--el-color-primary)"><TrophyBase /></el-icon>
+            <span style="font-weight: 700">{{ $t('dashboard.topDestinations') }}</span>
           </div>
         </template>
         <el-empty
@@ -162,20 +242,42 @@
         <div
           v-for="(dest, i) in topDestinations"
           :key="dest.name"
-          style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--el-border-color)"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--el-border-color);
+          "
         >
           <span
             :style="{
-              width: '22px', height: '22px', borderRadius: '50%',
+              width: '22px',
+              height: '22px',
+              borderRadius: '50%',
               background: i < 3 ? 'var(--el-color-primary)' : 'var(--el-fill-color)',
               color: i < 3 ? '#fff' : 'var(--el-text-color-secondary)',
-              display: 'grid', placeItems: 'center',
-              fontSize: '11px', fontWeight: 700, flexShrink: 0
+              display: 'grid',
+              placeItems: 'center',
+              fontSize: '11px',
+              fontWeight: 700,
+              flexShrink: 0,
             }"
-          >{{ i + 1 }}</span>
-          <div style="flex:1;min-width:0">
-            <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
-              <el-icon style="font-size:11px;margin-right:3px;vertical-align:middle"><Location /></el-icon>
+            >{{ i + 1 }}</span
+          >
+          <div style="flex: 1; min-width: 0">
+            <div
+              style="
+                font-size: 13px;
+                font-weight: 600;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              "
+            >
+              <el-icon style="font-size: 11px; margin-right: 3px; vertical-align: middle"
+                ><Location
+              /></el-icon>
               {{ dest.name }}
             </div>
           </div>
@@ -186,41 +288,57 @@
       <!-- Travel types most used -->
       <el-card shadow="never">
         <template #header>
-          <div style="display:flex;align-items:center;gap:8px">
-            <el-icon style="color:var(--el-color-primary)"><Van /></el-icon>
-            <span style="font-weight:700">{{ $t('dashboard.travelTypesMostUsed') }}</span>
+          <div style="display: flex; align-items: center; gap: 8px">
+            <el-icon style="color: var(--el-color-primary)"><Van /></el-icon>
+            <span style="font-weight: 700">{{ $t('dashboard.travelTypesMostUsed') }}</span>
           </div>
         </template>
         <el-empty
-          v-if="travelTypeStats.every(t => t.count === 0)"
+          v-if="travelTypeStats.every((t) => t.count === 0)"
           :description="$t('dashboard.noTravelTypes')"
           :image-size="50"
         />
         <div
           v-for="type in sortedTravelTypes"
           :key="type.key"
-          style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--el-border-color)"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--el-border-color);
+          "
         >
           <div
             :style="{
-              width: '36px', height: '36px', borderRadius: '8px',
+              width: '36px',
+              height: '36px',
+              borderRadius: '8px',
               background: type.color + '20',
-              display: 'grid', placeItems: 'center', flexShrink: 0
+              display: 'grid',
+              placeItems: 'center',
+              flexShrink: 0,
             }"
           >
             <el-icon :style="{ fontSize: '18px', color: type.color }">
               <component :is="type.icon" />
             </el-icon>
           </div>
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:600">{{ $t('travelRequest.travelType_' + type.key) }}</div>
-            <div style="font-size:12px;color:var(--el-text-color-secondary)">
+          <div style="flex: 1">
+            <div style="font-size: 13px; font-weight: 600">
+              {{ $t('travelRequest.travelType_' + type.key) }}
+            </div>
+            <div style="font-size: 12px; color: var(--el-text-color-secondary)">
               {{ type.percentage }}% {{ $t('dashboard.ofTotalRequests') }}
             </div>
           </div>
-          <div style="text-align:right">
-            <div style="font-size:20px;font-weight:800;color:var(--el-text-color-primary)">{{ type.count }}</div>
-            <div style="font-size:11px;color:var(--el-text-color-secondary)">{{ $t('dashboard.requests') }}</div>
+          <div style="text-align: right">
+            <div style="font-size: 20px; font-weight: 800; color: var(--el-text-color-primary)">
+              {{ type.count }}
+            </div>
+            <div style="font-size: 11px; color: var(--el-text-color-secondary)">
+              {{ $t('dashboard.requests') }}
+            </div>
           </div>
         </div>
       </el-card>
@@ -247,9 +365,18 @@ import { useThemeStore } from '@/stores/theme'
 import { useI18n } from 'vue-i18n'
 import TravelRequestForm from '@/components/TravelRequestForm.vue'
 import {
-  Plus, DataLine, Clock, CircleCheck, CircleClose,
-  Warning, Location, TrophyBase, List,
-  Van, Promotion, MapLocation, House,
+  Plus,
+  DataLine,
+  Clock,
+  CircleCheck,
+  CircleClose,
+  Warning,
+  Location,
+  TrophyBase,
+  Van,
+  Promotion,
+  MapLocation,
+  House,
 } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
@@ -264,31 +391,51 @@ const requests = computed(() => travelRequestStore.travelRequests || [])
 
 const stats = computed(() => ({
   total: requests.value.length,
-  pending: requests.value.filter(r => r.status === 'requested').length,
-  approved: requests.value.filter(r => r.status === 'approved').length,
-  cancelled: requests.value.filter(r => r.status === 'cancelled').length,
+  pending: requests.value.filter((r) => r.status === 'requested').length,
+  approved: requests.value.filter((r) => r.status === 'approved').length,
+  cancelled: requests.value.filter((r) => r.status === 'cancelled').length,
 }))
 
 const travelTypeStats = computed(() => [
-  { key: 'aereo',  icon: Promotion,    color: '#3b82f6', count: requests.value.filter(r => r.travel_type === 'aereo').length },
-  { key: 'onibus', icon: Van,          color: '#f59e0b', count: requests.value.filter(r => r.travel_type === 'onibus').length },
-  { key: 'carro',  icon: MapLocation,  color: '#8b5cf6', count: requests.value.filter(r => r.travel_type === 'carro').length },
-  { key: 'hotel',  icon: House,        color: '#10b981', count: requests.value.filter(r => r.travel_type === 'hotel').length },
+  {
+    key: 'aereo',
+    icon: Promotion,
+    color: '#3b82f6',
+    count: requests.value.filter((r) => r.travel_type === 'aereo').length,
+  },
+  {
+    key: 'onibus',
+    icon: Van,
+    color: '#f59e0b',
+    count: requests.value.filter((r) => r.travel_type === 'onibus').length,
+  },
+  {
+    key: 'carro',
+    icon: MapLocation,
+    color: '#8b5cf6',
+    count: requests.value.filter((r) => r.travel_type === 'carro').length,
+  },
+  {
+    key: 'hotel',
+    icon: House,
+    color: '#10b981',
+    count: requests.value.filter((r) => r.travel_type === 'hotel').length,
+  },
 ])
 
 const sortedTravelTypes = computed(() => {
   const total = requests.value.length || 1
   return [...travelTypeStats.value]
     .sort((a, b) => b.count - a.count)
-    .map(type => ({
+    .map((type) => ({
       ...type,
-      percentage: Math.round((type.count / total) * 100)
+      percentage: Math.round((type.count / total) * 100),
     }))
 })
 
 const topDestinations = computed(() => {
   const counts = {}
-  requests.value.forEach(r => {
+  requests.value.forEach((r) => {
     if (r.destination) counts[r.destination] = (counts[r.destination] || 0) + 1
   })
   return Object.entries(counts)
@@ -297,14 +444,10 @@ const topDestinations = computed(() => {
     .slice(0, 10)
 })
 
-const pendingRequests = computed(() =>
-  requests.value.filter(r => r.status === 'requested')
-)
+const pendingRequests = computed(() => requests.value.filter((r) => r.status === 'requested'))
 
 const recentRequests = computed(() =>
-  [...requests.value]
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    .slice(0, 8)
+  [...requests.value].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 8),
 )
 
 const travelTypeIcon = (type) => {
@@ -316,11 +459,12 @@ const getStatusType = (status) => {
   return types[status] || ''
 }
 
-const translateStatus = (status) => ({
-  requested: t('status.requested'),
-  approved: t('status.approved'),
-  cancelled: t('status.cancelled'),
-}[status] || status)
+const translateStatus = (status) =>
+  ({
+    requested: t('status.requested'),
+    approved: t('status.approved'),
+    cancelled: t('status.cancelled'),
+  })[status] || status
 
 const formatDate = (date) => {
   if (!date) return '-'
@@ -353,7 +497,7 @@ onMounted(() => {
 
 <style scoped>
 @media (max-width: 768px) {
-  div[style*="grid-template-columns:1fr 1fr"] {
+  div[style*='grid-template-columns:1fr 1fr'] {
     grid-template-columns: 1fr !important;
   }
 }

@@ -1,4 +1,4 @@
-da<template>
+<template>
   <div class="travel-request-table">
     <div class="table-container">
       <el-table
@@ -68,9 +68,16 @@ da<template>
         <el-table-column prop="status" :label="$t('dashboard.status')" width="140" sortable>
           <template #default="scope">
             <el-tag
+              v-if="canChangeStatus(scope.row)"
               :type="getStatusType(scope.row.status)"
               @click="handleStatusClick(scope.row)"
-              :style="canChangeStatus(scope.row) ? 'cursor: pointer;' : ''"
+              style="cursor: pointer;"
+            >
+              {{ translateStatus(scope.row.status) }}
+            </el-tag>
+            <el-tag
+              v-else
+              :type="getStatusType(scope.row.status)"
             >
               {{ translateStatus(scope.row.status) }}
             </el-tag>
@@ -225,7 +232,7 @@ da<template>
           </el-descriptions-item>
 
           <el-descriptions-item
-            v-if="selectedRequest.approved_by"
+            v-if="selectedRequest.approved_by && authStore.isApprover"
             :label="$t('travelRequest.approvedBy')"
           >
             {{ selectedRequest.approved_by?.name }}
@@ -291,8 +298,8 @@ const canDelete = (row) => authStore.isAdmin && row.status !== 'approved'
 
 const canCancel = (row) => {
   if (!row || !row.can_be_cancelled) return false
-  // Owner can cancel, approvers use status change instead
-  return row.user_id === authStore.user?.id
+  // Any user can cancel as long as the trip hasn't started
+  return true
 }
 
 const canChangeStatus = (row) => {
