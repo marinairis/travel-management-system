@@ -224,7 +224,7 @@ onUnmounted(() => {
 .voa-content-inner {
   padding: 26px 32px;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1366px;
   margin: 0 auto;
 }
 
