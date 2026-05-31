@@ -131,9 +131,11 @@
             border-bottom: 1px solid var(--el-border-color);
           "
         >
-          <el-icon style="color: var(--el-text-color-secondary); flex-shrink: 0">
-            <component :is="travelTypeIcon(req.travel_type)" />
-          </el-icon>
+          <el-tooltip :content="$t('travelRequest.travelType_' + req.travel_type)" placement="top">
+            <el-icon style="color: var(--el-text-color-secondary); flex-shrink: 0">
+              <component :is="travelTypeIcon(req.travel_type)" />
+            </el-icon>
+          </el-tooltip>
           <div style="flex: 1; cursor: pointer" @click="$router.push('/requests/' + req.id)">
             <div style="display: flex; align-items: center; gap: 6px">
               <span
@@ -151,15 +153,24 @@
               {{ req.requester_name }} · {{ formatDate(req.departure_date) }}
             </div>
           </div>
-          <el-button
-            v-if="authStore.isApprover && req.user_id !== authStore.user?.id"
-            size="small"
-            type="success"
-            @click.stop="handleApprove(req)"
-            :loading="approvingId === req.id"
-          >
-            {{ $t('dashboard.approve') }}
-          </el-button>
+          <template v-if="authStore.isApprover && req.user_id !== authStore.user?.id">
+            <el-tooltip :content="$t('dashboard.approve')" placement="top">
+              <el-icon
+                style="color: var(--el-color-success); cursor: pointer; font-size: 18px"
+                @click.stop="handleApprove(req)"
+              >
+                <SuccessFilled />
+              </el-icon>
+            </el-tooltip>
+            <el-tooltip :content="$t('common.cancel')" placement="top">
+              <el-icon
+                style="color: var(--el-color-danger); cursor: pointer; font-size: 18px"
+                @click.stop="handleCancel(req)"
+              >
+                <CircleCloseFilled />
+              </el-icon>
+            </el-tooltip>
+          </template>
           <el-tooltip v-else-if="authStore.isApprover && req.user_id === authStore.user?.id" :content="$t('dashboard.cannotApproveOwn')" placement="top">
             <el-icon style="color: var(--el-text-color-secondary); cursor: help; font-size: 18px">
               <Lock />
@@ -204,9 +215,11 @@
           "
           @click="$router.push('/requests/' + req.id)"
         >
-          <el-icon style="color: var(--el-text-color-secondary); flex-shrink: 0">
-            <component :is="travelTypeIcon(req.travel_type)" />
-          </el-icon>
+          <el-tooltip :content="$t('travelRequest.travelType_' + req.travel_type)" placement="top">
+            <el-icon style="color: var(--el-text-color-secondary); flex-shrink: 0">
+              <component :is="travelTypeIcon(req.travel_type)" />
+            </el-icon>
+          </el-tooltip>
           <div style="flex: 1; min-width: 0">
             <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px">
               <span
@@ -234,9 +247,9 @@
               {{ req.requester_name }} · {{ formatDate(req.departure_date) }}
             </div>
           </div>
-          <span :class="['voa-action-tag', req.status]">
+          <el-tag :type="getStatusType(req.status)" size="small">
             {{ translateStatus(req.status) }}
-          </span>
+          </el-tag>
         </div>
         <div v-if="recentRequests.length > limitRecent" style="text-align: center; padding: 10px 0">
           <el-button link type="primary" @click="limitRecent += 8">
@@ -342,9 +355,11 @@
               flexShrink: 0,
             }"
           >
-            <el-icon :style="{ fontSize: '18px', color: type.color }">
-              <component :is="type.icon" />
-            </el-icon>
+            <el-tooltip :content="$t('travelRequest.travelType_' + type.key)" placement="top">
+              <el-icon :style="{ fontSize: '18px', color: type.color }">
+                <component :is="type.icon" />
+              </el-icon>
+            </el-tooltip>
           </div>
           <div style="flex: 1">
             <div style="font-size: 13px; font-weight: 600">
@@ -400,6 +415,8 @@ import {
   MapLocation,
   House,
   Lock,
+  SuccessFilled,
+  CircleCloseFilled,
 } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
@@ -409,6 +426,7 @@ const themeStore = useThemeStore()
 
 const showCreateDialog = ref(false)
 const approvingId = ref(null)
+const cancellingId = ref(null)
 const limitPending = ref(10)
 const limitRecent = ref(10)
 
@@ -511,6 +529,12 @@ const handleApprove = async (req) => {
   approvingId.value = null
 }
 
+const handleCancel = async (req) => {
+  cancellingId.value = req.id
+  await travelRequestStore.updateStatus(req.id, 'cancelled')
+  cancellingId.value = null
+}
+
 const handleCreate = async (data) => {
   const success = await travelRequestStore.createTravelRequest(data)
   if (success) showCreateDialog.value = false
@@ -527,5 +551,11 @@ onMounted(() => {
   div[style*='grid-template-columns:1fr 1fr'] {
     grid-template-columns: 1fr !important;
   }
+}
+
+:deep(.voa-page-head + .voa-stats-grid + .voa-stats-grid + div .el-tag),
+:deep(.voa-stats-grid ~ div .el-tag) {
+  min-width: 80px;
+  text-align: center;
 }
 </style>
