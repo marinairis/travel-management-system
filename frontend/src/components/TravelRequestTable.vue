@@ -77,10 +77,20 @@
       </template>
     </el-table-column>
 
-    <el-table-column :label="$t('users.actions')" width="180" fixed="right">
+    <el-table-column :label="$t('users.actions')" width="230" fixed="right">
       <template #default="scope">
         <el-tooltip :content="$t('travelRequest.tooltipView')" placement="top">
           <el-button type="primary" :icon="View" circle size="small" @click="handleView(scope.row)" />
+        </el-tooltip>
+        <el-tooltip :content="$t('travelRequest.tooltipEdit')" placement="top">
+          <el-button
+            v-if="canEdit(scope.row)"
+            type="info"
+            :icon="Edit"
+            circle
+            size="small"
+            @click="handleEdit(scope.row)"
+          />
         </el-tooltip>
         <el-tooltip :content="$t('travelRequest.tooltipApprove')" placement="top">
           <el-button
@@ -130,6 +140,7 @@
 import { ref, computed } from 'vue'
 import {
   View,
+  Edit,
   CircleClose,
   CircleCheck,
   Promotion,
@@ -145,7 +156,7 @@ const props = defineProps({
   data: { type: Array, required: true },
   loading: { type: Boolean, default: false },
 })
-const emit = defineEmits(['status-change', 'cancel', 'view', 'approve'])
+const emit = defineEmits(['status-change', 'cancel', 'view', 'approve', 'edit'])
 
 const authStore = useAuthStore()
 
@@ -176,6 +187,21 @@ const canCancel = (row) => {
   // Não pode cancelar pedido próprio
   if (row.user_id === authStore.user?.id) return false
   return true
+}
+
+const canEdit = (row) => {
+  if (!row) return false
+  // Apenas pedidos solicitados podem ser editados
+  if (row.status !== 'requested') return false
+  // Apenas aprovadores podem editar
+  if (!authStore.isApprover) return false
+  // Não pode editar pedido próprio
+  if (row.user_id === authStore.user?.id) return false
+  return true
+}
+
+const handleEdit = (row) => {
+  emit('edit', row)
 }
 
 const canChangeStatus = (row) => {

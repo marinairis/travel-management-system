@@ -167,6 +167,7 @@
     "detailCreated": "Created at",
     "detailStatus": "Status",
     "tooltipView": "View details",
+    "tooltipEdit": "Edit request",
     "tooltipApprove": "Approve request",
     "tooltipCancel": "Cancel request",
     "cancelTitle": "Cancel Request",

@@ -73,6 +73,7 @@
         @approve="handleApprove"
         @status-change="handleStatusChange"
         @view="handleView"
+        @edit="handleEdit"
       />
 
       <!-- Pagination -->
@@ -98,6 +99,22 @@
     >
       <TravelRequestForm ref="formRef" @submit="handleCreate" @cancel="showCreateDialog = false" />
     </el-dialog>
+
+    <!-- Edit Modal -->
+    <el-dialog
+      v-model="showEditDialog"
+      :title="$t('travelRequest.updateRequest')"
+      width="550px"
+      align-center
+    >
+      <TravelRequestForm
+        ref="editFormRef"
+        :model-value="editingRequest"
+        :is-edit="true"
+        @submit="handleUpdate"
+        @cancel="showEditDialog = false"
+      />
+    </el-dialog>
   </div>
 </template>
 
@@ -118,7 +135,10 @@ const travelRequestStore = useTravelRequestStore()
 const destinationsStore = useDestinationsStore()
 
 const showCreateDialog = ref(false)
+const showEditDialog = ref(false)
 const formRef = ref(null)
+const editFormRef = ref(null)
+const editingRequest = ref({})
 const dateRange = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
@@ -216,6 +236,20 @@ const handleStatusChange = async (id, status) => {
 
 const handleView = (row) => {
   router.push('/requests/' + row.id)
+}
+
+const handleEdit = (row) => {
+  editingRequest.value = { ...row }
+  showEditDialog.value = true
+}
+
+const handleUpdate = async (data) => {
+  const success = await travelRequestStore.updateTravelRequest(editingRequest.value.id, data)
+  if (success) {
+    showEditDialog.value = false
+    editingRequest.value = {}
+    travelRequestStore.fetchTravelRequests({ ...filters, page: currentPage.value, per_page: pageSize.value })
+  }
 }
 
 const handlePageChange = () => {

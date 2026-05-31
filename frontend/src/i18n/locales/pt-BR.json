@@ -168,6 +168,7 @@
     "detailCreated": "Criado em",
     "detailStatus": "Status",
     "tooltipView": "Ver detalhes",
+    "tooltipEdit": "Editar pedido",
     "tooltipApprove": "Aprovar pedido",
     "tooltipCancel": "Cancelar pedido",
     "cancelTitle": "Cancelar Pedido",

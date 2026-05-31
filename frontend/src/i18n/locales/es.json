@@ -167,6 +167,7 @@
     "detailCreated": "Creado el",
     "detailStatus": "Estado",
     "tooltipView": "Ver detalles",
+    "tooltipEdit": "Editar solicitud",
     "tooltipApprove": "Aprobar solicitud",
     "tooltipCancel": "Cancelar solicitud",
     "cancelTitle": "Cancelar Solicitud",
