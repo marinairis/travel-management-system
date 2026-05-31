@@ -271,15 +271,15 @@ const formatRequestId = (id) => {
 }
 
 const travelTypeIcon = (type) => {
-  return { aereo: Promotion, onibus: Van, carro: MapLocation, hotel: House }[type] || Van
+  return { plane: Promotion, bus: Van, car: MapLocation, hotel: House }[type] || Van
 }
 
 const getTravelTypeColor = (type) => {
   return (
     {
-      aereo: 'var(--travel-type-aereo)',
-      onibus: 'var(--travel-type-onibus)',
-      carro: 'var(--travel-type-carro)',
+      plane: 'var(--travel-type-plane)',
+      bus: 'var(--travel-type-bus)',
+      car: 'var(--travel-type-car)',
       hotel: 'var(--travel-type-hotel)',
     }[type] || 'var(--el-color-primary)'
   )

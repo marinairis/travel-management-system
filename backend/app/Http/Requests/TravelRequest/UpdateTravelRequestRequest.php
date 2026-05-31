@@ -24,7 +24,7 @@ class UpdateTravelRequestRequest extends FormRequest
             'departure_date' => 'sometimes|date|after_or_equal:today',
             'return_date'    => 'sometimes|date|after:departure_date',
             'notes'          => 'nullable|string',
-            'travel_type'    => 'nullable|string|in:onibus,aereo,carro,hotel',
+            'travel_type'    => 'nullable|string|in:bus,plane,car,hotel',
         ];
     }
 

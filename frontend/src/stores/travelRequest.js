@@ -12,6 +12,12 @@ export const useTravelRequestStore = defineStore('travelRequest', {
       per_page: 10,
       total: 0,
     },
+    dashboardStats: {
+      total: 0,
+      by_status: {},
+      by_travel_type: {},
+      top_destinations: [],
+    },
   }),
 
   actions: {
@@ -96,6 +102,17 @@ export const useTravelRequestStore = defineStore('travelRequest', {
 
     async cancelWithReason(id, reason) {
       return this.cancelTravelRequest(id, reason)
+    },
+
+    async fetchDashboardStats() {
+      try {
+        const response = await api.get('/dashboard/stats')
+        if (response.data.success) {
+          this.dashboardStats = response.data.data
+        }
+      } catch (error) {
+        console.error('Erro ao buscar métricas do dashboard:', error)
+      }
     },
   },
 })

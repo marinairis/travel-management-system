@@ -23,6 +23,7 @@ use App\Http\Controllers\API\Invitation\AcceptInvitationController;
 use App\Http\Controllers\API\Invitation\InviteUserController;
 use App\Http\Controllers\API\Invitation\ShowInvitationController;
 use App\Http\Controllers\API\ActivityLog\ListActivityLogsController;
+use App\Http\Controllers\API\Dashboard\GetDashboardStatsController;
 use App\Http\Controllers\API\Notification\ListNotificationsController;
 use App\Http\Controllers\API\Notification\MarkAllNotificationsAsReadController;
 use App\Http\Controllers\API\Notification\MarkNotificationAsReadController;
@@ -45,6 +46,8 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/me', MeController::class);
     Route::post('/logout', LogoutController::class);
     Route::post('/refresh', RefreshTokenController::class);
+
+    Route::get('/dashboard/stats', GetDashboardStatsController::class);
 
     Route::get('/travel-requests', ListTravelRequestsController::class);
     Route::post('/travel-requests', CreateTravelRequestController::class);

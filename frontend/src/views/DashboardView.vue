@@ -454,43 +454,31 @@ const limitRecent = ref(10)
 
 const requests = computed(() => travelRequestStore.travelRequests || [])
 
-const stats = computed(() => ({
-  total: requests.value.length,
-  pending: requests.value.filter((r) => r.status === 'requested').length,
-  approved: requests.value.filter((r) => r.status === 'approved').length,
-  cancelled: requests.value.filter((r) => r.status === 'cancelled').length,
-  expired: requests.value.filter((r) => r.status === 'expired').length,
-}))
+const dashboardStats = computed(() => travelRequestStore.dashboardStats)
 
-const travelTypeStats = computed(() => [
-  {
-    key: 'aereo',
-    icon: Promotion,
-    color: 'var(--travel-type-aereo)',
-    count: requests.value.filter((r) => r.travel_type === 'aereo').length,
-  },
-  {
-    key: 'onibus',
-    icon: Van,
-    color: 'var(--travel-type-onibus)',
-    count: requests.value.filter((r) => r.travel_type === 'onibus').length,
-  },
-  {
-    key: 'carro',
-    icon: MapLocation,
-    color: 'var(--travel-type-carro)',
-    count: requests.value.filter((r) => r.travel_type === 'carro').length,
-  },
-  {
-    key: 'hotel',
-    icon: House,
-    color: 'var(--travel-type-hotel)',
-    count: requests.value.filter((r) => r.travel_type === 'hotel').length,
-  },
-])
+const stats = computed(() => {
+  const byStatus = dashboardStats.value.by_status || {}
+  return {
+    total: dashboardStats.value.total || 0,
+    pending: byStatus.requested || 0,
+    approved: byStatus.approved || 0,
+    cancelled: byStatus.cancelled || 0,
+    expired: byStatus.expired || 0,
+  }
+})
+
+const travelTypeStats = computed(() => {
+  const byType = dashboardStats.value.by_travel_type || {}
+  return [
+    { key: 'plane', icon: Promotion,  color: 'var(--travel-type-plane)', count: byType.plane || 0 },
+    { key: 'bus',   icon: Van,         color: 'var(--travel-type-bus)',   count: byType.bus   || 0 },
+    { key: 'car',   icon: MapLocation, color: 'var(--travel-type-car)',   count: byType.car   || 0 },
+    { key: 'hotel', icon: House,       color: 'var(--travel-type-hotel)', count: byType.hotel || 0 },
+  ]
+})
 
 const sortedTravelTypes = computed(() => {
-  const total = requests.value.length || 1
+  const total = stats.value.total || 1
   return [...travelTypeStats.value]
     .sort((a, b) => b.count - a.count)
     .map((type) => ({
@@ -499,16 +487,7 @@ const sortedTravelTypes = computed(() => {
     }))
 })
 
-const topDestinations = computed(() => {
-  const counts = {}
-  requests.value.forEach((r) => {
-    if (r.destination) counts[r.destination] = (counts[r.destination] || 0) + 1
-  })
-  return Object.entries(counts)
-    .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10)
-})
+const topDestinations = computed(() => dashboardStats.value.top_destinations || [])
 
 const pendingRequests = computed(() => 
   [...requests.value].filter((r) => r.status === 'requested').sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
@@ -523,7 +502,7 @@ const recentRequests = computed(() =>
 )
 
 const travelTypeIcon = (type) => {
-  return { aereo: Promotion, onibus: Van, carro: MapLocation, hotel: House }[type] || Location
+  return { plane: Promotion, bus: Van, car: MapLocation, hotel: House }[type] || Location
 }
 
 const getStatusType = (status) => {
@@ -580,6 +559,7 @@ const handleCreate = async (data) => {
 onMounted(() => {
   themeStore.initTheme()
   travelRequestStore.fetchTravelRequests()
+  travelRequestStore.fetchDashboardStats()
 })
 </script>
 

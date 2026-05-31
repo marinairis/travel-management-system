@@ -50,22 +50,22 @@
         clearable
         style="width: 100%"
       >
-        <el-option :label="$t('travelRequest.travelTypeOnibus')" value="onibus">
+        <el-option :label="$t('travelRequest.travelTypeBus')" value="bus">
           <div style="display:flex;align-items:center;gap:8px">
             <el-icon><Van /></el-icon>
-            <span>{{ $t('travelRequest.travelTypeOnibus') }}</span>
+            <span>{{ $t('travelRequest.travelTypeBus') }}</span>
           </div>
         </el-option>
-        <el-option :label="$t('travelRequest.travelTypeAereo')" value="aereo">
+        <el-option :label="$t('travelRequest.travelTypePlane')" value="plane">
           <div style="display:flex;align-items:center;gap:8px">
             <el-icon><Promotion /></el-icon>
-            <span>{{ $t('travelRequest.travelTypeAereo') }}</span>
+            <span>{{ $t('travelRequest.travelTypePlane') }}</span>
           </div>
         </el-option>
-        <el-option :label="$t('travelRequest.travelTypeCarro')" value="carro">
+        <el-option :label="$t('travelRequest.travelTypeCar')" value="car">
           <div style="display:flex;align-items:center;gap:8px">
             <el-icon><MapLocation /></el-icon>
-            <span>{{ $t('travelRequest.travelTypeCarro') }}</span>
+            <span>{{ $t('travelRequest.travelTypeCar') }}</span>
           </div>
         </el-option>
         <el-option :label="$t('travelRequest.travelTypeHotel')" value="hotel">

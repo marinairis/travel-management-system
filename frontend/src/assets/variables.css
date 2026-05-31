@@ -75,9 +75,9 @@
   --voa-mono: 'Geist Mono', ui-monospace, monospace;
 
   /* Travel type colors */
-  --travel-type-aereo: #4d7a46;
-  --travel-type-onibus: #8baf81;
-  --travel-type-carro: #6e8c62;
+  --travel-type-plane: #4d7a46;
+  --travel-type-bus: #8baf81;
+  --travel-type-car: #6e8c62;
   --travel-type-hotel: #acc8a2;
 
   /* Avatar background colors */

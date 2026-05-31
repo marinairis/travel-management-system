@@ -36,7 +36,7 @@ class TravelRequestSeeder extends Seeder
 
         $statuses = ['requested', 'requested', 'requested', 'approved', 'approved', 'cancelled'];
 
-        $travelTypes = ['onibus', 'aereo', 'carro', 'hotel'];
+        $travelTypes = ['bus', 'plane', 'car', 'hotel'];
 
         $requests = [];
 

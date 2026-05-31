@@ -304,16 +304,15 @@ const isCancelledBySystem = computed(() => {
 
 // Ícone do tipo de viagem
 const travelTypeIcon = (type) => {
-  return { aereo: Promotion, onibus: Van, carro: MapLocation, hotel: House }[type] || Location
+  return { plane: Promotion, bus: Van, car: MapLocation, hotel: House }[type] || Location
 }
 
-// Cor do tipo de viagem - usando variáveis CSS do tema
 const getTravelTypeColor = (type) => {
   return (
     {
-      aereo: 'var(--travel-type-aereo)',
-      onibus: 'var(--travel-type-onibus)',
-      carro: 'var(--travel-type-carro)',
+      plane: 'var(--travel-type-plane)',
+      bus: 'var(--travel-type-bus)',
+      car: 'var(--travel-type-car)',
       hotel: 'var(--travel-type-hotel)',
     }[type] || 'var(--el-color-primary)'
   )
