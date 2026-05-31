@@ -13,7 +13,9 @@ class ActivityLogController extends Controller
     {
         $user = Auth::user();
 
-        $query = ActivityLog::with('user')->orderBy('created_at', 'desc');
+        $query = ActivityLog::with(['user' => function ($q) {
+            $q->select('id', 'name', 'email', 'role');
+        }])->orderBy('created_at', 'desc');
 
         if ($user->isRequester()) {
             $query->where('user_id', $user->id);
@@ -21,7 +23,7 @@ class ActivityLogController extends Controller
 
         $this->applyFilters($query, $request);
 
-        $logs = $query->paginate($request->get('per_page', 50));
+        $logs = $query->paginate($request->get('per_page', 10));
 
         return response()->json([
             'success' => true,
