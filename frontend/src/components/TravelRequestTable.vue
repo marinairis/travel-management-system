@@ -77,7 +77,7 @@
       </template>
     </el-table-column>
 
-    <el-table-column :label="$t('users.actions')" width="230" fixed="right">
+    <el-table-column :label="$t('users.actions')" width="200" fixed="right">
       <template #default="scope">
         <el-tooltip :content="$t('travelRequest.tooltipView')" placement="top">
           <el-button type="primary" :icon="View" circle size="small" @click="handleView(scope.row)" />
@@ -179,13 +179,24 @@ const canApprove = (row) => {
 }
 
 const canCancel = (row) => {
-  if (!row || !row.can_be_cancelled) return false
+  if (!row) return false
   // Não pode cancelar pedidos vencidos
   if (row.status === 'expired') return false
+  // Apenas pedidos solicitados ou aprovados podem ser cancelados
+  if (!['requested', 'approved'].includes(row.status)) return false
+  // Verifica se tem a propriedade can_be_cancelled
+  if (row.can_be_cancelled === false) return false
   // Apenas aprovadores podem cancelar
   if (!authStore.isApprover) return false
   // Não pode cancelar pedido próprio
   if (row.user_id === authStore.user?.id) return false
+  // Verifica se a data de partida ainda não passou
+  if (row.departure_date) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const departureDate = new Date(row.departure_date)
+    if (departureDate < today) return false
+  }
   return true
 }
 

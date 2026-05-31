@@ -24,9 +24,18 @@
       </div>
       <!-- Actions -->
       <div style="display: flex; gap: 8px; flex-wrap: wrap">
-        <!-- Botão Editar - só mostra se for o dono do pedido -->
+        <!-- Botão Aprovar - disponível para aprovadores em pedidos solicitados -->
         <el-button
-          v-if="isOwner && request.status === 'requested'"
+          v-if="canApproveRequest"
+          type="success"
+          :loading="actionLoading === 'approve'"
+          @click="handleApprove"
+        >
+          ✓ {{ $t('travelRequest.detailApprove') }}
+        </el-button>
+        <!-- Botão Editar - só mostra se for aprovador e status for 'requested' -->
+        <el-button
+          v-if="canEditRequest"
           type="primary"
           plain
           @click="editDialogOpen = true"
@@ -34,47 +43,14 @@
           <el-icon style="margin-right: 4px"><Edit /></el-icon>
           {{ $t('common.edit') }}
         </el-button>
-        <!-- Botão Cancelar - disponível para o dono do pedido ou admin -->
+        <!-- Botão Cancelar - disponível para aprovadores em pedidos solicitados ou aprovados -->
         <el-button
-          v-if="(isOwner || authStore.isAdmin) && request.can_be_cancelled && canBeModified && request.status !== 'expired'"
+          v-if="canCancelRequest"
           type="danger"
           plain
           @click="cancelOpen = true"
         >
           {{ $t('travelRequest.detailCancel') }}
-        </el-button>
-        <!-- Botão Excluir - disponível apenas para admin -->
-        <el-button
-          v-if="authStore.isAdmin && canBeModified"
-          type="danger"
-          @click="deleteOpen = true"
-        >
-          <el-icon style="margin-right: 4px"><Delete /></el-icon>
-          {{ $t('common.delete') }}
-        </el-button>
-        <el-button
-          v-if="
-            request.status === 'requested' &&
-            authStore.isApprover &&
-            request.user_id !== authStore.user?.id
-          "
-          type="success"
-          :loading="actionLoading === 'approve'"
-          @click="handleApprove"
-        >
-          ✓ {{ $t('travelRequest.detailApprove') }}
-        </el-button>
-        <el-button
-          v-if="
-            request.status === 'cancelled' &&
-            authStore.isApprover &&
-            request.user_id !== authStore.user?.id &&
-            !isCancelledBySystem
-          "
-          @click="handleReopen"
-          :loading="actionLoading === 'reopen'"
-        >
-          {{ $t('travelRequest.detailReopen') }}
         </el-button>
       </div>
     </div>
@@ -214,22 +190,6 @@
       </template>
     </el-dialog>
 
-    <!-- Delete dialog -->
-    <el-dialog
-      v-model="deleteOpen"
-      :title="$t('travelRequest.confirmDelete')"
-      width="400px"
-      align-center
-    >
-      <p>{{ $t('travelRequest.deleteConfirmMessage') }}</p>
-      <template #footer>
-        <el-button @click="deleteOpen = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="danger" :loading="actionLoading === 'delete'" @click="handleDelete">
-          {{ $t('common.delete') }}
-        </el-button>
-      </template>
-    </el-dialog>
-
     <!-- Edit Modal -->
     <el-dialog
       v-model="editDialogOpen"
@@ -253,7 +213,7 @@ import TravelRequestForm from '@/components/TravelRequestForm.vue'
 import api from '@/plugins/axios'
 import { useAuthStore } from '@/stores/auth'
 import { useTravelRequestStore } from '@/stores/travelRequest'
-import { Delete, Edit, House, Location, MapLocation, Promotion, Van } from '@element-plus/icons-vue'
+import { Edit, House, Location, MapLocation, Promotion, Van } from '@element-plus/icons-vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -269,7 +229,6 @@ const timeline = ref([])
 const loading = ref(true)
 const cancelOpen = ref(false)
 const cancelReason = ref('')
-const deleteOpen = ref(false)
 const actionLoading = ref(null)
 const editDialogOpen = ref(false)
 const editFormRef = ref(null)
@@ -287,13 +246,50 @@ const isOwner = computed(() => {
   )
 })
 
-// Verificar se a viagem ainda não começou (pode ser cancelada/excluída)
-const canBeModified = computed(() => {
-  if (!request.value?.departure_date) return false
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const departureDate = new Date(request.value.departure_date)
-  return departureDate >= today
+// Verificar se pode aprovar o pedido
+const canApproveRequest = computed(() => {
+  if (!request.value) return false
+  // Apenas aprovadores podem aprovar
+  if (!authStore.isApprover) return false
+  // Não pode aprovar pedido próprio
+  if (request.value.user_id === authStore.user?.id) return false
+  // Apenas pedidos solicitados podem ser aprovados
+  return request.value.status === 'requested'
+})
+
+// Verificar se pode editar o pedido
+const canEditRequest = computed(() => {
+  if (!request.value) return false
+  // Apenas pedidos solicitados podem ser editados
+  if (request.value.status !== 'requested') return false
+  // Apenas aprovadores podem editar
+  if (!authStore.isApprover) return false
+  // Não pode editar pedido próprio
+  if (request.value.user_id === authStore.user?.id) return false
+  return true
+})
+
+// Verificar se pode cancelar o pedido
+const canCancelRequest = computed(() => {
+  if (!request.value) return false
+  // Não pode cancelar pedidos vencidos
+  if (request.value.status === 'expired') return false
+  // Apenas pedidos solicitados ou aprovados podem ser cancelados
+  if (!['requested', 'approved'].includes(request.value.status)) return false
+  // Apenas aprovadores podem cancelar
+  if (!authStore.isApprover) return false
+  // Não pode cancelar pedido próprio
+  if (request.value.user_id === authStore.user?.id) return false
+  // Verifica se tem a propriedade can_be_cancelled ou se a data de partida ainda não passou
+  if (request.value.can_be_cancelled === false) return false
+  // Verifica se a viagem ainda não começou (pode ser cancelada)
+  if (request.value.departure_date) {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const departureDate = new Date(request.value.departure_date)
+    if (departureDate < today) return false
+  }
+  return true
 })
 
 // Verificar se o pedido foi cancelado pelo sistema (usuário desativado)
@@ -428,21 +424,6 @@ const handleCancel = async () => {
   cancelOpen.value = false
   cancelReason.value = ''
   await fetchRequest()
-}
-
-const handleReopen = async () => {
-  actionLoading.value = 'reopen'
-  await travelRequestStore.updateStatus(route.params.id, 'requested')
-  actionLoading.value = null
-  await fetchRequest()
-}
-
-const handleDelete = async () => {
-  actionLoading.value = 'delete'
-  await travelRequestStore.deleteTravelRequest(route.params.id)
-  actionLoading.value = null
-  deleteOpen.value = false
-  router.push('/')
 }
 
 const handleEditSubmit = async (data) => {

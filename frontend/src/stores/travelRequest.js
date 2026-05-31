@@ -97,19 +97,5 @@ export const useTravelRequestStore = defineStore('travelRequest', {
     async cancelWithReason(id, reason) {
       return this.cancelTravelRequest(id, reason)
     },
-
-    async deleteTravelRequest(id) {
-      try {
-        const response = await api.delete(`/travel-requests/${id}`)
-        if (response.data.success) {
-          ElMessage.success(response.data.message)
-          this.fetchTravelRequests()
-          return true
-        }
-      } catch (error) {
-        console.error('Erro ao deletar pedido:', error)
-        return false
-      }
-    },
   },
 })

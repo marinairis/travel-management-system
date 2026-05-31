@@ -68,7 +68,6 @@
       <TravelRequestTable
         :data="travelRequestStore.travelRequests"
         :loading="travelRequestStore.loading"
-        @delete="handleDelete"
         @cancel="handleCancel"
         @approve="handleApprove"
         @status-change="handleStatusChange"
@@ -216,10 +215,6 @@ const handleReset = () => {
 const handleCreate = async (data) => {
   const success = await travelRequestStore.createTravelRequest(data)
   if (success) showCreateDialog.value = false
-}
-
-const handleDelete = async (id) => {
-  await travelRequestStore.deleteTravelRequest(id)
 }
 
 const handleCancel = async ({ id, reason }) => {
