@@ -56,19 +56,22 @@
       </template>
     </el-table-column>
 
-    <el-table-column prop="status" :label="$t('dashboard.status')" width="140" sortable>
+    <el-table-column prop="status" :label="$t('dashboard.status')" width="180" sortable>
       <template #default="scope">
-        <span
+        <el-select
           v-if="canChangeStatus(scope.row)"
-          :class="['voa-action-tag', scope.row.status]"
-          style="cursor: pointer"
-          @click="handleStatusClick(scope.row)"
+          v-model="scope.row.status"
+          size="small"
+          class="status-inline-select"
+          @change="handleStatusChangeInline(scope.row, $event)"
         >
+          <el-option :label="$t('status.requested')" value="requested" />
+          <el-option :label="$t('status.approved')" value="approved" />
+          <el-option :label="$t('status.cancelled')" value="cancelled" />
+        </el-select>
+        <el-tag v-else :type="getStatusType(scope.row.status)">
           {{ translateStatus(scope.row.status) }}
-        </span>
-        <span v-else :class="['voa-action-tag', scope.row.status]">
-          {{ translateStatus(scope.row.status) }}
-        </span>
+        </el-tag>
       </template>
     </el-table-column>
 
@@ -134,33 +137,6 @@
       </el-button>
     </template>
   </el-dialog>
-
-  <!-- Quick-status dialog (from tag click) -->
-  <el-dialog
-    v-model="statusDialogVisible"
-    :title="$t('travelRequest.changeStatus')"
-    width="400px"
-    align-center
-  >
-    <el-form>
-      <el-form-item :label="$t('travelRequest.newStatus')">
-        <el-select
-          v-model="newStatus"
-          :placeholder="$t('travelRequest.selectStatus')"
-          style="width: 100%"
-        >
-          <el-option :label="$t('status.approved')" value="approved" />
-          <el-option :label="$t('status.cancelled')" value="cancelled" />
-        </el-select>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <el-button @click="statusDialogVisible = false">{{ $t('common.cancel') }}</el-button>
-      <el-button type="primary" @click="confirmStatusChange" :loading="changingStatus">
-        {{ $t('common.confirm') }}
-      </el-button>
-    </template>
-  </el-dialog>
 </template>
 
 <script setup>
@@ -188,12 +164,9 @@ const authStore = useAuthStore()
 
 const deleteDialogVisible = ref(false)
 const cancelDialogVisible = ref(false)
-const statusDialogVisible = ref(false)
 const deleting = ref(false)
 const cancelling = ref(false)
-const changingStatus = ref(false)
 const selectedRequest = ref(null)
-const newStatus = ref('')
 
 const tableData = computed(() => props.data)
 const showDelete = computed(() => authStore.isAdmin)
@@ -244,10 +217,10 @@ const formatDate = (date) => {
 const formatDateLong = (date) => {
   if (!date) return '-'
   const d = typeof date === 'string' && date.includes('T') ? date.split('T')[0] : date
-  const parts = new Date(d + 'T12:00:00')
-    .toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
-    .split(' ')
-  return `${parts[0]} de ${parts[1]} de ${parts[2]}`
+  const dateObj = new Date(d + 'T12:00:00')
+  const day = dateObj.getDate().toString().padStart(2, '0')
+  const month = dateObj.toLocaleDateString('pt-BR', { month: 'short' })
+  return `${day} de ${month}`
 }
 
 const formatDateTime = (date) => {
@@ -299,18 +272,8 @@ const confirmDelete = async () => {
   deleteDialogVisible.value = false
 }
 
-const handleStatusClick = (row) => {
-  if (!canChangeStatus(row)) return
-  selectedRequest.value = row
-  newStatus.value = row.status === 'approved' ? 'cancelled' : 'approved'
-  statusDialogVisible.value = true
-}
-
-const confirmStatusChange = async () => {
-  changingStatus.value = true
-  await emit('status-change', selectedRequest.value.id, newStatus.value)
-  changingStatus.value = false
-  statusDialogVisible.value = false
+const handleStatusChangeInline = async (row, newStatusValue) => {
+  await emit('status-change', row.id, newStatusValue)
 }
 
 const handleView = (row) => {
