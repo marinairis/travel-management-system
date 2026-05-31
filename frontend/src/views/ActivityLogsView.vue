@@ -143,13 +143,15 @@
 
         <el-table-column width="80" fixed="right">
           <template #default="scope">
-            <el-button
-              type="primary"
-              :icon="View"
-              circle
-              size="small"
-              @click="handleView(scope.row)"
-            />
+            <el-tooltip :content="$t('common.view')" placement="top">
+              <el-button
+                type="primary"
+                :icon="View"
+                circle
+                size="small"
+                @click="handleView(scope.row)"
+              />
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>

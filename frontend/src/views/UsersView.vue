@@ -114,26 +114,33 @@
 
         <el-table-column width="170">
           <template #default="scope">
-            <el-tag
+            <el-tooltip
               v-if="scope.row.id !== authStore.user?.id"
-              :type="scope.row.is_active ? 'warning' : 'success'"
-              class="clickable-tag"
-              @click="handleStatusClick(scope.row)"
+              :content="scope.row.is_active ? $t('users.deactivate') : $t('users.activate')"
+              placement="top"
             >
-              {{ scope.row.is_active ? $t('users.deactivate') : $t('users.activate') }}
-            </el-tag>
+              <el-tag
+                :type="scope.row.is_active ? 'warning' : 'success'"
+                class="clickable-tag"
+                @click="handleStatusClick(scope.row)"
+              >
+                {{ scope.row.is_active ? $t('users.deactivate') : $t('users.activate') }}
+              </el-tag>
+            </el-tooltip>
           </template>
         </el-table-column>
 
         <el-table-column :label="$t('users.actions')" width="80" fixed="right">
           <template #default="scope">
-            <el-button
-              type="primary"
-              :icon="Edit"
-              circle
-              size="small"
-              @click="handleEdit(scope.row)"
-            />
+            <el-tooltip :content="$t('common.edit')" placement="top">
+              <el-button
+                type="primary"
+                :icon="Edit"
+                circle
+                size="small"
+                @click="handleEdit(scope.row)"
+              />
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
