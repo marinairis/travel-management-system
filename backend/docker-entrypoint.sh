@@ -52,7 +52,7 @@ echo "==> Executando seeders..."
 php artisan db:seed --no-interaction --force
 
 echo "==> Gerando documentação Swagger..."
-php artisan l5-swagger:generate
+php artisan l5-swagger:generate || echo "==> Aviso: Swagger não gerado (anotações incompletas), continuando..."
 
 echo "==> Iniciando queue worker em background..."
 php artisan queue:work --daemon --tries=3 --sleep=3 &

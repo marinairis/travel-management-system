@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(append: [
             \App\Http\Middleware\JsonUnicodeEncoding::class,
+            \App\Http\Middleware\SetLocale::class,
         ]);
         $middleware->alias([
             'admin' => \App\Http\Middleware\AdminOnly::class,

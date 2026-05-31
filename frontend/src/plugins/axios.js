@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import { useLocaleStore } from '@/stores/locale'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 
@@ -14,9 +15,11 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const authStore = useAuthStore()
+    const localeStore = useLocaleStore()
     if (authStore.token) {
       config.headers.Authorization = `Bearer ${authStore.token}`
     }
+    config.headers['Accept-Language'] = localeStore.currentLocale ?? 'pt-BR'
     return config
   },
   (error) => {

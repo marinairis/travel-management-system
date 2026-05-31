@@ -1,169 +1,123 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services;
 
+use App\Enums\TravelRequestStatus;
+use App\Exceptions\TravelRequest\TravelRequestException;
+use App\Interfaces\Repositories\TravelRequestRepositoryInterface;
+use App\Interfaces\Services\TravelRequestServiceInterface;
 use App\Models\TravelRequest;
 use App\Models\User;
-use App\Models\ActivityLog;
 use App\Notifications\TravelRequestStatusChanged;
+use App\Traits\HasActivityLogging;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+use Symfony\Component\HttpFoundation\Response;
 
-class TravelRequestService
+class TravelRequestService implements TravelRequestServiceInterface
 {
-    /**
-     * Get all travel requests based on user role
-     */
-    public function getAllTravelRequests(Request $request)
+    use HasActivityLogging;
+
+    public function __construct(
+        private readonly TravelRequestRepositoryInterface $repository
+    ) {}
+
+    public function getAllTravelRequests(Request $request): LengthAwarePaginator
     {
-        $user = Auth::user();
-        
-        $query = $user->isApprover()
-            ? TravelRequest::with(['user', 'approvedBy', 'cancelledBy'])
-            : TravelRequest::where('user_id', $user->id)->with(['user', 'approvedBy', 'cancelledBy']);
+        $filters = $request->only(['status', 'destination', 'start_date', 'end_date']);
+        $perPage = (int) $request->input('per_page', 10);
 
-        $this->applyFilters($query, $request);
-
-        $perPage = $request->input('per_page', 10);
-        
-        return $query->orderBy('created_at', 'desc')->paginate($perPage);
+        return $this->repository->findAllPaginated(Auth::user(), $filters, $perPage);
     }
 
-    /**
-     * Create a new travel request
-     */
+    public function getTravelRequest(int $id): ?TravelRequest
+    {
+        return $this->repository->findById($id);
+    }
+
     public function createTravelRequest(array $data): TravelRequest
     {
-        $travelRequest = TravelRequest::create([
-            'user_id' => Auth::id(),
+        $travelRequest = $this->repository->create([
+            'user_id'        => Auth::id(),
             'requester_name' => $data['requester_name'],
-            'destination' => $data['destination'],
+            'destination'    => $data['destination'],
             'departure_date' => $data['departure_date'],
-            'return_date' => $data['return_date'],
-            'notes' => $data['notes'] ?? null,
-            'travel_type' => $data['travel_type'] ?? null,
-            'status' => 'requested',
+            'return_date'    => $data['return_date'],
+            'notes'          => $data['notes'] ?? null,
+            'travel_type'    => $data['travel_type'] ?? null,
+            'status'         => TravelRequestStatus::Requested->value,
         ]);
 
-        $this->logActivity(
-            'create',
-            $travelRequest,
-            'Pedido de viagem criado',
-            null,
-            $travelRequest->toArray()
-        );
+        $this->logActivityCreate($travelRequest, request());
 
         return $travelRequest->load(['user', 'approvedBy']);
     }
 
-    /**
-     * Get a single travel request by ID
-     */
-    public function getTravelRequest(int $id): ?TravelRequest
-    {
-        return TravelRequest::with(['user', 'approvedBy', 'cancelledBy'])->find($id);
-    }
-
-    /**
-     * Update travel request data
-     */
     public function updateTravelRequest(TravelRequest $travelRequest, array $data): TravelRequest
     {
         $oldValues = $travelRequest->toArray();
-        
+
         $travelRequest->update([
             'requester_name' => $data['requester_name'],
-            'destination' => $data['destination'],
+            'destination'    => $data['destination'],
             'departure_date' => $data['departure_date'],
-            'return_date' => $data['return_date'],
-            'notes' => $data['notes'] ?? null,
-            'travel_type' => $data['travel_type'] ?? null,
+            'return_date'    => $data['return_date'],
+            'notes'          => $data['notes'] ?? null,
+            'travel_type'    => $data['travel_type'] ?? null,
         ]);
 
-        $this->logActivity(
-            'update',
-            $travelRequest,
-            'Pedido de viagem atualizado',
-            $oldValues,
-            $travelRequest->fresh()->toArray()
-        );
+        $this->logActivityUpdate($travelRequest, $oldValues, request());
 
         return $travelRequest->fresh()->load(['user', 'approvedBy']);
     }
 
-    /**
-     * Update travel request status (approve/reject)
-     */
     public function updateStatus(TravelRequest $travelRequest, string $newStatus, User $user): TravelRequest
     {
         $oldStatus = $travelRequest->status;
-        
+
         $travelRequest->status = $newStatus;
-        
-        if ($newStatus === 'approved') {
+
+        if ($newStatus === TravelRequestStatus::Approved->value) {
             $travelRequest->approved_by = $user->id;
             $travelRequest->approved_at = now();
         }
-        
-        $travelRequest->save();
 
-        // Send notification to requester
-        Notification::send(
-            $travelRequest->user,
-            new TravelRequestStatusChanged($travelRequest, $oldStatus)
-        );
+        $updated = $this->repository->save($travelRequest);
 
-        $this->logActivityStatusChange(
-            $travelRequest,
-            $oldStatus,
-            $newStatus,
-            "Status alterado de {$this->translateStatus($oldStatus)} para {$this->translateStatus($newStatus)}"
-        );
+        Notification::send($travelRequest->user, new TravelRequestStatusChanged($updated, $oldStatus));
 
-        return $travelRequest->fresh()->load(['user', 'approvedBy']);
+        $this->logActivityStatusChange($updated, $oldStatus, $newStatus, request());
+
+        return $updated;
     }
 
-    /**
-     * Cancel a travel request
-     */
-    public function cancelRequest(TravelRequest $travelRequest, User $user, string $reason = ''): TravelRequest
+    public function cancelRequest(TravelRequest $travelRequest, User $user, string $reason): TravelRequest
     {
         $oldStatus = $travelRequest->status;
-        
-        $travelRequest->status = 'cancelled';
+
+        $travelRequest->status      = TravelRequestStatus::Cancelled->value;
         $travelRequest->cancel_reason = $reason;
-        $travelRequest->cancelled_by = $user->id;
-        $travelRequest->cancelled_at = now();
-        $travelRequest->save();
+        $travelRequest->cancelled_by  = $user->id;
+        $travelRequest->cancelled_at  = now();
 
-        // Send notification to requester
-        Notification::send(
-            $travelRequest->user,
-            new TravelRequestStatusChanged($travelRequest, $oldStatus)
-        );
+        $updated = $this->repository->save($travelRequest);
 
-        $this->logActivityStatusChange(
-            $travelRequest,
-            $oldStatus,
-            'cancelled',
-            'Pedido de viagem cancelado'
-        );
+        Notification::send($travelRequest->user, new TravelRequestStatusChanged($updated, $oldStatus));
 
-        return $travelRequest->fresh()->load(['user', 'approvedBy', 'cancelledBy']);
+        $this->logActivityStatusChange($updated, $oldStatus, TravelRequestStatus::Cancelled->value, request());
+
+        return $updated;
     }
 
-    /**
-     * Validate if user can view the travel request
-     */
     public function canViewTravelRequest(TravelRequest $travelRequest, User $user): bool
     {
         return $user->isApprover() || $travelRequest->user_id === $user->id;
     }
 
-    /**
-     * Validate if user can update the travel request
-     */
     public function canUpdateTravelRequest(TravelRequest $travelRequest, User $user): bool
     {
         if ($user->isAdmin()) {
@@ -173,122 +127,28 @@ class TravelRequestService
         return $travelRequest->user_id === $user->id;
     }
 
-    /**
-     * Validate if travel request can be modified
-     */
     public function canModifyTravelRequest(TravelRequest $travelRequest): bool
     {
-        return $travelRequest->status !== 'approved';
+        return $travelRequest->status !== TravelRequestStatus::Approved->value;
     }
 
-    /**
-     * Validate if user can update the status
-     */
     public function canUpdateStatus(TravelRequest $travelRequest, User $user): bool
     {
-        // User cannot change their own request status
         if ($travelRequest->user_id === $user->id) {
             return false;
         }
 
-        // Only approvers can update status
         return $user->isApprover();
     }
 
-    /**
-     * Apply filters to the query
-     */
-    private function applyFilters($query, Request $request): void
-    {
-        if ($request->has('status') && $request->status) {
-            $query->byStatus($request->status);
-        }
-
-        if ($request->has('destination') && $request->destination) {
-            $query->byDestination($request->destination);
-        }
-
-        if (
-            $request->has('start_date') && $request->has('end_date') &&
-            $request->start_date && $request->end_date
-        ) {
-            $query->byDateRange($request->start_date, $request->end_date);
-        }
-    }
-
-    /**
-     * Check if request can be cancelled based on business rules
-     */
     public function canBeCancelled(TravelRequest $travelRequest): bool
     {
-        if ($travelRequest->status === 'cancelled') {
-            return false;
-        }
+        $status = TravelRequestStatus::from($travelRequest->status);
 
-        if ($travelRequest->status === 'expired') {
+        if ($status->isFinal()) {
             return false;
         }
 
         return $travelRequest->departure_date >= now()->startOfDay();
-    }
-
-    /**
-     * Log an activity
-     */
-    private function logActivity(
-        string $action,
-        TravelRequest $model,
-        string $description,
-        ?array $oldValues = null,
-        ?array $newValues = null
-    ): void {
-        ActivityLog::create([
-            'user_id' => Auth::id(),
-            'action' => $action,
-            'model_type' => get_class($model),
-            'model_id' => $model->id,
-            'description' => $description,
-            'old_values' => $oldValues,
-            'new_values' => $newValues,
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-        ]);
-    }
-
-    /**
-     * Log status change activity
-     */
-    private function logActivityStatusChange(
-        TravelRequest $model,
-        string $oldStatus,
-        string $newStatus,
-        string $description
-    ): void {
-        ActivityLog::create([
-            'user_id' => Auth::id(),
-            'action' => 'status_change',
-            'model_type' => get_class($model),
-            'model_id' => $model->id,
-            'description' => $description,
-            'old_values' => ['status' => $oldStatus],
-            'new_values' => ['status' => $newStatus],
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-        ]);
-    }
-
-    /**
-     * Translate status to Portuguese
-     */
-    private function translateStatus(string $status): string
-    {
-        $translations = [
-            'requested' => 'Solicitado',
-            'approved' => 'Aprovado',
-            'cancelled' => 'Cancelado',
-            'expired' => 'Vencido',
-        ];
-
-        return $translations[$status] ?? $status;
     }
 }

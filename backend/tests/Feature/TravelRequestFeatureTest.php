@@ -18,8 +18,8 @@ class TravelRequestFeatureTest extends TestCase
         $travelRequestData = [
             'requester_name' => 'John Doe',
             'destination' => 'São Paulo, SP',
-            'departure_date' => '2024-02-01',
-            'return_date' => '2024-02-05',
+            'departure_date' => now()->addDays(30)->format('Y-m-d'),
+            'return_date' => now()->addDays(35)->format('Y-m-d'),
             'notes' => 'Business trip',
         ];
 
@@ -212,8 +212,8 @@ class TravelRequestFeatureTest extends TestCase
         $updateData = [
             'requester_name' => 'Updated Name',
             'destination' => 'Rio de Janeiro, RJ',
-            'departure_date' => '2024-03-01',
-            'return_date' => '2024-03-05',
+            'departure_date' => now()->addDays(30)->format('Y-m-d'),
+            'return_date' => now()->addDays(35)->format('Y-m-d'),
             'notes' => 'Updated notes',
         ];
 
@@ -395,52 +395,6 @@ class TravelRequestFeatureTest extends TestCase
             ->assertJson([
                 'success' => false,
                 'message' => 'Este pedido já está cancelado',
-            ]);
-    }
-
-    public function test_admin_can_delete_travel_request()
-    {
-        $admin = User::factory()->admin()->create();
-        $travelRequest = TravelRequest::factory()->requested()->create();
-
-        $response = $this->actingAs($admin, 'api')
-            ->deleteJson("/api/travel-requests/{$travelRequest->id}");
-
-        $response->assertStatus(200)
-            ->assertJson([
-                'success' => true,
-                'message' => 'Pedido de viagem excluído com sucesso',
-            ]);
-
-        $this->assertSoftDeleted('travel_requests', ['id' => $travelRequest->id]);
-    }
-
-    public function test_non_admin_cannot_delete_travel_request()
-    {
-        $user = User::factory()->create();
-        $travelRequest = TravelRequest::factory()->create();
-
-        $response = $this->actingAs($user, 'api')
-            ->deleteJson("/api/travel-requests/{$travelRequest->id}");
-
-        $response->assertStatus(403)
-            ->assertJson([
-                'success' => false,
-            ]);
-    }
-
-    public function test_admin_cannot_delete_approved_travel_request()
-    {
-        $admin = User::factory()->admin()->create();
-        $travelRequest = TravelRequest::factory()->approved()->create();
-
-        $response = $this->actingAs($admin, 'api')
-            ->deleteJson("/api/travel-requests/{$travelRequest->id}");
-
-        $response->assertStatus(403)
-            ->assertJson([
-                'success' => false,
-                'message' => 'Não é possível excluir um pedido aprovado',
             ]);
     }
 

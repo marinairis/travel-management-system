@@ -21,7 +21,7 @@ class TravelRequestServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new TravelRequestService();
+        $this->service = app(TravelRequestService::class);
         Notification::fake();
     }
 

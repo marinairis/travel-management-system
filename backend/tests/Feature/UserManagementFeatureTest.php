@@ -323,4 +323,101 @@ class UserManagementFeatureTest extends TestCase
             'user_id' => $user->id,
         ]);
     }
+
+    public function test_authenticated_user_can_get_basic_user_list()
+    {
+        $user = User::factory()->create();
+        User::factory()->count(3)->create();
+
+        $response = $this->actingAs($user, 'api')
+            ->getJson('/api/users/basic');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    '*' => ['id', 'name'],
+                ],
+            ])
+            ->assertJson(['success' => true]);
+
+        $this->assertCount(4, $response->json('data'));
+    }
+
+    public function test_basic_list_does_not_expose_sensitive_fields()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'api')
+            ->getJson('/api/users/basic');
+
+        $response->assertStatus(200);
+        $firstUser = $response->json('data.0');
+        $this->assertArrayNotHasKey('email', $firstUser);
+        $this->assertArrayNotHasKey('password', $firstUser);
+        $this->assertArrayNotHasKey('role', $firstUser);
+    }
+
+    public function test_guest_cannot_access_basic_user_list()
+    {
+        $response = $this->getJson('/api/users/basic');
+
+        $response->assertStatus(401);
+    }
+
+    public function test_admin_can_get_pending_requests_count()
+    {
+        $admin = User::factory()->admin()->create();
+        $user  = User::factory()->create();
+
+        TravelRequest::factory()->requested()->create(['user_id' => $user->id]);
+        TravelRequest::factory()->approved()->create(['user_id' => $user->id]);
+        TravelRequest::factory()->cancelled()->create(['user_id' => $user->id]);
+
+        $response = $this->actingAs($admin, 'api')
+            ->getJson("/api/users/{$user->id}/pending-requests-count");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data'    => ['count' => 2],
+            ]);
+    }
+
+    public function test_pending_requests_count_returns_zero_when_none(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $user  = User::factory()->create();
+
+        $response = $this->actingAs($admin, 'api')
+            ->getJson("/api/users/{$user->id}/pending-requests-count");
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data'    => ['count' => 0],
+            ]);
+    }
+
+    public function test_pending_requests_count_returns_404_for_nonexistent_user(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin, 'api')
+            ->getJson('/api/users/99999/pending-requests-count');
+
+        $response->assertStatus(404)
+            ->assertJson(['success' => false]);
+    }
+
+    public function test_non_admin_cannot_access_pending_requests_count(): void
+    {
+        $user   = User::factory()->create();
+        $target = User::factory()->create();
+
+        $response = $this->actingAs($user, 'api')
+            ->getJson("/api/users/{$target->id}/pending-requests-count");
+
+        $response->assertStatus(403);
+    }
 }

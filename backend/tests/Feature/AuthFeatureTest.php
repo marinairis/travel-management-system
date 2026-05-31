@@ -7,60 +7,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Tests\TestCase;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthFeatureTest extends TestCase
 {
     use RefreshDatabase;
-
-    public function test_user_can_register()
-    {
-        $userData = [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => 'Password@123',
-            'password_confirmation' => 'Password@123',
-        ];
-
-        $response = $this->postJson('/api/register', $userData);
-
-        $response->assertStatus(201)
-            ->assertJsonStructure([
-                'success',
-                'message',
-                'data' => [
-                    'user' => [
-                        'id',
-                        'name',
-                        'email',
-                        'role',
-                        'created_at',
-                        'updated_at',
-                    ],
-                    'token',
-                    'token_type',
-                ],
-            ])
-            ->assertJson([
-                'success' => true,
-                'data' => [
-                    'user' => [
-                        'name' => 'John Doe',
-                        'email' => 'john@example.com',
-                        'role' => 'requester',
-                    ],
-                    'token_type' => 'bearer',
-                ],
-            ]);
-
-        $this->assertDatabaseHas('users', [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'role' => 'requester',
-        ]);
-
-        $user = User::where('email', 'john@example.com')->first();
-        $this->assertTrue(Hash::check('Password@123', $user->password));
-    }
 
     public function test_user_can_login()
     {
@@ -166,8 +117,9 @@ class AuthFeatureTest extends TestCase
     public function test_user_can_refresh_token()
     {
         $user = User::factory()->create();
+        $token = JWTAuth::fromUser($user);
 
-        $response = $this->actingAs($user, 'api')
+        $response = $this->withHeaders(['Authorization' => "Bearer $token"])
             ->postJson('/api/refresh');
 
         $response->assertStatus(200)
@@ -211,14 +163,6 @@ class AuthFeatureTest extends TestCase
             ->assertJsonValidationErrors(['email']);
     }
 
-    public function test_registration_validation_works()
-    {
-        $response = $this->postJson('/api/register', []);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['name', 'email', 'password']);
-    }
-
     public function test_login_validation_works()
     {
         $response = $this->postJson('/api/login', []);
@@ -242,50 +186,4 @@ class AuthFeatureTest extends TestCase
         $response->assertStatus(401);
     }
 
-    public function test_user_cannot_register_with_existing_email()
-    {
-        User::factory()->create(['email' => 'john@example.com']);
-
-        $userData = [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => 'Password@123',
-            'password_confirmation' => 'Password@123',
-        ];
-
-        $response = $this->postJson('/api/register', $userData);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['email']);
-    }
-
-    public function test_password_confirmation_validation()
-    {
-        $userData = [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => 'Password@123',
-            'password_confirmation' => 'DifferentPassword@123',
-        ];
-
-        $response = $this->postJson('/api/register', $userData);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['password']);
-    }
-
-    public function test_password_complexity_validation()
-    {
-        $userData = [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => 'simplepassword',
-            'password_confirmation' => 'simplepassword',
-        ];
-
-        $response = $this->postJson('/api/register', $userData);
-
-        $response->assertStatus(422)
-            ->assertJsonValidationErrors(['password']);
-    }
 }

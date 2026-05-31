@@ -2,8 +2,9 @@
 
 namespace Tests\Feature;
 
-use App\Services\IbgeService;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -11,8 +12,15 @@ class LocationFeatureTest extends TestCase
 {
   use RefreshDatabase;
 
+  protected function setUp(): void
+  {
+    parent::setUp();
+    Cache::flush();
+  }
+
   public function test_can_get_cities_without_query()
   {
+    $user = User::factory()->create();
     $mockData = [
       [
         'id' => 1,
@@ -44,7 +52,7 @@ class LocationFeatureTest extends TestCase
       'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
     ]);
 
-    $response = $this->getJson('/api/cities');
+    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
 
     $response->assertStatus(200)
       ->assertJsonStructure([
@@ -75,6 +83,7 @@ class LocationFeatureTest extends TestCase
 
   public function test_can_search_cities_with_query()
   {
+    $user = User::factory()->create();
     $mockData = [
       [
         'id' => 1,
@@ -118,7 +127,7 @@ class LocationFeatureTest extends TestCase
       'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
     ]);
 
-    $response = $this->getJson('/api/cities?q=São');
+    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities?q=São');
 
     $response->assertStatus(200)
       ->assertJsonStructure([
@@ -185,7 +194,7 @@ class LocationFeatureTest extends TestCase
       'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
     ]);
 
-    $response = $this->getJson('/api/destinations');
+    $response = $this->getJson('/api/locations/destinations');
 
     $response->assertStatus(200)
       ->assertJsonStructure([
@@ -216,41 +225,47 @@ class LocationFeatureTest extends TestCase
 
   public function test_handles_ibge_service_error()
   {
+    $user = User::factory()->create();
+
     Http::fake([
       'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response([], 500)
     ]);
 
-    $response = $this->getJson('/api/cities');
+    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
 
     $response->assertStatus(500)
       ->assertJson([
         'success' => false,
-        'message' => 'Erro ao buscar municípios',
+        'message' => __('messages.general.server_error'),
       ]);
   }
 
   public function test_handles_ibge_service_timeout()
   {
+    $user = User::factory()->create();
+
     Http::fake([
       'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response([], 408)
     ]);
 
-    $response = $this->getJson('/api/cities');
+    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
 
     $response->assertStatus(500)
       ->assertJson([
         'success' => false,
-        'message' => 'Erro ao buscar municípios',
+        'message' => __('messages.general.server_error'),
       ]);
   }
 
   public function test_returns_empty_array_when_no_cities_found()
   {
+    $user = User::factory()->create();
+
     Http::fake([
       'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response([], 200)
     ]);
 
-    $response = $this->getJson('/api/cities');
+    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
 
     $response->assertStatus(200)
       ->assertJson([
@@ -265,6 +280,7 @@ class LocationFeatureTest extends TestCase
 
   public function test_search_returns_empty_array_when_no_matches()
   {
+    $user = User::factory()->create();
     $mockData = [
       [
         'id' => 1,
@@ -284,7 +300,7 @@ class LocationFeatureTest extends TestCase
       'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
     ]);
 
-    $response = $this->getJson('/api/cities?q=NonexistentCity');
+    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities?q=NonexistentCity');
 
     $response->assertStatus(200)
       ->assertJson([
@@ -299,6 +315,7 @@ class LocationFeatureTest extends TestCase
 
   public function test_cities_response_format()
   {
+    $user = User::factory()->create();
     $mockData = [
       [
         'id' => 1,
@@ -318,7 +335,7 @@ class LocationFeatureTest extends TestCase
       'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
     ]);
 
-    $response = $this->getJson('/api/cities');
+    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
 
     $response->assertStatus(200);
     $cityData = $response->json('data.0');
@@ -352,7 +369,7 @@ class LocationFeatureTest extends TestCase
       'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
     ]);
 
-    $response = $this->getJson('/api/destinations');
+    $response = $this->getJson('/api/locations/destinations');
 
     $response->assertStatus(200);
     $destinationData = $response->json('data.0');
@@ -365,22 +382,25 @@ class LocationFeatureTest extends TestCase
     $this->assertEquals('São Paulo - São Paulo - SP', $destinationData['label']);
   }
 
-  public function test_cities_endpoint_is_public()
+  public function test_cities_endpoint_requires_authentication()
   {
-    $response = $this->getJson('/api/cities');
+    $response = $this->getJson('/api/locations/cities');
 
-    $response->assertStatus(200);
+    $response->assertStatus(401);
   }
 
   public function test_destinations_endpoint_is_public()
   {
-    $response = $this->getJson('/api/destinations');
+    Http::fake(['*' => Http::response([], 200)]);
+
+    $response = $this->getJson('/api/locations/destinations');
 
     $response->assertStatus(200);
   }
 
   public function test_handles_malformed_ibge_response()
   {
+    $user = User::factory()->create();
     $malformedData = [
       [
         'id' => 1,
@@ -392,7 +412,7 @@ class LocationFeatureTest extends TestCase
       'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($malformedData, 200)
     ]);
 
-    $response = $this->getJson('/api/cities');
+    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
 
     $response->assertStatus(200);
     $cityData = $response->json('data.0');

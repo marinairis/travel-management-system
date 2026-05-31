@@ -2,12 +2,13 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\Repositories\CityRepositoryInterface;
 use App\Services\IbgeService;
 use App\DTOs\CityDTO;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
-class CityRepository
+class CityRepository implements CityRepositoryInterface
 {
   public function __construct(private IbgeService $ibgeService) {}
 

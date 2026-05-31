@@ -83,9 +83,11 @@ class TravelRequestTest extends TestCase
     $this->assertTrue($travelRequest->can_be_cancelled);
   }
 
-  public function test_can_be_cancelled_attribute_returns_false_for_approved_status()
+  public function test_can_be_cancelled_attribute_returns_false_for_approved_with_past_departure()
   {
-    $travelRequest = TravelRequest::factory()->approved()->create();
+    $travelRequest = TravelRequest::factory()->approved()->create([
+      'departure_date' => now()->subDays(1),
+    ]);
 
     $this->assertFalse($travelRequest->can_be_cancelled);
   }

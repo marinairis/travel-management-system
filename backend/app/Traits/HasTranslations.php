@@ -6,7 +6,7 @@ trait HasTranslations
 {
   protected function translate(string $key, array $replace = []): string
   {
-    return __("messages.{$key}", $replace, 'pt-BR');
+    return __("messages.{$key}", $replace);
   }
 
   protected function successResponse(string $messageKey, $data = null, int $status = 200, array $replace = [])
