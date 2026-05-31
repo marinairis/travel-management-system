@@ -381,16 +381,35 @@
       </el-card>
     </div>
 
-    <!-- Create Drawer -->
-    <el-drawer
+    <!-- Create Modal -->
+    <el-dialog
       v-model="showCreateDialog"
       :title="$t('travelRequest.title')"
-      size="500px"
-      direction="rtl"
-      :before-close="() => showCreateDialog = false"
+      width="550px"
+      align-center
+      destroy-on-close
     >
       <TravelRequestForm @submit="handleCreate" @cancel="showCreateDialog = false" />
-    </el-drawer>
+    </el-dialog>
+
+    <!-- Cancel dialog -->
+    <el-dialog v-model="cancelDialogVisible" :title="$t('travelRequest.cancelTitle')" width="450px" align-center>
+      <p>{{ $t('travelRequest.cancelConfirmMessage') }}</p>
+      <el-form-item :label="$t('travelRequest.cancelReasonLabel')" required style="margin-top: 16px;">
+        <el-input
+          v-model="cancelReason"
+          type="textarea"
+          :rows="3"
+          :placeholder="$t('travelRequest.cancelReasonPlaceholder')"
+        />
+      </el-form-item>
+      <template #footer>
+        <el-button @click="cancelDialogVisible = false">{{ $t('common.cancel') }}</el-button>
+        <el-button type="warning" @click="confirmCancel" :loading="cancellingId" :disabled="!cancelReason.trim()">
+          {{ $t('common.confirm') }}
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -427,6 +446,9 @@ const themeStore = useThemeStore()
 const showCreateDialog = ref(false)
 const approvingId = ref(null)
 const cancellingId = ref(null)
+const cancelDialogVisible = ref(false)
+const cancelReason = ref('')
+const selectedRequest = ref(null)
 const limitPending = ref(10)
 const limitRecent = ref(10)
 
@@ -529,10 +551,19 @@ const handleApprove = async (req) => {
   approvingId.value = null
 }
 
-const handleCancel = async (req) => {
-  cancellingId.value = req.id
-  await travelRequestStore.updateStatus(req.id, 'cancelled')
-  cancellingId.value = null
+const handleCancel = (req) => {
+  selectedRequest.value = req
+  cancelReason.value = ''
+  cancelDialogVisible.value = true
+}
+
+const confirmCancel = async () => {
+  cancellingId.value = true
+  await travelRequestStore.cancelWithReason(selectedRequest.value.id, cancelReason.value)
+  cancellingId.value = false
+  cancelReason.value = ''
+  cancelDialogVisible.value = false
+  selectedRequest.value = null
 }
 
 const handleCreate = async (data) => {

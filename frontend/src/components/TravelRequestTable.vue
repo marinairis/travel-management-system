@@ -56,20 +56,9 @@
       </template>
     </el-table-column>
 
-    <el-table-column prop="status" :label="$t('dashboard.status')" width="180" sortable>
+    <el-table-column prop="status" :label="$t('dashboard.status')" width="120" sortable>
       <template #default="scope">
-        <el-select
-          v-if="canChangeStatus(scope.row)"
-          v-model="scope.row.status"
-          size="small"
-          class="status-inline-select"
-          @change="handleStatusChangeInline(scope.row, $event)"
-        >
-          <el-option :label="$t('status.requested')" value="requested" />
-          <el-option :label="$t('status.approved')" value="approved" />
-          <el-option :label="$t('status.cancelled')" value="cancelled" />
-        </el-select>
-        <el-tag v-else :type="getStatusType(scope.row.status)">
+        <el-tag :type="getStatusType(scope.row.status)" size="small">
           {{ translateStatus(scope.row.status) }}
         </el-tag>
       </template>
@@ -88,52 +77,50 @@
       </template>
     </el-table-column>
 
-    <el-table-column :label="$t('users.actions')" width="140" fixed="right">
+    <el-table-column :label="$t('users.actions')" width="180" fixed="right">
       <template #default="scope">
-        <el-button
-          v-if="showDelete && canDelete(scope.row)"
-          type="danger"
-          :icon="Delete"
-          circle
-          size="small"
-          @click="handleDelete(scope.row)"
-        />
-        <el-button
-          v-if="canCancel(scope.row)"
-          type="warning"
-          :icon="CircleClose"
-          circle
-          size="small"
-          @click="handleCancel(scope.row)"
-        />
-        <el-button type="primary" :icon="View" circle size="small" @click="handleView(scope.row)" />
+        <el-tooltip :content="$t('travelRequest.tooltipView')" placement="top">
+          <el-button type="primary" :icon="View" circle size="small" @click="handleView(scope.row)" />
+        </el-tooltip>
+        <el-tooltip :content="$t('travelRequest.tooltipApprove')" placement="top">
+          <el-button
+            v-if="canApprove(scope.row)"
+            type="success"
+            :icon="CircleCheck"
+            circle
+            size="small"
+            @click="handleApprove(scope.row)"
+          />
+        </el-tooltip>
+        <el-tooltip :content="$t('travelRequest.tooltipCancel')" placement="top">
+          <el-button
+            v-if="canCancel(scope.row)"
+            type="warning"
+            :icon="CircleClose"
+            circle
+            size="small"
+            @click="handleCancel(scope.row)"
+          />
+        </el-tooltip>
       </template>
     </el-table-column>
   </el-table>
 
   <!-- Cancel dialog -->
-  <el-dialog v-model="cancelDialogVisible" :title="$t('common.confirm')" width="400px" align-center>
+  <el-dialog v-model="cancelDialogVisible" :title="$t('travelRequest.cancelTitle')" width="450px" align-center>
     <p>{{ $t('travelRequest.cancelConfirmMessage') }}</p>
+    <el-form-item :label="$t('travelRequest.cancelReasonLabel')" required style="margin-top: 16px;">
+      <el-input
+        v-model="cancelReason"
+        type="textarea"
+        :rows="3"
+        :placeholder="$t('travelRequest.cancelReasonPlaceholder')"
+      />
+    </el-form-item>
     <template #footer>
       <el-button @click="cancelDialogVisible = false">{{ $t('common.cancel') }}</el-button>
-      <el-button type="warning" @click="confirmCancel" :loading="cancelling">
+      <el-button type="warning" @click="confirmCancel" :loading="cancelling" :disabled="!cancelReason.trim()">
         {{ $t('common.confirm') }}
-      </el-button>
-    </template>
-  </el-dialog>
-
-  <!-- Delete dialog -->
-  <el-dialog
-    v-model="deleteDialogVisible"
-    :title="$t('travelRequest.confirmDelete')"
-    width="400px"
-    align-center
-  >
-    <p>{{ $t('travelRequest.deleteConfirmMessage') }}</p>
-    <template #footer>
-      <el-button @click="deleteDialogVisible = false">{{ $t('common.cancel') }}</el-button>
-      <el-button type="danger" @click="confirmDelete" :loading="deleting">
-        {{ $t('common.delete') }}
       </el-button>
     </template>
   </el-dialog>
@@ -142,9 +129,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import {
-  Delete,
   View,
   CircleClose,
+  CircleCheck,
   Promotion,
   Van,
   MapLocation,
@@ -158,24 +145,34 @@ const props = defineProps({
   data: { type: Array, required: true },
   loading: { type: Boolean, default: false },
 })
-const emit = defineEmits(['delete', 'status-change', 'cancel', 'view'])
+const emit = defineEmits(['status-change', 'cancel', 'view', 'approve'])
 
 const authStore = useAuthStore()
 
-const deleteDialogVisible = ref(false)
 const cancelDialogVisible = ref(false)
-const deleting = ref(false)
 const cancelling = ref(false)
 const selectedRequest = ref(null)
+const cancelReason = ref('')
 
 const tableData = computed(() => props.data)
-const showDelete = computed(() => authStore.isAdmin)
 const showApprover = computed(() => authStore.isApprover)
 
-const canDelete = (row) => authStore.isAdmin && row.status !== 'approved'
+const canApprove = (row) => {
+  if (!row) return false
+  // Apenas aprovadores podem aprovar
+  if (!authStore.isApprover) return false
+  // Não pode aprovar pedido próprio
+  if (row.user_id === authStore.user?.id) return false
+  // Apenas pedidos solicitados podem ser aprovados
+  return row.status === 'requested'
+}
 
 const canCancel = (row) => {
   if (!row || !row.can_be_cancelled) return false
+  // Apenas aprovadores podem cancelar
+  if (!authStore.isApprover) return false
+  // Não pode cancelar pedido próprio
+  if (row.user_id === authStore.user?.id) return false
   return true
 }
 
@@ -248,28 +245,23 @@ const getTravelTypeColor = (type) => {
   )
 }
 
-const handleDelete = (row) => {
+const handleApprove = (row) => {
   selectedRequest.value = row
-  deleteDialogVisible.value = true
+  emit('approve', row.id)
 }
 
 const handleCancel = (row) => {
   selectedRequest.value = row
+  cancelReason.value = ''
   cancelDialogVisible.value = true
 }
 
 const confirmCancel = async () => {
   cancelling.value = true
-  await emit('cancel', selectedRequest.value.id)
+  await emit('cancel', { id: selectedRequest.value.id, reason: cancelReason.value })
   cancelling.value = false
+  cancelReason.value = ''
   cancelDialogVisible.value = false
-}
-
-const confirmDelete = async () => {
-  deleting.value = true
-  await emit('delete', selectedRequest.value.id)
-  deleting.value = false
-  deleteDialogVisible.value = false
 }
 
 const handleStatusChangeInline = async (row, newStatusValue) => {

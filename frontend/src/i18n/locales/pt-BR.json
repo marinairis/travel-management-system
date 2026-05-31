@@ -166,7 +166,13 @@
     "detailPurpose": "Observações",
     "detailType": "Tipo de viagem",
     "detailCreated": "Criado em",
-    "detailStatus": "Status"
+    "detailStatus": "Status",
+    "tooltipView": "Ver detalhes",
+    "tooltipApprove": "Aprovar pedido",
+    "tooltipCancel": "Cancelar pedido",
+    "cancelTitle": "Cancelar Pedido",
+    "cancelReasonLabel": "Motivo do cancelamento",
+    "cancelReasonPlaceholder": "Informe o motivo do cancelamento..."
   },
   "activityLogs": {
     "title": "Logs de Atividades",

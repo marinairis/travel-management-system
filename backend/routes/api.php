@@ -46,7 +46,6 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::middleware(['auth:api', 'manager_or_admin'])->group(function () {
-    Route::delete('/travel-requests/{id}', [TravelRequestController::class, 'destroy']);
     Route::patch('/travel-requests/{id}/status', [TravelRequestController::class, 'updateStatus']);
 });
 

@@ -165,7 +165,13 @@
     "detailPurpose": "Notes",
     "detailType": "Travel type",
     "detailCreated": "Created at",
-    "detailStatus": "Status"
+    "detailStatus": "Status",
+    "tooltipView": "View details",
+    "tooltipApprove": "Approve request",
+    "tooltipCancel": "Cancel request",
+    "cancelTitle": "Cancel Request",
+    "cancelReasonLabel": "Cancellation reason",
+    "cancelReasonPlaceholder": "Enter the reason for cancellation..."
   },
   "users": {
     "title": "User Management",

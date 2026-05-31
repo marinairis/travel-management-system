@@ -165,7 +165,13 @@
     "detailPurpose": "Observaciones",
     "detailType": "Tipo de viaje",
     "detailCreated": "Creado el",
-    "detailStatus": "Estado"
+    "detailStatus": "Estado",
+    "tooltipView": "Ver detalles",
+    "tooltipApprove": "Aprobar solicitud",
+    "tooltipCancel": "Cancelar solicitud",
+    "cancelTitle": "Cancelar Solicitud",
+    "cancelReasonLabel": "Motivo de cancelación",
+    "cancelReasonPlaceholder": "Ingrese el motivo de la cancelación..."
   },
   "users": {
     "title": "Gestión de Usuarios",
@@ -177,7 +183,7 @@
     "name": "Nombre",
     "type": "Tipo",
     "requests": "Solicitudes",
-    "registeredAt": "Registrado en",
+    "registeredAt": "Registrado",
     "actions": "Acciones",
     "admin": "Admin",
     "manager": "Gestor",

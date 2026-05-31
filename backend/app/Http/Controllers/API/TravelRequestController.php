@@ -265,63 +265,6 @@ class TravelRequestController extends Controller
     }
 
     /**
-     * @OA\Delete(
-     *     path="/api/travel-requests/{id}",
-     *     tags={"Travel Requests"},
-     *     summary="Excluir pedido de viagem (Gestor ou Admin)",
-     *     description="Pedidos aprovados não podem ser excluídos.",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Pedido excluído"),
-     *     @OA\Response(response=401, description="Não autenticado"),
-     *     @OA\Response(response=403, description="Sem permissão ou pedido aprovado"),
-     *     @OA\Response(response=404, description="Pedido não encontrado")
-     * )
-     */
-    public function destroy(Request $request, $id)
-    {
-        $user = Auth::user();
-
-        if (!$user->isAdmin()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Apenas administradores podem excluir pedidos'
-            ], 403);
-        }
-
-        $travelRequest = TravelRequest::find($id);
-
-        if (
-            $error = $this->validateResourceExists(
-                $travelRequest,
-                'Pedido de viagem não encontrado'
-            )
-        ) {
-            return $error;
-        }
-
-        if ($travelRequest->status === 'approved') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Não é possível excluir um pedido aprovado'
-            ], 403);
-        }
-
-        $this->logActivityDelete(
-            $travelRequest,
-            $request,
-            'Pedido de viagem excluído'
-        );
-
-        $travelRequest->delete();
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Pedido de viagem excluído com sucesso'
-        ]);
-    }
-
-    /**
      * @OA\Patch(
      *     path="/api/travel-requests/{id}/cancel",
      *     tags={"Travel Requests"},
@@ -342,13 +285,19 @@ class TravelRequestController extends Controller
         $travelRequest = TravelRequest::find($id);
 
         if (
-            $error = $this->validateViewPermissions(
+            $error = $this->validateResourceExists(
                 $travelRequest,
-                $user,
-                'Você não tem permissão para cancelar este pedido'
+                'Pedido de viagem não encontrado'
             )
         ) {
             return $error;
+        }
+
+        if ($user->id === $travelRequest->user_id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Você não tem permissão para cancelar este pedido'
+            ], 403);
         }
 
         if ($travelRequest->status === 'cancelled') {
@@ -367,6 +316,9 @@ class TravelRequestController extends Controller
 
         $oldStatus = $travelRequest->status;
         $travelRequest->status = 'cancelled';
+        $travelRequest->cancel_reason = $request->input('reason', '');
+        $travelRequest->cancelled_by = $user->id;
+        $travelRequest->cancelled_at = now();
         $travelRequest->save();
 
         $travelRequest->user->notify(
@@ -384,7 +336,7 @@ class TravelRequestController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Pedido cancelado com sucesso',
-            'data' => $travelRequest->fresh()->load(['user', 'approvedBy'])
+            'data' => $travelRequest->fresh()->load(['user', 'approvedBy', 'cancelledBy'])
         ]);
     }
 

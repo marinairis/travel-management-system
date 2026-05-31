@@ -80,9 +80,9 @@ export const useTravelRequestStore = defineStore('travelRequest', {
       }
     },
 
-    async cancelTravelRequest(id) {
+    async cancelTravelRequest(id, reason = '') {
       try {
-        const response = await api.patch(`/travel-requests/${id}/cancel`)
+        const response = await api.patch(`/travel-requests/${id}/cancel`, { reason })
         if (response.data.success) {
           ElMessage.success(response.data.message)
           this.fetchTravelRequests()
@@ -92,6 +92,10 @@ export const useTravelRequestStore = defineStore('travelRequest', {
         console.error('Erro ao cancelar pedido:', error)
         return false
       }
+    },
+
+    async cancelWithReason(id, reason) {
+      return this.cancelTravelRequest(id, reason)
     },
 
     async deleteTravelRequest(id) {
