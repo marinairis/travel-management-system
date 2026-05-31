@@ -100,12 +100,11 @@
       />
     </el-form-item>
 
-    <el-form-item>
+    <el-form-item class="form-actions">
+      <el-button @click="handleCancel">{{ $t('common.cancel') }}</el-button>
       <el-button type="primary" @click="handleSubmit" :loading="loading">
         {{ isEdit ? $t('travelRequest.updateRequest') : $t('travelRequest.createRequest') }}
       </el-button>
-
-      <el-button @click="handleCancel">{{ $t('common.cancel') }}</el-button>
     </el-form-item>
   </el-form>
 </template>
@@ -206,21 +205,23 @@ const disabledDepartureDate = (time) => {
 const handleSubmit = async () => {
   if (!formRef.value) return
 
-  await formRef.value.validate((valid) => {
-    if (valid) {
-      loading.value = true
-      const payload = {
-        requester_name: formData.requester_name,
-        destination: formData.destination,
-        travel_type: formData.travel_type || null,
-        departure_date: formData.date_range[0],
-        return_date: formData.date_range[1],
-        notes: formData.notes,
-      }
-      emit('submit', payload)
-      loading.value = false
+  try {
+    await formRef.value.validate()
+    loading.value = true
+    const payload = {
+      requester_name: formData.requester_name,
+      destination: formData.destination,
+      travel_type: formData.travel_type || null,
+      departure_date: formData.date_range[0],
+      return_date: formData.date_range[1],
+      notes: formData.notes,
     }
-  })
+    emit('submit', payload)
+  } catch {
+    // Validation failed
+  } finally {
+    loading.value = false
+  }
 }
 
 const handleCancel = () => {
@@ -233,4 +234,16 @@ defineExpose({
 })
 </script>
 
-<style scoped></style>
+<style scoped>
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  width: 100%;
+}
+
+.form-actions :deep(.el-form-item__content) {
+  justify-content: flex-end;
+}
+</style>

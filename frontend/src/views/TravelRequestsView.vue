@@ -69,6 +69,7 @@
         :loading="travelRequestStore.loading"
         @delete="handleDelete"
         @cancel="handleCancel"
+        @approve="handleApprove"
         @status-change="handleStatusChange"
         @view="handleView"
       />
@@ -87,16 +88,15 @@
       </div>
     </el-card>
 
-    <!-- Create Drawer -->
-    <el-drawer
+    <!-- Create Modal -->
+    <el-dialog
       v-model="showCreateDialog"
       :title="$t('travelRequest.title')"
-      size="500px"
-      direction="rtl"
-      :before-close="() => showCreateDialog = false"
+      width="550px"
+      align-center
     >
-      <TravelRequestForm @submit="handleCreate" @cancel="showCreateDialog = false" />
-    </el-drawer>
+      <TravelRequestForm ref="formRef" @submit="handleCreate" @cancel="showCreateDialog = false" />
+    </el-dialog>
   </div>
 </template>
 
@@ -117,6 +117,7 @@ const travelRequestStore = useTravelRequestStore()
 const destinationsStore = useDestinationsStore()
 
 const showCreateDialog = ref(false)
+const formRef = ref(null)
 const dateRange = ref([])
 const currentPage = ref(1)
 const pageSize = ref(10)
@@ -200,8 +201,12 @@ const handleDelete = async (id) => {
   await travelRequestStore.deleteTravelRequest(id)
 }
 
-const handleCancel = async (id) => {
-  await travelRequestStore.cancelTravelRequest(id)
+const handleCancel = async ({ id, reason }) => {
+  await travelRequestStore.cancelTravelRequest(id, reason)
+}
+
+const handleApprove = async (id) => {
+  await travelRequestStore.updateStatus(id, 'approved')
 }
 
 const handleStatusChange = async (id, status) => {

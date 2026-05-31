@@ -29,7 +29,7 @@
           v-if="isOwner && request.status === 'requested'"
           type="primary"
           plain
-          @click="editDrawerOpen = true"
+          @click="editDialogOpen = true"
         >
           <el-icon style="margin-right: 4px"><Edit /></el-icon>
           {{ $t('common.edit') }}
@@ -230,22 +230,21 @@
       </template>
     </el-dialog>
 
-    <!-- Edit Drawer -->
-    <el-drawer
-      v-model="editDrawerOpen"
+    <!-- Edit Modal -->
+    <el-dialog
+      v-model="editDialogOpen"
       :title="$t('travelRequest.updateRequest')"
-      size="500px"
-      direction="rtl"
-      :before-close="handleEditDrawerClose"
+      width="550px"
+      align-center
     >
       <TravelRequestForm
         ref="editFormRef"
         :model-value="editFormData"
         :is-edit="true"
         @submit="handleEditSubmit"
-        @cancel="editDrawerOpen = false"
+        @cancel="editDialogOpen = false"
       />
-    </el-drawer>
+    </el-dialog>
   </div>
 </template>
 
@@ -272,7 +271,7 @@ const cancelOpen = ref(false)
 const cancelReason = ref('')
 const deleteOpen = ref(false)
 const actionLoading = ref(null)
-const editDrawerOpen = ref(false)
+const editDialogOpen = ref(false)
 const editFormRef = ref(null)
 
 // Dados para o formulário de edição
@@ -423,7 +422,7 @@ const handleApprove = async () => {
 
 const handleCancel = async () => {
   actionLoading.value = 'cancel'
-  await travelRequestStore.cancelTravelRequest(route.params.id)
+  await travelRequestStore.cancelTravelRequest(route.params.id, cancelReason.value)
   actionLoading.value = null
   cancelOpen.value = false
   cancelReason.value = ''
@@ -445,17 +444,12 @@ const handleDelete = async () => {
   router.push('/')
 }
 
-const handleEditDrawerClose = (done) => {
-  editFormRef.value?.resetFields()
-  done()
-}
-
 const handleEditSubmit = async (data) => {
   loading.value = true
   const success = await travelRequestStore.updateTravelRequest(route.params.id, data)
   loading.value = false
   if (success) {
-    editDrawerOpen.value = false
+    editDialogOpen.value = false
     await fetchRequest()
   }
 }
