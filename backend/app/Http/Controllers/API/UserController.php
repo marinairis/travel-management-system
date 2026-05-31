@@ -169,13 +169,20 @@ class UserController extends Controller
             ], 403);
         }
 
+        // Cancelar pedidos em aberto antes de excluir
+        $cancelledCount = $this->cancelUserTravelRequests($user, 'Usuário excluído');
+
         $this->logActivityDelete($user, $request, 'Usuário excluído');
 
         $user->delete();
 
+        $message = $cancelledCount > 0 
+            ? "Usuário excluído com sucesso. {$cancelledCount} pedido(s) de viagem foi(ram) cancelado(s)."
+            : 'Usuário excluído com sucesso.';
+
         return response()->json([
             'success' => true,
-            'message' => 'Usuário excluído com sucesso'
+            'message' => $message
         ]);
     }
 
@@ -185,6 +192,30 @@ class UserController extends Controller
         return response()->json([
             'success' => true,
             'data' => $users
+        ]);
+    }
+
+    /**
+     * Retorna a contagem de pedidos em aberto de um usuário
+     */
+    public function pendingRequestsCount($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário não encontrado'
+            ], 404);
+        }
+
+        $count = \App\Models\TravelRequest::where('user_id', $id)
+            ->whereIn('status', ['requested', 'approved'])
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'data' => ['count' => $count]
         ]);
     }
 
@@ -203,7 +234,8 @@ class UserController extends Controller
      */
     public function toggleStatus($id)
     {
-        $user = User::find($id);
+        // Busca usuário incluindo os "deletados" para poder ativar novamente
+        $user = User::withTrashed()->find($id);
 
         if (
             $error = $this->validateResourceExists(
@@ -221,28 +253,126 @@ class UserController extends Controller
             ], 403);
         }
 
-        $user->is_active = !$user->is_active;
-        $user->save();
+        if ($user->is_active) {
+            // DESATIVAR: cancelar pedidos primeiro, depois fazer soft delete
+            $cancelledCount = $this->cancelUserTravelRequests($user, 'Usuário desativado');
+            
+            $user->is_active = false;
+            $user->save();
+            $user->delete(); // soft delete
 
-        $status = $user->is_active ? 'ativado' : 'desativado';
+            $this->logActivityUpdate(
+                $user,
+                ['is_active' => true, 'deleted_at' => null],
+                new Request(['is_active' => false, 'deleted_at' => now()]),
+                'Usuário desativado'
+            );
 
-        $this->logActivityUpdate(
-            $user,
-            ['is_active' => !$user->is_active],
-            new Request(['is_active' => $user->is_active]),
-            "Usuário {$status}"
-        );
+            $message = $cancelledCount > 0 
+                ? "Usuário desativado com sucesso. {$cancelledCount} pedido(s) de viagem foi(ram) cancelado(s)."
+                : 'Usuário desativado com sucesso.';
 
-        return response()->json([
-            'success' => true,
-            'message' => "Usuário {$status} com sucesso",
-            'data' => $user->fresh()
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'data' => $user->fresh()
+            ]);
+        } else {
+            // ATIVAR: restaurar do soft delete + reenviar convite
+            $user->restore();
+            $user->is_active = true;
+            $user->save();
+
+            // Reenviar convite por email
+            $this->resendInvitation($user);
+
+            $this->logActivityUpdate(
+                $user,
+                ['is_active' => false, 'deleted_at' => now()->subSecond()],
+                new Request(['is_active' => true, 'deleted_at' => null]),
+                'Usuário ativado'
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuário ativado com sucesso. Um novo convite foi enviado por e-mail.',
+                'data' => $user->fresh()
+            ]);
+        }
+    }
+
+    /**
+     * Cancela todos os pedidos de viagem pendentes/approved de um usuário
+     */
+    private function cancelUserTravelRequests(User $user, string $reason)
+    {
+        $cancelledCount = 0;
+        
+        // Cancela pedidos pendentes e aprovados do usuário
+        $travelRequests = \App\Models\TravelRequest::where('user_id', $user->id)
+            ->whereIn('status', ['requested', 'approved'])
+            ->get();
+        
+        foreach ($travelRequests as $request) {
+            $request->status = 'cancelled';
+            $request->cancel_reason = $reason;
+            $request->cancelled_by = Auth::id();
+            $request->cancelled_at = now();
+            $request->save();
+            
+            // Log da atividade
+            $this->logActivityUpdate(
+                $request,
+                ['status' => $request->getOriginal('status')],
+                new Request(['status' => 'cancelled', 'cancel_reason' => $reason]),
+                "Pedido cancelado - {$reason}"
+            );
+            
+            $cancelledCount++;
+        }
+        
+        return $cancelledCount;
+    }
+
+    /**
+     * Reenvia o convite por email para o usuário
+     */
+    private function resendInvitation(User $user)
+    {
+        try {
+            // Gerar novo token
+            $token = \Illuminate\Support\Str::random(64);
+
+            // Verificar se já existe convite pendente e atualizar, ou criar novo
+            $invitation = \App\Models\Invitation::where('email', $user->email)
+                ->whereNull('accepted_at')
+                ->first();
+
+            if ($invitation) {
+                $invitation->token = $token;
+                $invitation->expires_at = now()->addDays(7);
+                $invitation->save();
+            } else {
+                \App\Models\Invitation::create([
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'token' => $token,
+                    'expires_at' => now()->addDays(7),
+                ]);
+            }
+
+            // Enviar email
+            $user->notify(new \App\Notifications\UserInvited($token, $user->role));
+        } catch (\Exception $e) {
+            // Não falhar a ativação se o email não for enviado
+            \Illuminate\Support\Facades\Log::error('Erro ao reenviar convite: ' . $e->getMessage());
+        }
     }
 
     private function applyFilters($query, UserFilterRequest $request)
     {
         $this->filterByUserType($query, $request);
+        $this->filterByStatus($query, $request);
         $this->filterByEmail($query, $request);
     }
 
@@ -255,6 +385,19 @@ class UserController extends Controller
             } else {
                 $query->where('role', $type);
             }
+        }
+    }
+
+    private function filterByStatus($query, UserFilterRequest $request)
+    {
+        $status = $request->input('status');
+        
+        if ($status === 'active') {
+            $query->where('is_active', true)->whereNull('deleted_at');
+        } elseif ($status === 'inactive') {
+            $query->where(function ($q) {
+                $q->where('is_active', false)->orWhereNotNull('deleted_at');
+            });
         }
     }
 

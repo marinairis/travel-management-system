@@ -26,6 +26,19 @@
           </el-select>
         </el-form-item>
 
+        <el-form-item :label="$t('users.status')">
+          <el-select
+            v-model="filters.status"
+            :placeholder="$t('common.all')"
+            clearable
+            style="width: 140px"
+            @change="handleFilter"
+          >
+            <el-option :label="$t('users.active')" value="active" />
+            <el-option :label="$t('users.inactive')" value="inactive" />
+          </el-select>
+        </el-form-item>
+
         <el-form-item :label="$t('users.email')">
           <el-input
             v-model="filters.email"
@@ -46,7 +59,7 @@
     <el-card shadow="never" class="voa-users-card">
       <el-table :data="userStore.users" v-loading="userStore.loading" style="width: 100%">
         <!-- Avatar + name column -->
-        <el-table-column :label="$t('users.name')" min-width="200">
+        <el-table-column :label="$t('users.name')" min-width="150">
           <template #default="scope">
             <div style="display: flex; align-items: center; gap: 10px">
               <el-avatar
@@ -70,7 +83,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="role" :label="$t('users.type')" width="130">
+        <el-table-column prop="role" :label="$t('users.profile')" width="150">
           <template #default="scope">
             <el-tag :type="getRoleTagType(scope.row.role)" size="small">
               {{ getRoleLabel(scope.row.role) }}
@@ -99,7 +112,20 @@
           </template>
         </el-table-column>
 
-        <el-table-column :label="$t('users.actions')" width="180" fixed="right">
+        <el-table-column width="170">
+          <template #default="scope">
+            <el-tag
+              v-if="scope.row.id !== authStore.user?.id"
+              :type="scope.row.is_active ? 'warning' : 'success'"
+              class="clickable-tag"
+              @click="handleStatusClick(scope.row)"
+            >
+              {{ scope.row.is_active ? $t('users.deactivate') : $t('users.activate') }}
+            </el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column :label="$t('users.actions')" width="80" fixed="right">
           <template #default="scope">
             <el-button
               type="primary"
@@ -107,28 +133,6 @@
               circle
               size="small"
               @click="handleEdit(scope.row)"
-            />
-            <el-tooltip
-              :content="scope.row.is_active ? $t('users.deactivate') : $t('users.activate')"
-              placement="top"
-            >
-              <el-button
-                v-if="scope.row.id !== authStore.user?.id"
-                :type="scope.row.is_active ? 'warning' : 'success'"
-                circle
-                size="small"
-                @click="handleToggleStatus(scope.row)"
-              >
-                <span>{{ scope.row.is_active ? '⛔' : '✅' }}</span>
-              </el-button>
-            </el-tooltip>
-            <el-button
-              v-if="scope.row.id !== authStore.user?.id"
-              type="danger"
-              :icon="Delete"
-              circle
-              size="small"
-              @click="handleDelete(scope.row)"
             />
           </template>
         </el-table-column>
@@ -274,12 +278,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useUserStore } from '@/stores/user'
 import { useAuthStore } from '@/stores/auth'
-import { useRouter, useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { Delete, Edit, Refresh } from '@element-plus/icons-vue'
+import { ElMessageBox } from 'element-plus'
+import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Edit, Delete, Refresh } from '@element-plus/icons-vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -303,6 +308,7 @@ const pageSize = ref(10)
 
 const filters = reactive({
   userType: '',
+  status: '',
   email: '',
 })
 
@@ -350,15 +356,17 @@ const roleDesc = (role) =>
 const updateQueryParams = () => {
   const query = {}
   if (filters.userType) query.user_type = filters.userType
+  if (filters.status) query.status = filters.status
   if (filters.email) query.email = filters.email
   if (currentPage.value > 1) query.page = currentPage.value
   if (pageSize.value !== 10) query.per_page = pageSize.value
-  
+
   router.replace({ query })
 }
 
 const loadFiltersFromQuery = () => {
   filters.userType = route.query.user_type || ''
+  filters.status = route.query.status || ''
   filters.email = route.query.email || ''
   currentPage.value = parseInt(route.query.page) || 1
   pageSize.value = parseInt(route.query.per_page) || 10
@@ -368,6 +376,7 @@ const handleFilter = () => {
   updateQueryParams()
   userStore.fetchUsers({
     userType: filters.userType,
+    status: filters.status,
     email: filters.email,
     page: currentPage.value,
     per_page: pageSize.value,
@@ -382,6 +391,7 @@ const handleEmailInput = () => {
 
 const handleReset = () => {
   filters.userType = ''
+  filters.status = ''
   filters.email = ''
   currentPage.value = 1
   router.replace({ query: {} })
@@ -392,6 +402,7 @@ const handlePageChange = () => {
   updateQueryParams()
   userStore.fetchUsers({
     userType: filters.userType,
+    status: filters.status,
     email: filters.email,
     page: currentPage.value,
     per_page: pageSize.value,
@@ -414,6 +425,7 @@ onMounted(() => {
   loadFiltersFromQuery()
   userStore.fetchUsers({
     userType: filters.userType,
+    status: filters.status,
     email: filters.email,
     page: currentPage.value,
     per_page: pageSize.value,
@@ -445,9 +457,29 @@ const handleUpdate = async () => {
   })
 }
 
-const handleDelete = (user) => {
+const handleDelete = async (user) => {
   selectedUser.value = user
-  showDeleteDialog.value = true
+  // Buscar contagem de pedidos pendentes antes de mostrar a confirmação
+  const count = await userStore.getPendingRequestsCount(user.id)
+  selectedUser.value.pendingRequestsCount = count
+
+  if (count > 0) {
+    ElMessageBox.confirm(
+      t('users.confirmDeleteMessage', { name: user.name, count: count }),
+      t('users.confirmDeleteTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning',
+      }
+    ).then(async () => {
+      await confirmDelete()
+    }).catch(() => {
+      // User cancelled
+    })
+  } else {
+    showDeleteDialog.value = true
+  }
 }
 const confirmDelete = async () => {
   deleting.value = true
@@ -468,8 +500,31 @@ const handleInvite = async () => {
   if (success) inviteSent.value = true
 }
 
-const handleToggleStatus = async (user) => {
-  await userStore.toggleUserStatus(user.id)
+const handleStatusClick = async (user) => {
+  const action = user.is_active ? 'deactivate' : 'activate'
+  const title = user.is_active ? t('users.confirmDeactivateTitle') : t('users.confirmActivateTitle')
+  
+  let message
+  if (user.is_active) {
+    // Buscar contagem de pedidos pendentes para desativação
+    const count = await userStore.getPendingRequestsCount(user.id)
+    message = count > 0
+      ? t('users.confirmDeactivateMessage', { name: user.name, count: count })
+      : t('users.confirmDeactivateSimple', { name: user.name })
+  } else {
+    message = t('users.confirmActivateMessage', { name: user.name })
+  }
+
+  try {
+    await ElMessageBox.confirm(message, title, {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      type: user.is_active ? 'warning' : 'info',
+    })
+    await userStore.toggleUserStatus(user.id)
+  } catch (error) {
+    // User cancelled
+  }
 }
 </script>
 
@@ -485,5 +540,14 @@ const handleToggleStatus = async (user) => {
   align-items: center;
   padding: 14px 0 4px;
   border-top: 1px solid var(--el-border-color);
+}
+
+.clickable-tag {
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.clickable-tag:hover {
+  opacity: 0.8;
 }
 </style>

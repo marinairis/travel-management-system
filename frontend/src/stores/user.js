@@ -30,6 +30,10 @@ export const useUserStore = defineStore('user', {
           params.append('user_type', filterData.userType)
         }
 
+        if (filterData.status) {
+          params.append('status', filterData.status)
+        }
+
         if (filterData.email) {
           params.append('email', filterData.email)
         }
@@ -123,6 +127,19 @@ export const useUserStore = defineStore('user', {
       } catch (error) {
         console.error('Erro ao alterar status do usuário:', error)
         return false
+      }
+    },
+
+    async getPendingRequestsCount(userId) {
+      try {
+        const response = await api.get(`/users/${userId}/pending-requests-count`)
+        if (response.data.success) {
+          return response.data.data.count
+        }
+        return 0
+      } catch (error) {
+        console.error('Erro ao buscar contagem de pedidos pendentes:', error)
+        return 0
       }
     },
   },

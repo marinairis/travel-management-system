@@ -281,6 +281,14 @@
     "active": "Ativo",
     "inactive": "Inativo",
     "activate": "Ativar usuário",
-    "deactivate": "Desativar usuário"
+    "deactivate": "Desativar usuário",
+    "confirmDeactivateTitle": "Desativar Usuário",
+    "confirmDeactivateMessage": "Tem certeza que deseja desativar o usuário {name}? Ele não poderá mais fazer login e {count} pedido(s) de viagem em aberto será(ão) cancelado(s) com o motivo: usuário desativado.",
+    "confirmDeactivateSimple": "Tem certeza que deseja desativar o usuário {name}? Ele não poderá mais fazer login.",
+    "confirmDeleteTitle": "Excluir Usuário",
+    "confirmDeleteMessage": "Tem certeza que deseja excluir o usuário {name}? {count} pedido(s) de viagem em aberto será(ão) cancelado(s) com o motivo: usuário excluído.",
+    "confirmActivateTitle": "Ativar Usuário",
+    "confirmActivateMessage": "Tem certeza que deseja ativar o usuário {name}? Um novo convite será enviado por e-mail.",
+    "profile": "Perfil"
   }
 }

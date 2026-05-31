@@ -209,7 +209,17 @@
     "inviteAnother": "Invitar otro",
     "roleDescRequester": "Crea y sigue sus propias solicitudes de viaje.",
     "roleDescManager": "Aprueba o cancela solicitudes del equipo.",
-    "roleDescAdmin": "Acceso completo: usuarios, logs y todos los pedidos."
+    "roleDescAdmin": "Acceso completo: usuarios, logs y todos los pedidos.",
+    "status": "Estado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "activate": "Activar usuario",
+    "deactivate": "Desactivar usuario",
+    "confirmDeactivateTitle": "Desactivar Usuario",
+    "confirmDeactivateMessage": "¿Está seguro de que desea desactivar al usuario {name}? No podrá iniciar sesión.",
+    "confirmActivateTitle": "Activar Usuario",
+    "confirmActivateMessage": "¿Está seguro de que desea activar al usuario {name}? Se enviará una nueva invitación por correo.",
+    "profile": "Perfil"
   },
   "activityLogs": {
     "title": "Registros de Actividad",

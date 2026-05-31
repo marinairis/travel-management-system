@@ -209,7 +209,20 @@
     "inviteAnother": "Invite another",
     "roleDescRequester": "Creates and tracks their own travel requests.",
     "roleDescManager": "Approves or cancels team requests.",
-    "roleDescAdmin": "Full access: users, logs, and all orders."
+    "roleDescAdmin": "Full access: users, logs, and all orders.",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate user",
+    "deactivate": "Deactivate user",
+    "confirmDeactivateTitle": "Deactivate User",
+    "confirmDeactivateMessage": "Are you sure you want to deactivate user {name}? They will not be able to log in and {count} pending travel request(s) will be cancelled with reason: user deactivated.",
+    "confirmDeactivateSimple": "Are you sure you want to deactivate user {name}? They will not be able to log in.",
+    "confirmDeleteTitle": "Delete User",
+    "confirmDeleteMessage": "Are you sure you want to delete user {name}? {count} pending travel request(s) will be cancelled with reason: user deleted.",
+    "confirmActivateTitle": "Activate User",
+    "confirmActivateMessage": "Are you sure you want to activate user {name}? A new invitation will be sent by email.",
+    "profile": "Profile"
   },
   "activityLogs": {
     "title": "Activity Logs",
