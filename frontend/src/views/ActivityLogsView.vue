@@ -3,10 +3,11 @@
     <div class="voa-page-head">
       <div>
         <h1 class="voa-page-title">{{ $t('activityLogs.title') }}</h1>
+        <p class="voa-page-sub">{{ $t('activityLogs.subtitle') }}</p>
       </div>
     </div>
 
-    <el-card class="filter-card" shadow="never">
+    <el-card class="filter-card" shadow="never" style="margin-bottom: 14px">
       <el-form :inline="true" :model="filters">
         <el-form-item :label="$t('activityLogs.action')">
           <el-select
@@ -50,10 +51,7 @@
             style="width: 200px"
             @change="handleFilter"
           >
-            <el-option
-              :label="$t('activityLogs.travelRequest')"
-              value="App\Models\TravelRequest"
-            />
+            <el-option :label="$t('activityLogs.travelRequest')" value="App\Models\TravelRequest" />
             <el-option :label="$t('activityLogs.userModel')" value="App\Models\User" />
           </el-select>
         </el-form-item>
@@ -70,34 +68,66 @@
         v-loading="activityLogStore.loading"
         style="width: 100%"
       >
-        <el-table-column prop="id" :label="$t('users.id')" width="80" />
-
-        <el-table-column
-          prop="user.name"
-          :label="$t('activityLogs.user')"
-          min-width="200"
-          show-overflow-tooltip
-        />
-
-        <el-table-column prop="action" :label="$t('activityLogs.action')" width="140">
+        <el-table-column prop="id" :label="$t('users.id')" width="90" sortable>
           <template #default="scope">
-            <span :class="`voa-action-tag ${scope.row.action}`">
-              {{ translateAction(scope.row.action) }}
+            <span
+              style="
+                font-family: var(--voa-mono, monospace);
+                font-size: 12px;
+                font-weight: 700;
+                color: var(--el-color-primary);
+              "
+            >
+              {{ formatLogId(scope.row.id) }}
             </span>
+          </template>
+        </el-table-column>
+
+        <el-table-column :label="$t('activityLogs.user')" min-width="150">
+          <template #default="scope">
+            <div style="display: flex; align-items: center; gap: 10px">
+              <el-avatar
+                :size="32"
+                :style="{
+                  background: avatarBg(scope.row.user_id),
+                  color: '#fff',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                }"
+              >
+                {{ initials(scope.row.user?.name) }}
+              </el-avatar>
+              <div>
+                <div style="font-weight: 600; font-size: 13.5px">
+                  {{ scope.row.user?.name || $t('activityLogs.system') }}
+                </div>
+                <div style="font-size: 12px; color: var(--el-text-color-secondary)">
+                  {{ scope.row.user?.email || '-' }}
+                </div>
+              </div>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="action" :label="$t('activityLogs.action')" width="150">
+          <template #default="scope">
+            <el-tag :type="getActionType(scope.row.action)" size="small">
+              {{ translateAction(scope.row.action) }}
+            </el-tag>
           </template>
         </el-table-column>
 
         <el-table-column
           prop="description"
           :label="$t('activityLogs.description')"
-          min-width="250"
+          min-width="200"
           show-overflow-tooltip
         />
 
         <el-table-column
           prop="model_type"
           :label="$t('activityLogs.type')"
-          min-width="200"
+          width="150"
           show-overflow-tooltip
         >
           <template #default="scope">
@@ -105,13 +135,13 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="created_at" :label="$t('activityLogs.dateTime')" width="180">
+        <el-table-column prop="created_at" :label="$t('activityLogs.dateTime')" width="160">
           <template #default="scope">
             {{ formatDateTime(scope.row.created_at) }}
           </template>
         </el-table-column>
 
-        <el-table-column :label="$t('activityLogs.details')" width="100" fixed="right">
+        <el-table-column width="80" fixed="right">
           <template #default="scope">
             <el-button
               type="primary"
@@ -127,9 +157,11 @@
       <div class="pagination-container">
         <el-pagination
           v-model:current-page="currentPage"
-          :page-size="activityLogStore.pagination.per_page"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50]"
           :total="activityLogStore.pagination.total"
-          layout="total, prev, pager, next"
+          layout="total, sizes, prev, pager, next"
+          @size-change="handlePageChange"
           @current-change="handlePageChange"
         />
       </div>
@@ -138,7 +170,16 @@
     <el-dialog v-model="showViewDialog" :title="$t('activityLogs.logDetails')" width="700">
       <el-descriptions v-if="selectedLog" :column="1" border>
         <el-descriptions-item :label="$t('users.id')">
-          {{ selectedLog.id }}
+          <span
+            style="
+              font-family: var(--voa-mono, monospace);
+              font-size: 13px;
+              font-weight: 700;
+              color: var(--el-color-primary);
+            "
+          >
+            {{ formatLogId(selectedLog.id) }}
+          </span>
         </el-descriptions-item>
 
         <el-descriptions-item :label="$t('activityLogs.user')">
@@ -146,9 +187,9 @@
         </el-descriptions-item>
 
         <el-descriptions-item :label="$t('activityLogs.action')">
-          <span :class="`voa-action-tag ${selectedLog.action}`">
+          <el-tag :type="getActionType(selectedLog.action)" size="small">
             {{ translateAction(selectedLog.action) }}
-          </span>
+          </el-tag>
         </el-descriptions-item>
 
         <el-descriptions-item :label="$t('activityLogs.description')">
@@ -197,16 +238,40 @@ const authStore = useAuthStore()
 const showViewDialog = ref(false)
 const selectedLog = ref(null)
 const currentPage = ref(1)
+const pageSize = ref(10)
+
+function initials(name) {
+  const parts = String(name || '')
+    .trim()
+    .split(' ')
+  return ((parts[0]?.[0] || '') + (parts[parts.length - 1]?.[0] || '')).toUpperCase()
+}
+
+function avatarBg(id) {
+  const c = [
+    'var(--avatar-color-1)',
+    'var(--avatar-color-2)',
+    'var(--avatar-color-3)',
+    'var(--avatar-color-4)',
+    'var(--avatar-color-5)',
+    'var(--avatar-color-6)',
+  ]
+  let h = 0
+  const s = String(id || '')
+  for (let i = 0; i < s.length; i++) h = s.charCodeAt(i) + ((h << 5) - h)
+  return c[Math.abs(h) % c.length]
+}
 
 const filters = reactive({
   action: '',
   user_id: '',
   model_type: '',
   page: 1,
+  per_page: 10,
 })
 
 onMounted(() => {
-  activityLogStore.fetchLogs()
+  activityLogStore.fetchLogs(filters)
   if (authStore.isAdmin) {
     activityLogStore.fetchUsers()
   }
@@ -229,6 +294,7 @@ const handleReset = () => {
 
 const handlePageChange = (page) => {
   filters.page = page
+  filters.per_page = pageSize.value
   activityLogStore.fetchLogs(filters)
 }
 
@@ -286,11 +352,24 @@ const formatDateTime = (date) => {
   if (!date) return '-'
   return new Date(date).toLocaleString('pt-BR')
 }
+
+const formatLogId = (id) => {
+  if (!id) return '-'
+  return `LOG-${String(id).padStart(4, '0')}`
+}
 </script>
 
 <style scoped>
 .voa-logs-card :deep(.el-table__body-wrapper) {
   overflow-y: auto;
   max-height: calc(100vh - 340px);
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0 4px;
+  border-top: 1px solid var(--el-border-color);
 }
 </style>

@@ -223,6 +223,7 @@
   },
   "activityLogs": {
     "title": "Registros de Actividad",
+    "subtitle": "Historial de acciones del sistema",
     "action": "Acción",
     "user": "Usuario",
     "description": "Descripción",

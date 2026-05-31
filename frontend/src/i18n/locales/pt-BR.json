@@ -170,6 +170,7 @@
   },
   "activityLogs": {
     "title": "Logs de Atividades",
+    "subtitle": "Histórico de ações no sistema",
     "action": "Ação",
     "user": "Usuário",
     "description": "Descrição",

@@ -226,6 +226,7 @@
   },
   "activityLogs": {
     "title": "Activity Logs",
+    "subtitle": "System action history",
     "action": "Action",
     "user": "User",
     "description": "Description",

@@ -9,7 +9,7 @@ export const useActivityLogStore = defineStore('activityLog', {
     pagination: {
       current_page: 1,
       last_page: 1,
-      per_page: 50,
+      per_page: 10,
       total: 0,
     },
   }),
@@ -22,8 +22,8 @@ export const useActivityLogStore = defineStore('activityLog', {
         if (filters.user_id) params.append('user_id', filters.user_id)
         if (filters.action) params.append('action', filters.action)
         if (filters.model_type) params.append('model_type', filters.model_type)
-        if (filters.page) params.append('page', filters.page)
-        if (filters.per_page) params.append('per_page', filters.per_page)
+        params.append('per_page', filters.per_page || this.pagination.per_page || 10)
+        params.append('page', filters.page || this.pagination.current_page || 1)
 
         const response = await api.get(`/activity-logs?${params}`)
         if (response.data.success) {
