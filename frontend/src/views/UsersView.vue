@@ -9,32 +9,40 @@
       <el-button type="primary" @click="openInvite"> + {{ $t('users.inviteUser') }} </el-button>
     </div>
 
-    <!-- Filters -->
-    <div class="voa-filters">
-      <el-select
-        v-model="filters.userType"
-        :placeholder="$t('common.all')"
-        clearable
-        style="width: 160px"
-        @change="applyFilters"
-      >
-        <el-option :label="$t('users.roleAdmin')" value="admin" />
-        <el-option :label="$t('users.roleManager')" value="manager" />
-        <el-option :label="$t('users.roleRequester')" value="requester" />
-      </el-select>
+    <!-- Filters Card -->
+    <el-card class="filter-card" shadow="never" style="margin-bottom: 14px">
+      <el-form :inline="true" :model="filters">
+        <el-form-item :label="$t('users.userType')">
+          <el-select
+            v-model="filters.userType"
+            :placeholder="$t('common.all')"
+            clearable
+            style="width: 160px"
+            @change="handleFilter"
+          >
+            <el-option :label="$t('users.roleAdmin')" value="admin" />
+            <el-option :label="$t('users.roleManager')" value="manager" />
+            <el-option :label="$t('users.roleRequester')" value="requester" />
+          </el-select>
+        </el-form-item>
 
-      <el-input
-        v-model="filters.email"
-        :placeholder="$t('users.emailPlaceholder')"
-        clearable
-        style="width: 250px"
-        @input="onEmailInput"
-      />
+        <el-form-item :label="$t('users.email')">
+          <el-input
+            v-model="filters.email"
+            :placeholder="$t('users.emailPlaceholder')"
+            clearable
+            style="width: 250px"
+            @input="handleEmailInput"
+          />
+        </el-form-item>
 
-      <el-button link @click="clearFilters">✕ {{ $t('common.clear') }}</el-button>
-    </div>
+        <el-form-item>
+          <el-button :icon="Refresh" @click="handleReset"> {{ $t('common.clear') }} </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
 
-    <!-- Table -->
+    <!-- Table Card -->
     <el-card shadow="never" class="voa-users-card">
       <el-table :data="userStore.users" v-loading="userStore.loading" style="width: 100%">
         <!-- Avatar + name column -->
@@ -125,6 +133,19 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- Pagination -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50]"
+          :total="userStore.pagination.total"
+          layout="total, sizes, prev, pager, next"
+          @size-change="handlePageChange"
+          @current-change="handlePageChange"
+        />
+      </div>
     </el-card>
 
     <!-- Edit dialog -->
@@ -256,14 +277,15 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { Edit, Delete } from '@element-plus/icons-vue'
+import { Edit, Delete, Refresh } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
 const userStore = useUserStore()
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 const showEditDialog = ref(false)
 const showDeleteDialog = ref(false)
@@ -276,7 +298,14 @@ const selectedUser = ref(null)
 const formRef = ref(null)
 const inviteErrors = ref({})
 
-const filters = reactive({ userType: '', email: '' })
+const currentPage = ref(1)
+const pageSize = ref(10)
+
+const filters = reactive({
+  userType: '',
+  email: '',
+})
+
 const editForm = reactive({ name: '', role: 'requester' })
 const inviteForm = reactive({ email: '', role: 'requester' })
 
@@ -318,6 +347,57 @@ const roleDesc = (role) =>
     admin: t('users.roleDescAdmin'),
   })[role] || ''
 
+const updateQueryParams = () => {
+  const query = {}
+  if (filters.userType) query.user_type = filters.userType
+  if (filters.email) query.email = filters.email
+  if (currentPage.value > 1) query.page = currentPage.value
+  if (pageSize.value !== 10) query.per_page = pageSize.value
+  
+  router.replace({ query })
+}
+
+const loadFiltersFromQuery = () => {
+  filters.userType = route.query.user_type || ''
+  filters.email = route.query.email || ''
+  currentPage.value = parseInt(route.query.page) || 1
+  pageSize.value = parseInt(route.query.per_page) || 10
+}
+
+const handleFilter = () => {
+  updateQueryParams()
+  userStore.fetchUsers({
+    userType: filters.userType,
+    email: filters.email,
+    page: currentPage.value,
+    per_page: pageSize.value,
+  })
+}
+
+let emailTimeout = null
+const handleEmailInput = () => {
+  if (emailTimeout) clearTimeout(emailTimeout)
+  emailTimeout = setTimeout(handleFilter, 500)
+}
+
+const handleReset = () => {
+  filters.userType = ''
+  filters.email = ''
+  currentPage.value = 1
+  router.replace({ query: {} })
+  handleFilter()
+}
+
+const handlePageChange = () => {
+  updateQueryParams()
+  userStore.fetchUsers({
+    userType: filters.userType,
+    email: filters.email,
+    page: currentPage.value,
+    per_page: pageSize.value,
+  })
+}
+
 const openInvite = () => {
   resetInviteForm()
   showInviteDialog.value = true
@@ -331,23 +411,14 @@ const resetInviteForm = () => {
 }
 
 onMounted(() => {
-  userStore.fetchUsers()
+  loadFiltersFromQuery()
+  userStore.fetchUsers({
+    userType: filters.userType,
+    email: filters.email,
+    page: currentPage.value,
+    per_page: pageSize.value,
+  })
 })
-
-let emailTimeout = null
-const applyFilters = () => {
-  userStore.fetchUsers(filters)
-}
-const onEmailInput = () => {
-  if (emailTimeout) clearTimeout(emailTimeout)
-  emailTimeout = setTimeout(applyFilters, 500)
-}
-const clearFilters = () => {
-  filters.userType = ''
-  filters.email = ''
-  userStore.clearFilters?.()
-  userStore.fetchUsers()
-}
 
 const handleEdit = (user) => {
   selectedUser.value = user
@@ -406,5 +477,13 @@ const handleToggleStatus = async (user) => {
 .voa-users-card :deep(.el-table__body-wrapper) {
   overflow-y: auto;
   max-height: calc(100vh - 340px);
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0 4px;
+  border-top: 1px solid var(--el-border-color);
 }
 </style>

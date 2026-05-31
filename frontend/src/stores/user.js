@@ -7,6 +7,12 @@ export const useUserStore = defineStore('user', {
     users: [],
     basicUsers: [],
     loading: false,
+    pagination: {
+      current_page: 1,
+      last_page: 1,
+      per_page: 10,
+      total: 0,
+    },
     filters: {
       userType: '',
       email: '',
@@ -14,7 +20,7 @@ export const useUserStore = defineStore('user', {
   }),
 
   actions: {
-    async fetchUsers(filters = null) {
+    async fetchUsers(filters = {}) {
       this.loading = true
       try {
         const params = new URLSearchParams()
@@ -28,9 +34,13 @@ export const useUserStore = defineStore('user', {
           params.append('email', filterData.email)
         }
 
+        params.append('per_page', filters.per_page || this.pagination.per_page || 10)
+        params.append('page', filters.page || this.pagination.current_page || 1)
+
         const response = await api.get(`/users?${params.toString()}`)
         if (response.data.success) {
           this.users = response.data.data
+          this.pagination = response.data.meta
         }
       } catch (error) {
         console.error('Erro ao buscar usuários:', error)

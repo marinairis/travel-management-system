@@ -37,11 +37,18 @@ class UserController extends Controller
 
         $this->applyFilters($query, $request);
 
-        $users = $query->get();
+        $perPage = $request->input('per_page', 10);
+        $users = $query->paginate($perPage);
 
         return response()->json([
             'success' => true,
-            'data' => $users
+            'data' => $users->items(),
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'last_page' => $users->lastPage(),
+                'per_page' => $users->perPage(),
+                'total' => $users->total(),
+            ]
         ]);
     }
 
