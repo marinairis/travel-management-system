@@ -69,6 +69,9 @@ class TravelRequest extends Model
         if ($this->status === 'cancelled') {
             return false;
         }
+        if ($this->status === 'expired') {
+            return false;
+        }
         return $this->departure_date >= now()->startOfDay();
     }
 

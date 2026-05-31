@@ -169,6 +169,8 @@ const canApprove = (row) => {
 
 const canCancel = (row) => {
   if (!row || !row.can_be_cancelled) return false
+  // Não pode cancelar pedidos vencidos
+  if (row.status === 'expired') return false
   // Apenas aprovadores podem cancelar
   if (!authStore.isApprover) return false
   // Não pode cancelar pedido próprio
@@ -193,7 +195,7 @@ const isCancelledBySystem = (row) => {
 }
 
 const getStatusType = (status) => {
-  const types = { requested: 'warning', approved: 'success', cancelled: 'danger' }
+  const types = { requested: 'warning', approved: 'success', cancelled: 'danger', expired: 'info' }
   return types[status] || ''
 }
 
@@ -202,6 +204,7 @@ const translateStatus = (status) => {
     requested: t('status.requested'),
     approved: t('status.approved'),
     cancelled: t('status.cancelled'),
+    expired: t('status.expired'),
   }
   return translations[status] || status
 }

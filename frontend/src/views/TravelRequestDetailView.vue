@@ -36,7 +36,7 @@
         </el-button>
         <!-- Botão Cancelar - disponível para o dono do pedido ou admin -->
         <el-button
-          v-if="(isOwner || authStore.isAdmin) && request.can_be_cancelled && canBeModified"
+          v-if="(isOwner || authStore.isAdmin) && request.can_be_cancelled && canBeModified && request.status !== 'expired'"
           type="danger"
           plain
           @click="cancelOpen = true"
@@ -339,13 +339,14 @@ const handleGoBack = () => {
 }
 
 const getStatusType = (status) =>
-  ({ requested: 'warning', approved: 'success', cancelled: 'danger' })[status] || ''
+  ({ requested: 'warning', approved: 'success', cancelled: 'danger', expired: 'info' })[status] || ''
 
 const translateStatus = (status) =>
   ({
     requested: t('status.requested'),
     approved: t('status.approved'),
     cancelled: t('status.cancelled'),
+    expired: t('status.expired'),
   })[status] || status
 
 const translateAction = (action) =>

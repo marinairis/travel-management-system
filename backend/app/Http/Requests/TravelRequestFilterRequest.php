@@ -14,7 +14,7 @@ class TravelRequestFilterRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'status' => 'nullable|in:requested,approved,cancelled',
+      'status' => 'nullable|in:requested,approved,cancelled,expired',
       'destination' => 'nullable|string|max:255',
       'start_date' => 'nullable|date',
       'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -25,7 +25,7 @@ class TravelRequestFilterRequest extends FormRequest
   public function messages(): array
   {
     return [
-      'status.in' => 'O status deve ser: requested, approved ou cancelled',
+      'status.in' => 'O status deve ser: requested, approved, cancelled ou expired',
       'destination.string' => 'O destino deve ser um texto',
       'destination.max' => 'O destino não pode ter mais de 255 caracteres',
       'start_date.date' => 'A data de início deve ser uma data válida',

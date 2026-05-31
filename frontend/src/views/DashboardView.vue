@@ -459,6 +459,7 @@ const stats = computed(() => ({
   pending: requests.value.filter((r) => r.status === 'requested').length,
   approved: requests.value.filter((r) => r.status === 'approved').length,
   cancelled: requests.value.filter((r) => r.status === 'cancelled').length,
+  expired: requests.value.filter((r) => r.status === 'expired').length,
 }))
 
 const travelTypeStats = computed(() => [
@@ -513,6 +514,10 @@ const pendingRequests = computed(() =>
   [...requests.value].filter((r) => r.status === 'requested').sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
 )
 
+const expiredRequests = computed(() => 
+  [...requests.value].filter((r) => r.status === 'expired').sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+)
+
 const recentRequests = computed(() =>
   [...requests.value].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
 )
@@ -522,7 +527,7 @@ const travelTypeIcon = (type) => {
 }
 
 const getStatusType = (status) => {
-  const types = { requested: 'warning', approved: 'success', cancelled: 'danger' }
+  const types = { requested: 'warning', approved: 'success', cancelled: 'danger', expired: 'info' }
   return types[status] || ''
 }
 
@@ -531,6 +536,7 @@ const translateStatus = (status) =>
     requested: t('status.requested'),
     approved: t('status.approved'),
     cancelled: t('status.cancelled'),
+    expired: t('status.expired'),
   })[status] || status
 
 const formatDate = (date) => {

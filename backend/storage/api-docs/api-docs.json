@@ -340,7 +340,8 @@
                             "enum": [
                                 "requested",
                                 "approved",
-                                "cancelled"
+                                "cancelled",
+                                "expired"
                             ]
                         }
                     },
@@ -549,43 +550,6 @@
                     },
                     "422": {
                         "description": "Dados inválidos"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Travel Requests"
-                ],
-                "summary": "Excluir pedido de viagem (Gestor ou Admin)",
-                "description": "Pedidos aprovados não podem ser excluídos.",
-                "operationId": "9a592eb222bda25c16fb281f09f6ab72",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Pedido excluído"
-                    },
-                    "401": {
-                        "description": "Não autenticado"
-                    },
-                    "403": {
-                        "description": "Sem permissão ou pedido aprovado"
-                    },
-                    "404": {
-                        "description": "Pedido não encontrado"
                     }
                 },
                 "security": [

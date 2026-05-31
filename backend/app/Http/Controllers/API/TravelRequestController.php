@@ -27,7 +27,7 @@ class TravelRequestController extends Controller
      *     description="Admin/Manager veem todos os pedidos. Solicitante vê apenas os próprios.",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(name="status", in="query", required=false,
-     *         @OA\Schema(type="string", enum={"requested","approved","cancelled"})),
+     *         @OA\Schema(type="string", enum={"requested","approved","cancelled","expired"})),
      *     @OA\Parameter(name="destination", in="query", required=false,
      *         @OA\Schema(type="string", example="São Paulo")),
      *     @OA\Parameter(name="start_date", in="query", required=false,
@@ -307,10 +307,10 @@ class TravelRequestController extends Controller
             ], 422);
         }
 
-        if ($travelRequest->departure_date < now()->startOfDay()) {
+        if ($travelRequest->status === 'expired') {
             return response()->json([
                 'success' => false,
-                'message' => 'Não é possível cancelar um pedido cuja data de partida já passou'
+                'message' => 'Não é possível cancelar um pedido vencido'
             ], 422);
         }
 

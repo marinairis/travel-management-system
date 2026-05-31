@@ -15,17 +15,18 @@
     <el-card class="filter-card" shadow="never" style="margin-bottom: 14px">
       <el-form :inline="true" :model="filters">
         <el-form-item :label="$t('dashboard.status')">
-          <el-select
-            v-model="filters.status"
-            :placeholder="$t('common.all')"
-            clearable
-            style="width: 160px"
-            @change="handleFilter"
-          >
-            <el-option :label="$t('status.requested')" value="requested" />
-            <el-option :label="$t('status.approved')" value="approved" />
-            <el-option :label="$t('status.cancelled')" value="cancelled" />
-          </el-select>
+            <el-select
+              v-model="filters.status"
+              :placeholder="$t('common.all')"
+              clearable
+              style="width: 160px"
+              @change="handleFilter"
+            >
+              <el-option :label="$t('status.requested')" value="requested" />
+              <el-option :label="$t('status.approved')" value="approved" />
+              <el-option :label="$t('status.cancelled')" value="cancelled" />
+              <el-option :label="$t('status.expired')" value="expired" />
+            </el-select>
         </el-form-item>
 
         <el-form-item :label="$t('travelRequest.destination')">

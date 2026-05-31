@@ -257,7 +257,8 @@
   "status": {
     "requested": "Requested",
     "approved": "Approved",
-    "cancelled": "Cancelled"
+    "cancelled": "Cancelled",
+    "expired": "Expired"
   },
   "messages": {
     "success": {
