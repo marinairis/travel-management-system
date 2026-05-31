@@ -18,6 +18,9 @@ export const useTravelRequestStore = defineStore('travelRequest', {
       by_travel_type: {},
       top_destinations: [],
     },
+    pendingApproval: [],
+    recentRequests: [],
+    isLoadingDashboard: false,
   }),
 
   actions: {
@@ -112,6 +115,31 @@ export const useTravelRequestStore = defineStore('travelRequest', {
         }
       } catch (error) {
         console.error('Erro ao buscar métricas do dashboard:', error)
+      }
+    },
+
+    async fetchPendingApproval() {
+      this.isLoadingDashboard = true
+      try {
+        const response = await api.get('/dashboard/pending-approval')
+        if (response.data.success) {
+          this.pendingApproval = response.data.data
+        }
+      } catch (error) {
+        console.error('Erro ao buscar pedidos aguardando aprovação:', error)
+      } finally {
+        this.isLoadingDashboard = false
+      }
+    },
+
+    async fetchRecentRequests() {
+      try {
+        const response = await api.get('/dashboard/recent-requests')
+        if (response.data.success) {
+          this.recentRequests = response.data.data
+        }
+      } catch (error) {
+        console.error('Erro ao buscar pedidos recentes:', error)
       }
     },
   },

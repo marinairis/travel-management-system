@@ -105,7 +105,9 @@
     "noTravelTypes": "No travel types.",
     "ofTotalRequests": "of total",
     "requests": "requests",
-    "cannotApproveOwn": "Cannot approve your own request"
+    "cannotApproveOwn": "Cannot approve your own request",
+    "oldestPending": "10 oldest",
+    "mostRecent": "10 most recent"
   },
   "travelRequest": {
     "title": "New Travel Request",

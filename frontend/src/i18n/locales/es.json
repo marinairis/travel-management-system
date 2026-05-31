@@ -105,7 +105,9 @@
     "noTravelTypes": "Sin tipos de viaje.",
     "ofTotalRequests": "del total",
     "requests": "solicitudes",
-    "cannotApproveOwn": "No puedes aprobar tu propia solicitud"
+    "cannotApproveOwn": "No puedes aprobar tu propia solicitud",
+    "oldestPending": "10 más antiguos",
+    "mostRecent": "10 más recientes"
   },
   "travelRequest": {
     "title": "Nueva Solicitud de Viaje",

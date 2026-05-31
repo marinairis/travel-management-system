@@ -9,4 +9,8 @@ use App\Models\User;
 interface DashboardRepositoryInterface
 {
     public function getStats(User $user): array;
+
+    public function getOldestPendingApproval(User $user): array;
+
+    public function getRecentRequests(User $user): array;
 }

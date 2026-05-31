@@ -103,7 +103,7 @@
     <!-- Two-column cards: pending + recent requests -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px">
       <!-- Pending approval -->
-      <el-card shadow="never" v-loading="travelRequestStore.loading">
+      <el-card shadow="never" v-loading="travelRequestStore.isLoadingDashboard">
         <template #header>
           <div style="display: flex; align-items: center; justify-content: space-between">
             <div style="display: flex; align-items: center; gap: 8px">
@@ -111,17 +111,17 @@
               <span style="font-weight: 700">{{ $t('dashboard.pendingApproval') }}</span>
             </div>
             <span style="font-size: 12px; color: var(--el-text-color-secondary)">
-              10 mais antigos
+              {{ $t('dashboard.oldestPending') }}
             </span>
           </div>
         </template>
         <el-empty
-          v-if="pendingRequests.length === 0"
+          v-if="pendingApproval.length === 0"
           :description="$t('dashboard.pendingEmpty')"
           :image-size="50"
         />
         <div
-          v-for="req in pendingRequests.slice(0, limitPending)"
+          v-for="req in pendingApproval"
           :key="req.id"
           style="
             display: flex;
@@ -177,15 +177,10 @@
             </el-icon>
           </el-tooltip>
         </div>
-        <div v-if="stats.pending > limitPending" style="text-align: center; padding: 10px 0">
-          <el-button link type="primary" @click="limitPending += 10">
-            + Ver mais ({{ stats.pending - limitPending }} restantes)
-          </el-button>
-        </div>
       </el-card>
 
       <!-- Recent requests -->
-      <el-card shadow="never" v-loading="travelRequestStore.loading">
+      <el-card shadow="never" v-loading="travelRequestStore.isLoadingDashboard">
         <template #header>
           <div style="display: flex; align-items: center; justify-content: space-between">
             <div style="display: flex; align-items: center; gap: 8px">
@@ -193,17 +188,17 @@
               <span style="font-weight: 700">{{ $t('dashboard.recentRequests') }}</span>
             </div>
             <span style="font-size: 12px; color: var(--el-text-color-secondary)">
-              10 mais recentes
+              {{ $t('dashboard.mostRecent') }}
             </span>
           </div>
         </template>
         <el-empty
-          v-if="recentRequests.length === 0"
+          v-if="travelRequestStore.recentRequests.length === 0"
           :description="$t('dashboard.recentEmpty')"
           :image-size="50"
         />
         <div
-          v-for="req in recentRequests.slice(0, limitRecent)"
+          v-for="req in travelRequestStore.recentRequests"
           :key="req.id"
           style="
             display: flex;
@@ -250,11 +245,6 @@
           <el-tag :type="getStatusType(req.status)" size="small">
             {{ translateStatus(req.status) }}
           </el-tag>
-        </div>
-        <div v-if="recentRequests.length > limitRecent" style="text-align: center; padding: 10px 0">
-          <el-button link type="primary" @click="limitRecent += 8">
-            + Ver mais ({{ recentRequests.length - limitRecent }} restantes)
-          </el-button>
         </div>
       </el-card>
     </div>
@@ -418,6 +408,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useTravelRequestStore } from '@/stores/travelRequest'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
+import { useUserStore } from '@/stores/user'
+import { useDestinationsStore } from '@/stores/destinations'
 import { useI18n } from 'vue-i18n'
 import TravelRequestForm from '@/components/TravelRequestForm.vue'
 import {
@@ -442,6 +434,8 @@ const { t } = useI18n()
 const travelRequestStore = useTravelRequestStore()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
+const userStore = useUserStore()
+const destinationsStore = useDestinationsStore()
 
 const showCreateDialog = ref(false)
 const approvingId = ref(null)
@@ -449,10 +443,8 @@ const cancellingId = ref(null)
 const cancelDialogVisible = ref(false)
 const cancelReason = ref('')
 const selectedRequest = ref(null)
-const limitPending = ref(10)
-const limitRecent = ref(10)
 
-const requests = computed(() => travelRequestStore.travelRequests || [])
+const pendingApproval = computed(() => travelRequestStore.pendingApproval)
 
 const dashboardStats = computed(() => travelRequestStore.dashboardStats)
 
@@ -489,18 +481,6 @@ const sortedTravelTypes = computed(() => {
 
 const topDestinations = computed(() => dashboardStats.value.top_destinations || [])
 
-const pendingRequests = computed(() => 
-  [...requests.value].filter((r) => r.status === 'requested').sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-)
-
-const expiredRequests = computed(() => 
-  [...requests.value].filter((r) => r.status === 'expired').sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-)
-
-const recentRequests = computed(() =>
-  [...requests.value].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-)
-
 const travelTypeIcon = (type) => {
   return { plane: Promotion, bus: Van, car: MapLocation, hotel: House }[type] || Location
 }
@@ -534,6 +514,8 @@ const handleApprove = async (req) => {
   approvingId.value = req.id
   await travelRequestStore.updateStatus(req.id, 'approved')
   approvingId.value = null
+  travelRequestStore.fetchPendingApproval()
+  travelRequestStore.fetchDashboardStats()
 }
 
 const handleCancel = (req) => {
@@ -549,6 +531,8 @@ const confirmCancel = async () => {
   cancelReason.value = ''
   cancelDialogVisible.value = false
   selectedRequest.value = null
+  travelRequestStore.fetchPendingApproval()
+  travelRequestStore.fetchDashboardStats()
 }
 
 const handleCreate = async (data) => {
@@ -558,8 +542,11 @@ const handleCreate = async (data) => {
 
 onMounted(() => {
   themeStore.initTheme()
-  travelRequestStore.fetchTravelRequests()
   travelRequestStore.fetchDashboardStats()
+  travelRequestStore.fetchPendingApproval()
+  travelRequestStore.fetchRecentRequests()
+  userStore.fetchBasicUsers()
+  destinationsStore.getDestinations()
 })
 </script>
 

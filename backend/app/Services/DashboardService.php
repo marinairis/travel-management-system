@@ -18,4 +18,14 @@ class DashboardService implements DashboardServiceInterface
     {
         return $this->repository->getStats($user);
     }
+
+    public function getOldestPendingApproval(User $user): array
+    {
+        return $this->repository->getOldestPendingApproval($user);
+    }
+
+    public function getRecentRequests(User $user): array
+    {
+        return $this->repository->getRecentRequests($user);
+    }
 }

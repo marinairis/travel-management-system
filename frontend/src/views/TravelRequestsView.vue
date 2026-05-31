@@ -122,6 +122,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useTravelRequestStore } from '@/stores/travelRequest'
 import { useDestinationsStore } from '@/stores/destinations'
+import { useUserStore } from '@/stores/user'
 import { useI18n } from 'vue-i18n'
 import { Refresh } from '@element-plus/icons-vue'
 import TravelRequestTable from '@/components/TravelRequestTable.vue'
@@ -132,6 +133,7 @@ const router = useRouter()
 const route = useRoute()
 const travelRequestStore = useTravelRequestStore()
 const destinationsStore = useDestinationsStore()
+const userStore = useUserStore()
 
 const showCreateDialog = ref(false)
 const showEditDialog = ref(false)
@@ -259,6 +261,7 @@ const handlePageChange = () => {
 onMounted(async () => {
   loadFiltersFromQuery()
   travelRequestStore.fetchTravelRequests({ ...filters, page: currentPage.value, per_page: pageSize.value })
+  userStore.fetchBasicUsers()
   await loadDestinations()
 })
 </script>

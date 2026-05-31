@@ -24,6 +24,8 @@ use App\Http\Controllers\API\Invitation\InviteUserController;
 use App\Http\Controllers\API\Invitation\ShowInvitationController;
 use App\Http\Controllers\API\ActivityLog\ListActivityLogsController;
 use App\Http\Controllers\API\Dashboard\GetDashboardStatsController;
+use App\Http\Controllers\API\Dashboard\GetPendingApprovalController;
+use App\Http\Controllers\API\Dashboard\GetRecentRequestsController;
 use App\Http\Controllers\API\Notification\ListNotificationsController;
 use App\Http\Controllers\API\Notification\MarkAllNotificationsAsReadController;
 use App\Http\Controllers\API\Notification\MarkNotificationAsReadController;
@@ -48,6 +50,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/refresh', RefreshTokenController::class);
 
     Route::get('/dashboard/stats', GetDashboardStatsController::class);
+    Route::get('/dashboard/pending-approval', GetPendingApprovalController::class);
+    Route::get('/dashboard/recent-requests', GetRecentRequestsController::class);
 
     Route::get('/travel-requests', ListTravelRequestsController::class);
     Route::post('/travel-requests', CreateTravelRequestController::class);

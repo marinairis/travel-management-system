@@ -106,7 +106,9 @@
     "ofTotalRequests": "do total",
     "requests": "pedidos",
     "dateRange": "Período da Viagem",
-    "cannotApproveOwn": "Não é possível aprovar sua própria solicitação"
+    "cannotApproveOwn": "Não é possível aprovar sua própria solicitação",
+    "oldestPending": "10 mais antigos",
+    "mostRecent": "10 mais recentes"
   },
   "travelRequest": {
     "title": "Novo Pedido de Viagem",

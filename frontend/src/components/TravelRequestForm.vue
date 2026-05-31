@@ -187,7 +187,9 @@ watch(
 )
 
 onMounted(async () => {
-  await Promise.all([loadDestinations(), userStore.fetchBasicUsers()])
+  const promises = [loadDestinations()]
+  if (!userStore.basicUsers.length) promises.push(userStore.fetchBasicUsers())
+  await Promise.all(promises)
 })
 
 const loadDestinations = async () => {
