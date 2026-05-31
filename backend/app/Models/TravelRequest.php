@@ -21,12 +21,16 @@ class TravelRequest extends Model
         'approved_at',
         'notes',
         'travel_type',
+        'cancel_reason',
+        'cancelled_by',
+        'cancelled_at',
     ];
 
     protected $casts = [
         'departure_date' => 'date',
         'return_date' => 'date',
         'approved_at' => 'datetime',
+        'cancelled_at' => 'datetime',
     ];
 
     protected $appends = ['can_be_cancelled'];
@@ -39,6 +43,25 @@ class TravelRequest extends Model
     public function approvedBy()
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function cancelledBy()
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
+    }
+
+    public function wasCancelledBySystem(): bool
+    {
+        if ($this->status !== 'cancelled') {
+            return false;
+        }
+        $systemPatterns = ['Usuário desativado', 'Usuário excluído'];
+        foreach ($systemPatterns as $pattern) {
+            if ($this->cancel_reason && str_contains($this->cancel_reason, $pattern)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function getCanBeCancelledAttribute()

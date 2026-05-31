@@ -33,7 +33,7 @@ class UserController extends Controller
      */
     public function index(UserFilterRequest $request)
     {
-        $query = User::withCount('travelRequests');
+        $query = User::withTrashed()->withCount('travelRequests');
 
         $this->applyFilters($query, $request);
 

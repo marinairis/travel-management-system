@@ -43,8 +43,8 @@ class TravelRequestController extends Controller
         $user = Auth::user();
 
         $query = $user->isApprover()
-            ? TravelRequest::with(['user', 'approvedBy'])
-            : TravelRequest::where('user_id', $user->id)->with(['user', 'approvedBy']);
+            ? TravelRequest::with(['user', 'approvedBy', 'cancelledBy'])
+            : TravelRequest::where('user_id', $user->id)->with(['user', 'approvedBy', 'cancelledBy']);
 
         $this->applyFilters($query, $request);
 
@@ -125,7 +125,7 @@ class TravelRequestController extends Controller
     public function show($id)
     {
         $user = Auth::user();
-        $travelRequest = TravelRequest::with(['user', 'approvedBy'])->find($id);
+        $travelRequest = TravelRequest::with(['user', 'approvedBy', 'cancelledBy'])->find($id);
 
         if (
             $error = $this->validateViewPermissions(

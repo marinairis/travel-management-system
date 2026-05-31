@@ -68,7 +68,8 @@
           v-if="
             request.status === 'cancelled' &&
             authStore.isApprover &&
-            request.user_id !== authStore.user?.id
+            request.user_id !== authStore.user?.id &&
+            !isCancelledBySystem
           "
           @click="handleReopen"
           :loading="actionLoading === 'reopen'"
@@ -172,7 +173,7 @@
           :type="timelineType(ev.action)"
           :timestamp="formatDateTime(ev.created_at)"
         >
-          <div style="font-weight: 600">{{ translateAction(ev.action) }}</div>
+          <div style="font-weight: 600">{{ ev.description || translateAction(ev.action) }}</div>
           <div style="font-size: 12.5px; color: var(--el-text-color-secondary)">
             {{ ev.user?.name }}
           </div>
@@ -294,6 +295,16 @@ const canBeModified = computed(() => {
   today.setHours(0, 0, 0, 0)
   const departureDate = new Date(request.value.departure_date)
   return departureDate >= today
+})
+
+// Verificar se o pedido foi cancelado pelo sistema (usuário desativado)
+const isCancelledBySystem = computed(() => {
+  if (!request.value || request.value.status !== 'cancelled') return false
+  // Verifica se tem cancel_reason que indica cancelamento pelo sistema
+  const systemPatterns = ['usuário desativado', 'usuário excluído', 'Usuário desativado', 'Usuário excluído']
+  return systemPatterns.some(pattern => 
+    request.value.cancel_reason?.includes(pattern)
+  )
 })
 
 // Ícone do tipo de viagem

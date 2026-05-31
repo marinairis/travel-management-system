@@ -105,13 +105,6 @@
           </template>
         </el-table-column>
 
-        <el-table-column
-          prop="ip_address"
-          :label="$t('activityLogs.ip')"
-          width="130"
-          show-overflow-tooltip
-        />
-
         <el-table-column prop="created_at" :label="$t('activityLogs.dateTime')" width="180">
           <template #default="scope">
             {{ formatDateTime(scope.row.created_at) }}
@@ -168,10 +161,6 @@
 
         <el-descriptions-item :label="$t('activityLogs.userId')">
           {{ selectedLog.model_id || '-' }}
-        </el-descriptions-item>
-
-        <el-descriptions-item :label="$t('activityLogs.ip')">
-          {{ selectedLog.ip_address }}
         </el-descriptions-item>
 
         <el-descriptions-item :label="$t('activityLogs.userAgent')">

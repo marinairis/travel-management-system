@@ -208,7 +208,18 @@ const canCancel = (row) => {
 
 const canChangeStatus = (row) => {
   if (!row) return false
+  // Não permitir mudança de status se foi cancelado pelo sistema
+  if (row.status === 'cancelled' && isCancelledBySystem(row)) return false
   return authStore.isApprover && row.user_id !== authStore.user?.id
+}
+
+// Verificar se o pedido foi cancelado pelo sistema (usuário desativado)
+const isCancelledBySystem = (row) => {
+  if (!row || row.status !== 'cancelled') return false
+  const systemPatterns = ['usuário desativado', 'usuário excluído', 'Usuário desativado', 'Usuário excluído']
+  return systemPatterns.some(pattern => 
+    row.cancel_reason?.includes(pattern)
+  )
 }
 
 const getStatusType = (status) => {
