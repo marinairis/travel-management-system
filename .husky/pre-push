@@ -11,9 +11,9 @@ is_wsl() {
 echo "→ [backend] testes"
 
 if is_docker; then
-  php artisan test --parallel --processes=10 || { echo "Falha nos testes do backend. Corrija antes de continuar."; exit 1; }
+  php artisan test || { echo "Falha nos testes do backend. Corrija antes de continuar."; exit 1; }
 elif is_wsl; then
-  docker exec travel_backend php artisan test --parallel --processes=10 || { echo "Falha nos testes do backend. Corrija antes de continuar."; exit 1; }
+  docker exec travel_backend php artisan test || { echo "Falha nos testes do backend. Corrija antes de continuar."; exit 1; }
 else
   echo "Ambiente não reconhecido (não é Docker nem WSL)."
   exit 1
