@@ -4,67 +4,69 @@
       <LanguageSelector />
     </div>
 
-    <el-card class="auth-card">
-      <template #header>
-        <div class="auth-card-header">
-          <el-icon :size="36" color="voa-brand-icon">
-            <Place />
-          </el-icon>
-          <h2>{{ $t('auth.title') }}</h2>
+    <div class="auth-cards-wrapper">
+      <el-card class="auth-card">
+        <template #header>
+          <div class="auth-card-header">
+            <el-icon :size="36" color="voa-brand-icon">
+              <Place />
+            </el-icon>
+            <h2>{{ $t('auth.title') }}</h2>
+          </div>
+        </template>
+
+        <el-form
+          ref="formRef"
+          :model="formData"
+          :rules="rules"
+          label-position="top"
+          @submit.prevent="handleLogin"
+        >
+          <el-form-item :label="$t('auth.email')" prop="email">
+            <el-input
+              v-model="formData.email"
+              :placeholder="$t('auth.emailPlaceholder')"
+              :prefix-icon="Message"
+            />
+          </el-form-item>
+
+          <el-form-item :label="$t('auth.password')" prop="password">
+            <el-input
+              v-model="formData.password"
+              type="password"
+              :placeholder="$t('auth.passwordPlaceholder')"
+              :prefix-icon="Lock"
+              show-password
+            />
+          </el-form-item>
+
+          <el-form-item>
+            <el-button type="primary" class="auth-button" :loading="loading" @click="handleLogin">
+              {{ $t('auth.login') }}
+            </el-button>
+          </el-form-item>
+
+          <div class="auth-form-links">
+            <router-link to="/forgot-password">{{ $t('auth.forgotPassword') }}</router-link>
+          </div>
+        </el-form>
+      </el-card>
+
+      <el-card class="auth-card demo-accounts-card">
+        <div class="demo-accounts-title">{{ $t('demo.accountsTitle') }}</div>
+        <div
+          v-for="user in DEMO_USERS"
+          :key="user.email"
+          class="demo-account-row"
+          @click="fillCredentials(user)"
+        >
+          <el-tag :type="getRoleTagType(user.role)" size="small" class="demo-account-role">{{
+            getRoleLabel(user.role)
+          }}</el-tag>
+          <span class="demo-account-email">{{ user.email }}</span>
         </div>
-      </template>
-
-      <el-form
-        ref="formRef"
-        :model="formData"
-        :rules="rules"
-        label-position="top"
-        @submit.prevent="handleLogin"
-      >
-        <el-form-item :label="$t('auth.email')" prop="email">
-          <el-input
-            v-model="formData.email"
-            :placeholder="$t('auth.emailPlaceholder')"
-            :prefix-icon="Message"
-          />
-        </el-form-item>
-
-        <el-form-item :label="$t('auth.password')" prop="password">
-          <el-input
-            v-model="formData.password"
-            type="password"
-            :placeholder="$t('auth.passwordPlaceholder')"
-            :prefix-icon="Lock"
-            show-password
-          />
-        </el-form-item>
-
-        <el-form-item>
-          <el-button type="primary" class="auth-button" :loading="loading" @click="handleLogin">
-            {{ $t('auth.login') }}
-          </el-button>
-        </el-form-item>
-
-        <div class="auth-form-links">
-          <router-link to="/forgot-password">{{ $t('auth.forgotPassword') }}</router-link>
-        </div>
-      </el-form>
-    </el-card>
-
-    <el-card class="auth-card demo-accounts-card">
-      <div class="demo-accounts-title">{{ $t('demo.accountsTitle') }}</div>
-      <div
-        v-for="user in DEMO_USERS"
-        :key="user.email"
-        class="demo-account-row"
-        @click="fillCredentials(user)"
-      >
-        <el-tag :type="getRoleTagType(user.role)" size="small" class="demo-account-role">{{
-          getRoleLabel(user.role)
-        }}</el-tag>
-        <span class="demo-account-email">{{ user.email }}</span>
-      </div>
-    </el-card>
+      </el-card>
+    </div>
   </div>
 </template>
 
