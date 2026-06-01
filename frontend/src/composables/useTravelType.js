@@ -14,7 +14,7 @@ export function useTravelType() {
 
   const formatRequestId = (id) => {
     if (!id) return '-'
-    return `VG-${String(id).padStart(3, '0')}`
+    return `VOA-${String(id).padStart(4, '0')}`
   }
 
   return { travelTypeIcon, getTravelTypeColor, formatRequestId }

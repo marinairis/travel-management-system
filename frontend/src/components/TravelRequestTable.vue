@@ -6,7 +6,7 @@
     :default-sort="{ prop: 'created_at', order: 'descending' }"
     scroll-x
   >
-    <el-table-column prop="id" :label="$t('users.id')" width="80" sortable>
+    <el-table-column prop="id" :label="$t('users.id')" width="100" sortable>
       <template #default="scope">
         <span
           style="
@@ -80,7 +80,13 @@
     <el-table-column :label="$t('users.actions')" width="200" fixed="right">
       <template #default="scope">
         <el-tooltip :content="$t('travelRequest.tooltipView')" placement="top">
-          <el-button type="primary" :icon="View" circle size="small" @click="handleView(scope.row)" />
+          <el-button
+            type="primary"
+            :icon="View"
+            circle
+            size="small"
+            @click="handleView(scope.row)"
+          />
         </el-tooltip>
         <el-tooltip :content="$t('travelRequest.tooltipEdit')" placement="top">
           <el-button
@@ -187,10 +193,10 @@ const handleEdit = (row) => {
 
 const canChangeStatus = (row) => {
   if (!row) return false
-  if (row.status === 'cancelled' && isSystemCancellation(row.status, row.cancel_reason)) return false
+  if (row.status === 'cancelled' && isSystemCancellation(row.status, row.cancel_reason))
+    return false
   return authStore.isApprover && row.user_id !== authStore.user?.id
 }
-
 
 const handleApprove = (row) => {
   selectedRequest.value = row

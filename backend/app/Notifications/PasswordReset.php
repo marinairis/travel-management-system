@@ -7,15 +7,13 @@ namespace App\Notifications;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class UserInvited extends Notification
+class PasswordReset extends Notification
 {
     protected string $token;
-    protected string $role;
 
-    public function __construct(string $token, string $role)
+    public function __construct(string $token)
     {
         $this->token = $token;
-        $this->role = $role;
     }
 
     public function via($notifiable): array
@@ -26,10 +24,10 @@ class UserInvited extends Notification
     public function toMail($notifiable): MailMessage
     {
         $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:5173'));
-        $inviteUrl = $frontendUrl . '/invitation/' . $this->token;
+        $resetUrl = $frontendUrl . '/reset-password/' . $this->token;
 
         return (new MailMessage)
-            ->subject('Convite para o Voa - Viagens Corporativas')
-            ->view('emails.user-invited', ['inviteUrl' => $inviteUrl]);
+            ->subject('Redefinição de Senha - Voa - Viagens Corporativas')
+            ->view('emails.password-reset', ['resetUrl' => $resetUrl]);
     }
 }

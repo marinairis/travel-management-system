@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Notifications\PasswordReset;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -74,5 +75,10 @@ class User extends Authenticatable implements JWTSubject
     public function activityLogs()
     {
         return $this->hasMany(ActivityLog::class);
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new PasswordReset($token));
     }
 }

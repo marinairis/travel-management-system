@@ -29,14 +29,14 @@
     "toggleTheme": "Cambiar Tema"
   },
   "auth": {
-    "title": "Viajes Corporativos",
+    "title": "Voa",
     "email": "Correo electrónico",
     "password": "Contraseña",
     "login": "Iniciar sesión",
     "register": "Crear cuenta",
     "forgotPassword": "Recuperar contraseña",
     "acceptInvitation": "Crear Cuenta",
-    "invitationWelcome": "Ha sido invitado al Sistema de Viajes Corporativos",
+    "invitationWelcome": "Ha sido invitado a Voa - Viajes Corporativos",
     "invitationExpired": "Esta invitación ha expirado o no es válida",
     "setPassword": "Establecer Contraseña",
     "name": "Nombre",

@@ -29,14 +29,14 @@
     "toggleTheme": "Toggle Theme"
   },
   "auth": {
-    "title": "Corporate Travel",
+    "title": "Voa",
     "email": "Email",
     "password": "Password",
     "login": "Sign In",
     "register": "Create account",
     "forgotPassword": "Forgot Password",
     "acceptInvitation": "Create Account",
-    "invitationWelcome": "You have been invited to the Corporate Travel System",
+    "invitationWelcome": "You have been invited to Voa - Travel Management",
     "invitationExpired": "This invitation has expired or is invalid",
     "setPassword": "Set Password",
     "name": "Name",
@@ -75,7 +75,7 @@
     "navigation": "Navigation",
     "sectionMain": "Main",
     "sectionAdmin": "Administration",
-    "tagline": "Corporate Travel"
+    "tagline": "Travel Management"
   },
   "dashboard": {
     "title": "Dashboard",

@@ -5,7 +5,7 @@ return [
     'documentations' => [
         'default' => [
             'api' => [
-                'title' => 'Travel Management API',
+                'title' => 'Voa - Travel Management API',
             ],
             'routes' => [
                 'api' => 'api/documentation',
