@@ -10,12 +10,20 @@
           <div class="demo-user-item">
             <el-avatar
               :size="28"
-              :style="{ background: avatarBg(user.email), color: '#fff', fontSize: '11px', fontWeight: 700, flexShrink: 0 }"
+              :style="{
+                background: avatarBg(user.email),
+                color: '#fff',
+                fontSize: '11px',
+                fontWeight: 700,
+                flexShrink: 0,
+              }"
             >
               {{ initials(user.name) }}
             </el-avatar>
             <span class="demo-user-name">{{ user.name }}</span>
-            <el-tag :type="getRoleTagType(user.role)" size="small">{{ getRoleLabel(user.role) }}</el-tag>
+            <el-tag :type="getRoleTagType(user.role)" size="small">{{
+              getRoleLabel(user.role)
+            }}</el-tag>
           </div>
         </el-dropdown-item>
       </el-dropdown-menu>
@@ -31,7 +39,12 @@ import { DEMO_USERS } from '@/constants/demoUsers'
 
 const authStore = useAuthStore()
 const { initials, avatarBg } = useAvatar()
-const { currentUserRoleLabel: roleLabel, currentUserRoleTagType: roleTagType, getRoleLabel, getRoleTagType } = useRole()
+const {
+  currentUserRoleLabel: roleLabel,
+  currentUserRoleTagType: roleTagType,
+  getRoleLabel,
+  getRoleTagType,
+} = useRole()
 
 const handleSwitch = async (user) => {
   if (user.email === authStore.user?.email) return
