@@ -25,4 +25,14 @@ enum TravelRequestStatus: string
     {
         return $this === self::Requested;
     }
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::Requested => 'Solicitado',
+            self::Approved  => 'Aprovado',
+            self::Cancelled => 'Cancelado',
+            self::Expired   => 'Vencido',
+        };
+    }
 }

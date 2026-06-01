@@ -9,6 +9,7 @@ use App\Interfaces\Repositories\DashboardRepositoryInterface;
 use App\Interfaces\Repositories\TravelRequestRepositoryInterface;
 use App\Interfaces\Repositories\UserRepositoryInterface;
 use App\Interfaces\Services\DashboardServiceInterface;
+use App\Interfaces\Services\IbgeServiceInterface;
 use App\Interfaces\Services\TravelRequestServiceInterface;
 use App\Interfaces\Services\UserServiceInterface;
 use App\Repositories\CityRepository;
@@ -25,11 +26,11 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton(IbgeService::class, fn () => new IbgeService());
+        $this->app->singleton(IbgeServiceInterface::class, IbgeService::class);
 
         $this->app->singleton(
             CityRepositoryInterface::class,
-            fn ($app) => new CityRepository($app->make(IbgeService::class))
+            fn ($app) => new CityRepository($app->make(IbgeServiceInterface::class))
         );
 
         $this->app->bind(TravelRequestRepositoryInterface::class, TravelRequestRepository::class);

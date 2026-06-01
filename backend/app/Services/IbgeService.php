@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Interfaces\Services\IbgeServiceInterface;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 
-class IbgeService
+class IbgeService implements IbgeServiceInterface
 {
   private const BASE_URL = 'https://servicodados.ibge.gov.br/api/v1';
-  private const CACHE_TTL = 86400; // 24 horas
+  private const CACHE_TTL = 86400;
 
-  public function getCity()
+  public function getCity(): array
   {
     return Cache::remember('ibge_municipios', self::CACHE_TTL, function () {
       $response = Http::timeout(30)->get(self::BASE_URL . '/localidades/municipios');
@@ -25,7 +26,7 @@ class IbgeService
     });
   }
 
-  public function searchCities(string|null $query = null)
+  public function searchCities(string|null $query = null): mixed
   {
     $cities = $this->getCity();
 

@@ -11,236 +11,22 @@
       </el-button>
     </div>
 
-    <div class="voa-stats-grid">
-      <el-card shadow="never">
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-          "
-        >
-          <div class="voa-stat-label">{{ $t('dashboard.statTotal') }}</div>
-          <el-icon style="font-size: 22px; color: var(--el-color-primary); opacity: 0.7"
-            ><DataLine
-          /></el-icon>
-        </div>
-        <div class="voa-stat-val">{{ stats.total }}</div>
-      </el-card>
-      <el-card shadow="never">
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-          "
-        >
-          <div class="voa-stat-label">{{ $t('dashboard.statPending') }}</div>
-          <el-icon style="font-size: 22px; color: var(--el-color-warning); opacity: 0.8"
-            ><Clock
-          /></el-icon>
-        </div>
-        <div class="voa-stat-val accent">{{ stats.pending }}</div>
-      </el-card>
-      <el-card shadow="never">
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-          "
-        >
-          <div class="voa-stat-label">{{ $t('dashboard.statApproved') }}</div>
-          <el-icon style="font-size: 22px; color: var(--el-color-success); opacity: 0.8"
-            ><CircleCheck
-          /></el-icon>
-        </div>
-        <div class="voa-stat-val">{{ stats.approved }}</div>
-      </el-card>
-      <el-card shadow="never">
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-          "
-        >
-          <div class="voa-stat-label">{{ $t('dashboard.statCancelled') }}</div>
-          <el-icon style="font-size: 22px; color: var(--el-color-danger); opacity: 0.8"
-            ><CircleClose
-          /></el-icon>
-        </div>
-        <div class="voa-stat-val">{{ stats.cancelled }}</div>
-      </el-card>
-    </div>
-
-    <div class="voa-stats-grid" style="margin-bottom: 20px">
-      <el-card shadow="never" v-for="type in travelTypeStats" :key="type.key">
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-          "
-        >
-          <div class="voa-stat-label">{{ $t('travelRequest.travelType_' + type.key) }}</div>
-          <el-icon :style="{ fontSize: '22px', color: type.color, opacity: 0.85 }">
-            <component :is="type.icon" />
-          </el-icon>
-        </div>
-        <div class="voa-stat-val" :style="{ color: type.color }">{{ type.count }}</div>
-      </el-card>
-    </div>
+    <DashboardStatsGrid :stats="stats" :travel-type-stats="travelTypeStats" />
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px">
-      <el-card shadow="never" v-loading="dashboardStore.isLoading">
-        <template #header>
-          <div style="display: flex; align-items: center; justify-content: space-between">
-            <div style="display: flex; align-items: center; gap: 8px">
-              <el-icon style="color: var(--el-color-warning)"><Warning /></el-icon>
-              <span style="font-weight: 700">{{ $t('dashboard.pendingApproval') }}</span>
-            </div>
-            <span style="font-size: 12px; color: var(--el-text-color-secondary)">
-              {{ $t('dashboard.oldestPending') }}
-            </span>
-          </div>
-        </template>
-        <el-empty
-          v-if="pendingApproval.length === 0"
-          :description="$t('dashboard.pendingEmpty')"
-          :image-size="50"
-        />
-        <div
-          v-for="req in pendingApproval"
-          :key="req.id"
-          style="
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 9px 0;
-            border-bottom: 1px solid var(--el-border-color);
-          "
-        >
-          <el-tooltip :content="$t('travelRequest.travelType_' + req.travel_type)" placement="top">
-            <el-icon style="color: var(--el-text-color-secondary); flex-shrink: 0">
-              <component :is="travelTypeIcon(req.travel_type)" />
-            </el-icon>
-          </el-tooltip>
-          <div style="flex: 1; cursor: pointer" @click="$router.push('/requests/' + req.id)">
-            <div style="display: flex; align-items: center; gap: 6px">
-              <span
-                style="
-                  font-family: var(--voa-mono, monospace);
-                  font-size: 11px;
-                  font-weight: 700;
-                  color: var(--el-color-primary);
-                "
-                >{{ formatRequestId(req.id) }}</span
-              >
-              <span style="font-weight: 600; font-size: 13.5px">{{ req.destination }}</span>
-            </div>
-            <div style="font-size: 12px; color: var(--el-text-color-secondary)">
-              {{ req.requester_name }} · {{ formatDate(req.departure_date) }}
-            </div>
-          </div>
-          <template v-if="authStore.isApprover && req.user_id !== authStore.user?.id">
-            <el-tooltip :content="$t('dashboard.approve')" placement="top">
-              <el-icon
-                style="color: var(--el-color-success); cursor: pointer; font-size: 18px"
-                @click.stop="handleApprove(req)"
-              >
-                <SuccessFilled />
-              </el-icon>
-            </el-tooltip>
-            <el-tooltip :content="$t('common.cancel')" placement="top">
-              <el-icon
-                style="color: var(--el-color-danger); cursor: pointer; font-size: 18px"
-                @click.stop="handleCancel(req)"
-              >
-                <CircleCloseFilled />
-              </el-icon>
-            </el-tooltip>
-          </template>
-          <el-tooltip v-else-if="authStore.isApprover && req.user_id === authStore.user?.id" :content="$t('dashboard.cannotApproveOwn')" placement="top">
-            <el-icon style="color: var(--el-text-color-secondary); cursor: help; font-size: 18px">
-              <Lock />
-            </el-icon>
-          </el-tooltip>
-        </div>
-      </el-card>
+      <DashboardPendingApproval
+        :requests="pendingApproval"
+        :is-loading="dashboardStore.isLoading"
+        :is-approver="authStore.isApprover"
+        :current-user-id="authStore.user?.id"
+        @approve="handleApprove"
+        @cancel="handleCancel"
+      />
 
-      <el-card shadow="never" v-loading="dashboardStore.isLoading">
-        <template #header>
-          <div style="display: flex; align-items: center; justify-content: space-between">
-            <div style="display: flex; align-items: center; gap: 8px">
-              <el-icon style="color: var(--el-color-primary)"><Clock /></el-icon>
-              <span style="font-weight: 700">{{ $t('dashboard.recentRequests') }}</span>
-            </div>
-            <span style="font-size: 12px; color: var(--el-text-color-secondary)">
-              {{ $t('dashboard.mostRecent') }}
-            </span>
-          </div>
-        </template>
-        <el-empty
-          v-if="dashboardStore.recentRequests.length === 0"
-          :description="$t('dashboard.recentEmpty')"
-          :image-size="50"
-        />
-        <div
-          v-for="req in dashboardStore.recentRequests"
-          :key="req.id"
-          style="
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--el-border-color);
-            cursor: pointer;
-          "
-          @click="$router.push('/requests/' + req.id)"
-        >
-          <el-tooltip :content="$t('travelRequest.travelType_' + req.travel_type)" placement="top">
-            <el-icon style="color: var(--el-text-color-secondary); flex-shrink: 0">
-              <component :is="travelTypeIcon(req.travel_type)" />
-            </el-icon>
-          </el-tooltip>
-          <div style="flex: 1; min-width: 0">
-            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px">
-              <span
-                style="
-                  font-family: var(--voa-mono, monospace);
-                  font-size: 11px;
-                  font-weight: 700;
-                  color: var(--el-color-primary);
-                "
-                >{{ formatRequestId(req.id) }}</span
-              >
-              <span
-                style="
-                  font-weight: 600;
-                  font-size: 13px;
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                "
-              >
-                {{ req.destination }}
-              </span>
-            </div>
-            <div style="font-size: 12px; color: var(--el-text-color-secondary)">
-              {{ req.requester_name }} · {{ formatDate(req.departure_date) }}
-            </div>
-          </div>
-          <el-tag :type="getStatusType(req.status)" size="small">
-            {{ translateStatus(req.status) }}
-          </el-tag>
-        </div>
-      </el-card>
+      <DashboardRecentRequests
+        :requests="dashboardStore.recentRequests"
+        :is-loading="dashboardStore.isLoading"
+      />
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
@@ -388,34 +174,13 @@ import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useUserStore } from '@/stores/user'
 import { useDestinationsStore } from '@/stores/destinations'
-import { useI18n } from 'vue-i18n'
 import TravelRequestForm from '@/components/TravelRequestForm.vue'
-import {
-  Plus,
-  DataLine,
-  Clock,
-  CircleCheck,
-  CircleClose,
-  Warning,
-  Location,
-  TrophyBase,
-  Van,
-  Promotion,
-  MapLocation,
-  House,
-  Lock,
-  SuccessFilled,
-  CircleCloseFilled,
-} from '@element-plus/icons-vue'
-import { useDateFormat } from '@/composables/useDateFormat'
-import { useTravelType } from '@/composables/useTravelType'
-import { useRequestStatus } from '@/composables/useRequestStatus'
+import DashboardStatsGrid from '@/components/DashboardStatsGrid.vue'
+import DashboardPendingApproval from '@/components/DashboardPendingApproval.vue'
+import DashboardRecentRequests from '@/components/DashboardRecentRequests.vue'
 import CancelRequestDialog from '@/components/CancelRequestDialog.vue'
+import { Plus, Location, TrophyBase, Van, Promotion, MapLocation, House } from '@element-plus/icons-vue'
 
-const { t } = useI18n()
-const { formatDate } = useDateFormat()
-const { travelTypeIcon, formatRequestId } = useTravelType()
-const { getStatusType, translateStatus } = useRequestStatus()
 const travelRequestStore = useTravelRequestStore()
 const dashboardStore = useDashboardStore()
 const authStore = useAuthStore()

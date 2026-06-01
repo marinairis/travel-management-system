@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Interfaces\Repositories\CityRepositoryInterface;
-use App\Services\IbgeService;
+use App\Interfaces\Services\IbgeServiceInterface;
 use App\DTOs\CityDTO;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class CityRepository implements CityRepositoryInterface
 {
-  public function __construct(private IbgeService $ibgeService) {}
+  public function __construct(private IbgeServiceInterface $ibgeService) {}
 
   public function getAll(): Collection
   {

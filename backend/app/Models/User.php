@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\UserRole;
 use App\Notifications\PasswordReset;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,6 +22,7 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'role',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -44,22 +46,22 @@ class User extends Authenticatable implements JWTSubject
 
     public function isAdmin(): bool
     {
-        return $this->role === 'admin';
+        return UserRole::from($this->role) === UserRole::Admin;
     }
 
     public function isManager(): bool
     {
-        return $this->role === 'manager';
+        return UserRole::from($this->role) === UserRole::Manager;
     }
 
     public function isRequester(): bool
     {
-        return $this->role === 'requester';
+        return UserRole::from($this->role) === UserRole::Requester;
     }
 
     public function isApprover(): bool
     {
-        return in_array($this->role, ['admin', 'manager']);
+        return UserRole::from($this->role)->isApprover();
     }
 
     public function travelRequests()

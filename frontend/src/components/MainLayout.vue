@@ -153,20 +153,14 @@ const checkMobile = () => {
   if (!isMobile.value) sidebarOpen.value = false
 }
 
-const handleToggleSidebar = () => {
-  sidebarOpen.value = !sidebarOpen.value
-}
-
 onMounted(() => {
   checkMobile()
   window.addEventListener('resize', checkMobile)
-  window.addEventListener('toggle-sidebar', handleToggleSidebar)
   notificationStore.startPolling()
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkMobile)
-  window.removeEventListener('toggle-sidebar', handleToggleSidebar)
 })
 </script>
 

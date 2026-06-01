@@ -142,6 +142,7 @@
     "departureDateRequired": "Departure date is required",
     "returnDateRequired": "Return date is required",
     "loadDestinationsError": "Error loading destinations",
+    "destinationsUnavailable": "No data",
     "approvedBy": "Approved By",
     "requestId": "Request ID",
     "confirmDelete": "Confirm Delete",
@@ -172,6 +173,7 @@
     "tooltipEdit": "Edit request",
     "tooltipApprove": "Approve request",
     "tooltipCancel": "Cancel request",
+    "notFound": "Request not found",
     "cancelTitle": "Cancel Request",
     "cancelReasonLabel": "Cancellation reason",
     "cancelReasonPlaceholder": "Enter the reason for cancellation..."

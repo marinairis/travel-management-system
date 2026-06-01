@@ -1,7 +1,7 @@
 <template>
   <div v-if="loading" v-loading="true" style="height: 200px" />
 
-  <el-empty v-else-if="!request" description="Pedido não encontrado" />
+  <el-empty v-else-if="!request" :description="$t('travelRequest.notFound')" />
 
   <div v-else>
     <div class="voa-page-head">

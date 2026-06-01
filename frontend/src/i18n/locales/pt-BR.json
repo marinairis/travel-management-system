@@ -143,6 +143,7 @@
     "departureDateRequired": "Data de ida é obrigatória",
     "returnDateRequired": "Data de volta é obrigatória",
     "loadDestinationsError": "Erro ao carregar destinos",
+    "destinationsUnavailable": "Sem dados",
     "approvedBy": "Aprovado Por",
     "requestId": "ID do Pedido",
     "confirmDelete": "Confirmar Exclusão",
@@ -173,6 +174,7 @@
     "tooltipEdit": "Editar pedido",
     "tooltipApprove": "Aprovar pedido",
     "tooltipCancel": "Cancelar pedido",
+    "notFound": "Pedido não encontrado",
     "cancelTitle": "Cancelar Pedido",
     "cancelReasonLabel": "Motivo do cancelamento",
     "cancelReasonPlaceholder": "Informe o motivo do cancelamento..."

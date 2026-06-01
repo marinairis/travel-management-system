@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notifications;
 
+use App\Enums\TravelRequestStatus;
 use App\Models\TravelRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -46,22 +47,11 @@ class TravelRequestStatusChanged extends Notification implements ShouldQueue
             ->greeting('Olá, ' . e($notifiable->name) . '!')
             ->line('O status do seu pedido de viagem foi atualizado.')
             ->line('**Destino:** ' . e($this->travelRequest->destination))
-            ->line('**Status anterior:** ' . $this->translateStatus($this->oldStatus))
-            ->line('**Novo status:** ' . $this->translateStatus($this->travelRequest->status))
+            ->line('**Status anterior:** ' . TravelRequestStatus::from($this->oldStatus)->label())
+            ->line('**Novo status:** ' . TravelRequestStatus::from($this->travelRequest->status)->label())
             ->line('**Data de ida:** ' . $this->travelRequest->departure_date?->format('d/m/Y'))
             ->line('**Data de volta:** ' . $this->travelRequest->return_date?->format('d/m/Y'))
             ->action('Ver Pedido', url('/'))
             ->line('Obrigado por usar nosso sistema!');
-    }
-
-    private function translateStatus(string $status): string
-    {
-        $translations = [
-            'requested' => 'Solicitado',
-            'approved' => 'Aprovado',
-            'cancelled' => 'Cancelado',
-        ];
-
-        return $translations[$status] ?? $status;
     }
 }

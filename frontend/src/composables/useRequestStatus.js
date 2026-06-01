@@ -1,5 +1,7 @@
 import { useI18n } from 'vue-i18n'
 
+const SYSTEM_CANCEL_PATTERNS = ['Usuário desativado', 'Usuário excluído']
+
 export function useRequestStatus() {
   const { t } = useI18n()
 
@@ -16,8 +18,7 @@ export function useRequestStatus() {
 
   const isSystemCancellation = (status, cancelReason) => {
     if (status !== 'cancelled') return false
-    const systemPatterns = ['usuário desativado', 'usuário excluído', 'Usuário desativado', 'Usuário excluído']
-    return systemPatterns.some((pattern) => cancelReason?.includes(pattern))
+    return SYSTEM_CANCEL_PATTERNS.some((pattern) => cancelReason?.includes(pattern))
   }
 
   return { getStatusType, translateStatus, isSystemCancellation }

@@ -28,6 +28,7 @@
         v-model="formData.destination"
         :options="destinationOptions"
         :placeholder="$t('travelRequest.destinationPlaceholder')"
+        :no-data-text="$t('travelRequest.destinationsUnavailable')"
         style="width: 100%"
         filterable
         clearable
@@ -149,10 +150,11 @@ const rules = {
     { required: true, message: t('travelRequest.requesterNameRequired'), trigger: 'change' },
   ],
   destination: [
-    { required: true, message: t('travelRequest.destinationRequired'), trigger: 'blur' },
+    { required: true, message: t('travelRequest.destinationRequired'), trigger: 'change' },
   ],
   date_range: [
     {
+      required: true,
       validator: (rule, value, callback) => {
         if (!value || value.length < 2 || !value[0] || !value[1]) {
           callback(new Error(t('travelRequest.dateRangeRequired')))
@@ -192,16 +194,12 @@ onMounted(async () => {
   await Promise.all(promises)
 })
 
-const loadDestinations = async () => {
-  try {
-    await destinationsStore.getDestinations()
-  } catch (error) {
-    console.error(t('travelRequest.loadDestinationsError'), error)
-  }
-}
+const loadDestinations = () => destinationsStore.getDestinations()
+
+const ONE_DAY_MS = 86_400_000
 
 const disabledDepartureDate = (time) => {
-  return time.getTime() < Date.now() - 8.64e7
+  return time.getTime() < Date.now() - ONE_DAY_MS
 }
 
 const handleSubmit = async () => {

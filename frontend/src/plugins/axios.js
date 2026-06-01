@@ -36,13 +36,16 @@ api.interceptors.response.use(
     if (error.response) {
       const t = (key) => i18n.global.t(key)
       switch (error.response.status) {
-        case 401:
+        case 401: {
           const authStore = useAuthStore()
           if (authStore.token) {
-            authStore.logout()
+            authStore.token = null
+            authStore.user = null
             ElMessage.error(t('errors.sessionExpired'))
+            router.push('/login')
           }
           break
+        }
         case 403:
           ElMessage.error(t('errors.forbidden'))
           break
@@ -56,13 +59,17 @@ api.interceptors.response.use(
           }
           break
         case 500:
-          ElMessage.error(t('errors.serverError'))
+          if (!error.config?.skipGlobalErrorHandler) {
+            ElMessage.error(t('errors.serverError'))
+          }
           break
         default:
           ElMessage.error(error.response.data.message || t('errors.unknownError'))
       }
     } else if (error.request) {
-      ElMessage.error(i18n.global.t('errors.connectionError'))
+      if (!error.config?.skipGlobalErrorHandler) {
+        ElMessage.error(i18n.global.t('errors.connectionError'))
+      }
     }
     return Promise.reject(error)
   },

@@ -180,129 +180,24 @@
       </div>
     </el-card>
 
-    <el-dialog v-model="showEditDialog" :title="$t('users.editUser')" width="500px">
-      <el-form ref="formRef" :model="editForm" :rules="rules" label-position="top">
-        <el-form-item :label="$t('users.name')" prop="name">
-          <el-input v-model="editForm.name" />
-        </el-form-item>
-        <el-form-item :label="$t('users.userType')" prop="role">
-          <el-select v-model="editForm.role" style="width: 100%">
-            <el-option value="requester" :label="$t('users.roleRequester')" />
-            <el-option value="manager" :label="$t('users.roleManager')" />
-            <el-option value="admin" :label="$t('users.roleAdmin')" />
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="showEditDialog = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="primary" @click="handleUpdate" :loading="updating">{{
-          $t('common.save')
-        }}</el-button>
-      </template>
-    </el-dialog>
+    <UserEditDialog
+      v-model="showEditDialog"
+      :initial-name="selectedUser?.name || ''"
+      :initial-role="selectedUser?.role || 'requester'"
+      :is-loading="updating"
+      @submit="handleUpdate"
+    />
 
-    <el-dialog
-      v-model="showDeleteDialog"
-      :title="$t('users.confirmDelete')"
-      width="400px"
-      align-center
-    >
-      <p>{{ $t('users.deleteUserConfirm') }}</p>
-      <template #footer>
-        <el-button @click="showDeleteDialog = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="danger" @click="confirmDelete" :loading="deleting">{{
-          $t('common.delete')
-        }}</el-button>
-      </template>
-    </el-dialog>
+    <UserDeleteDialog v-model="showDeleteDialog" :is-loading="deleting" @confirm="confirmDelete" />
 
-    <el-dialog
-      v-model="showInviteDialog"
-      :title="$t('users.inviteUser')"
-      width="480px"
-      destroy-on-close
-      @closed="resetInviteForm"
-    >
-      <div v-if="inviteSent" class="voa-sent-center">
-        <div class="voa-sent-icon">✓</div>
-        <div style="font-size: 18px; font-weight: 700; margin-bottom: 6px">
-          {{ $t('users.inviteSentTitle') }}
-        </div>
-        <div style="color: var(--el-text-color-secondary); font-size: 14px">
-          {{ $t('users.inviteSentMsg') }}
-        </div>
-        <div style="font-weight: 700; margin-top: 4px">{{ inviteForm.email }}</div>
-        <el-button style="margin-top: 18px" @click="resetInviteForm">{{
-          $t('users.inviteAnother')
-        }}</el-button>
-      </div>
-
-      <div v-else>
-        <p style="color: var(--el-text-color-secondary); font-size: 13.5px; margin: -8px 0 16px">
-          {{ $t('users.inviteSubtitle') }}
-        </p>
-        <div style="display: flex; flex-direction: column; gap: 13px">
-          <div>
-            <div
-              style="
-                font-size: 13px;
-                font-weight: 500;
-                margin-bottom: 5px;
-                color: var(--el-text-color-regular);
-              "
-            >
-              {{ $t('users.inviteEmail') }} <span style="color: var(--el-color-danger)">*</span>
-            </div>
-            <el-input
-              v-model="inviteForm.email"
-              type="email"
-              :placeholder="$t('users.inviteEmailPh')"
-            />
-            <div
-              v-if="inviteErrors.email"
-              style="font-size: 12px; color: var(--el-color-danger); margin-top: 4px"
-            >
-              {{ inviteErrors.email }}
-            </div>
-          </div>
-          <div>
-            <div
-              style="
-                font-size: 13px;
-                font-weight: 500;
-                margin-bottom: 5px;
-                color: var(--el-text-color-regular);
-              "
-            >
-              {{ $t('users.inviteRoleSelect') }}
-            </div>
-            <el-select v-model="inviteForm.role" style="width: 100%">
-              <el-option value="requester" :label="$t('users.roleRequester')" />
-              <el-option value="manager" :label="$t('users.roleManager')" />
-              <el-option value="admin" :label="$t('users.roleAdmin')" />
-            </el-select>
-          </div>
-          <div class="voa-role-hint">
-            <strong>{{ getRoleLabel(inviteForm.role) }}:</strong>
-            {{ roleDesc(inviteForm.role) }}
-          </div>
-        </div>
-      </div>
-
-      <template v-if="!inviteSent" #footer>
-        <el-button @click="showInviteDialog = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="primary" @click="handleInvite" :loading="inviting">
-          {{ inviting ? $t('users.inviting') : $t('users.inviteSend') }}
-        </el-button>
-      </template>
-    </el-dialog>
+    <UserInviteDialog v-model="showInviteDialog" />
   </div>
 </template>
 
 <script setup>
 import { useAuthStore } from '@/stores/auth'
 import { useUserStore } from '@/stores/user'
-import { Delete, Edit, Message, Refresh } from '@element-plus/icons-vue'
+import { Edit, Message, Refresh } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -310,6 +205,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAvatar } from '@/composables/useAvatar'
 import { useRole } from '@/composables/useRole'
 import { useListPage } from '@/composables/useListPage'
+import UserInviteDialog from '@/components/UserInviteDialog.vue'
+import UserEditDialog from '@/components/UserEditDialog.vue'
+import UserDeleteDialog from '@/components/UserDeleteDialog.vue'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -320,14 +218,10 @@ const route = useRoute()
 const showEditDialog = ref(false)
 const showDeleteDialog = ref(false)
 const showInviteDialog = ref(false)
-const inviteSent = ref(false)
 const updating = ref(false)
 const deleting = ref(false)
-const inviting = ref(false)
 const resendingId = ref(null)
 const selectedUser = ref(null)
-const formRef = ref(null)
-const inviteErrors = ref({})
 
 const tableRows = computed(() => [
   ...userStore.pendingInvitations.map((inv) => ({ ...inv, is_invited: true })),
@@ -342,22 +236,8 @@ const filters = reactive({
   email: '',
 })
 
-const editForm = reactive({ name: '', role: 'requester' })
-const inviteForm = reactive({ email: '', role: 'requester' })
-
-const rules = {
-  name: [{ required: true, message: t('users.nameRequired'), trigger: 'blur' }],
-  role: [{ required: true, message: t('users.roleRequired'), trigger: 'change' }],
-}
-
 const { initials, avatarBg } = useAvatar()
 const { getRoleLabel, getRoleTagType } = useRole()
-const roleDesc = (role) =>
-  ({
-    requester: t('users.roleDescRequester'),
-    manager: t('users.roleDescManager'),
-    admin: t('users.roleDescAdmin'),
-  })[role] || ''
 
 const updateQueryParams = () => {
   const query = {}
@@ -404,15 +284,7 @@ const handlePageChange = () => {
 }
 
 const openInvite = () => {
-  resetInviteForm()
   showInviteDialog.value = true
-}
-
-const resetInviteForm = () => {
-  inviteForm.email = ''
-  inviteForm.role = 'requester'
-  inviteErrors.value = {}
-  inviteSent.value = false
 }
 
 onMounted(() => {
@@ -422,27 +294,20 @@ onMounted(() => {
 
 const handleEdit = (user) => {
   selectedUser.value = user
-  editForm.name = user.name
-  editForm.role = user.role || 'requester'
   showEditDialog.value = true
 }
 
-const handleUpdate = async () => {
-  if (!formRef.value) return
-  await formRef.value.validate(async (valid) => {
-    if (valid) {
-      updating.value = true
-      const success = await userStore.updateUser(selectedUser.value.id, editForm)
-      updating.value = false
-      if (success) {
-        showEditDialog.value = false
-        if (selectedUser.value.id === authStore.user?.id) {
-          await authStore.fetchUser()
-          router.go(0)
-        }
-      }
+const handleUpdate = async (formData) => {
+  updating.value = true
+  const success = await userStore.updateUser(selectedUser.value.id, formData)
+  updating.value = false
+  if (success) {
+    showEditDialog.value = false
+    if (selectedUser.value.id === authStore.user?.id) {
+      await authStore.fetchUser()
+      router.go(0)
     }
-  })
+  }
 }
 
 const handleDelete = async (user) => {
@@ -471,18 +336,6 @@ const confirmDelete = async () => {
   await userStore.deleteUser(selectedUser.value.id)
   deleting.value = false
   showDeleteDialog.value = false
-}
-
-const handleInvite = async () => {
-  inviteErrors.value = {}
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(inviteForm.email)) {
-    inviteErrors.value.email = t('auth.emailInvalid')
-    return
-  }
-  inviting.value = true
-  const success = await userStore.inviteUser(inviteForm)
-  inviting.value = false
-  if (success) inviteSent.value = true
 }
 
 const handleResend = async (invitation) => {

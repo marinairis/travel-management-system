@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import * as destinationRepository from '@/plugins/destinationRepository'
 
+const RETRY_DELAY_MS = 60_000
+
+let retryTimer = null
+
 export const useDestinationsStore = defineStore('destinations', {
   state: () => ({
     destinations: [],
@@ -55,13 +59,21 @@ export const useDestinationsStore = defineStore('destinations', {
           this.destinations = response.data.data
           this.lastFetch = Date.now()
           this.error = null
+          if (retryTimer) {
+            clearTimeout(retryTimer)
+            retryTimer = null
+          }
         } else {
           throw new Error(response.data.message || 'Failed to fetch destinations')
         }
       } catch (error) {
-        console.error(error)
         this.error = error.message || 'Failed to load destinations'
-        throw error
+        if (!retryTimer) {
+          retryTimer = setTimeout(() => {
+            retryTimer = null
+            this.fetchDestinations()
+          }, RETRY_DELAY_MS)
+        }
       } finally {
         this.isLoading = false
       }

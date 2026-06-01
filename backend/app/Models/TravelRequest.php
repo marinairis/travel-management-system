@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\TravelRequestStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -54,7 +55,7 @@ class TravelRequest extends Model
 
     public function wasCancelledBySystem(): bool
     {
-        if ($this->status !== 'cancelled') {
+        if (TravelRequestStatus::from($this->status) !== TravelRequestStatus::Cancelled) {
             return false;
         }
         $systemPatterns = ['Usuário desativado', 'Usuário excluído'];
@@ -66,12 +67,9 @@ class TravelRequest extends Model
         return false;
     }
 
-    public function getCanBeCancelledAttribute()
+    public function getCanBeCancelledAttribute(): bool
     {
-        if ($this->status === 'cancelled') {
-            return false;
-        }
-        if ($this->status === 'expired') {
+        if (TravelRequestStatus::from($this->status)->isFinal()) {
             return false;
         }
         return $this->departure_date >= now()->startOfDay();
