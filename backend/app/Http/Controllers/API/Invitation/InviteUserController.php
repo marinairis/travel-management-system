@@ -20,9 +20,9 @@ class InviteUserController extends Controller
         $token = Str::random(64);
 
         Invitation::create([
-            'email'      => $request->email,
-            'role'       => $request->role,
-            'token'      => $token,
+            'email' => $request->email,
+            'role' => $request->role,
+            'token' => $token,
             'expires_at' => now()->addDays(7),
         ]);
 
@@ -30,7 +30,7 @@ class InviteUserController extends Controller
             Notification::route('mail', $request->email)
                 ->notify(new UserInvited($token, $request->role));
         } catch (\Exception $e) {
-            Log::error('Erro ao enviar convite: ' . $e->getMessage());
+            Log::error('Erro ao enviar convite: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,

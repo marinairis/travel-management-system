@@ -18,7 +18,7 @@ class GetPendingApprovalController
     {
         return response()->json([
             'success' => true,
-            'data'    => $this->service->getOldestPendingApproval(Auth::user()),
+            'data' => $this->service->getOldestPendingApproval(Auth::user()),
         ]);
     }
 }

@@ -20,13 +20,13 @@ class PendingRequestsCountController extends Controller
     {
         $user = $this->service->findById($id);
 
-        if (!$user) {
+        if (! $user) {
             throw new UserException(UserException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
             'success' => true,
-            'data'    => ['count' => $this->service->pendingRequestsCount($id)],
+            'data' => ['count' => $this->service->pendingRequestsCount($id)],
         ]);
     }
 }

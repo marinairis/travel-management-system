@@ -22,7 +22,7 @@ class DeleteUserController extends Controller
     {
         $user = $this->service->findById($id);
 
-        if (!$user) {
+        if (! $user) {
             throw new UserException(UserException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
 

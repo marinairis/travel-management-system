@@ -19,13 +19,13 @@ class ShowInvitationController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$invitation) {
+        if (! $invitation) {
             throw new InvitationException(InvitationException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
 
         return response()->json([
             'success' => true,
-            'data'    => ['email' => $invitation->email, 'role' => $invitation->role],
+            'data' => ['email' => $invitation->email, 'role' => $invitation->role],
         ]);
     }
 }

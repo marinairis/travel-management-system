@@ -20,10 +20,10 @@ class GetDashboardStatsController
 
         return response()->json([
             'success' => true,
-            'data'    => [
-                'total'            => $stats['total'],
-                'by_status'        => $stats['byStatus'],
-                'by_travel_type'   => $stats['byTravelType'],
+            'data' => [
+                'total' => $stats['total'],
+                'by_status' => $stats['byStatus'],
+                'by_travel_type' => $stats['byTravelType'],
                 'top_destinations' => $stats['topDestinations'],
             ],
         ]);

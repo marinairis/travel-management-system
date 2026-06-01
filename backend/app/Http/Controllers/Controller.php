@@ -8,13 +8,13 @@ namespace App\Http\Controllers;
  * @OA\Info(
  *     version="1.0.0",
  *     title="Travel Management API",
- *     description="API REST para gerenciamento de pedidos de viagem corporativa. Autenticação via JWT Bearer token.",
+ *     description="REST API for corporate travel request management. Authentication via JWT Bearer token.",
  *     @OA\Contact(email="marinairis.dev@gmail.com")
  * )
  *
  * @OA\Server(
  *     url=L5_SWAGGER_CONST_HOST,
- *     description="Servidor local"
+ *     description="Local server"
  * )
  *
  * @OA\SecurityScheme(
@@ -24,10 +24,14 @@ namespace App\Http\Controllers;
  *     bearerFormat="JWT"
  * )
  *
- * @OA\Tag(name="Auth", description="Autenticação e gerenciamento de sessão")
- * @OA\Tag(name="Travel Requests", description="Pedidos de viagem corporativa")
- * @OA\Tag(name="Users", description="Gerenciamento de usuários (admin)")
- * @OA\Tag(name="Locations", description="Cidades e destinos (IBGE)")
+ * @OA\Tag(name="Auth", description="Authentication and session management")
+ * @OA\Tag(name="Travel Requests", description="Corporate travel requests")
+ * @OA\Tag(name="Users", description="User management (admin only)")
+ * @OA\Tag(name="Locations", description="Cities and destinations (IBGE)")
+ * @OA\Tag(name="Dashboard", description="Dashboard statistics and summaries")
+ * @OA\Tag(name="Invitations", description="User invitation flow")
+ * @OA\Tag(name="Activity Logs", description="Audit trail of user actions")
+ * @OA\Tag(name="Notifications", description="In-app notifications")
  */
 abstract class Controller
 {

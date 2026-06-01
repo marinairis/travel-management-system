@@ -22,11 +22,11 @@ class GetDestinationsController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data'    => $destinations->values(),
-                'meta'    => ['total' => $destinations->count(), 'cached' => true],
+                'data' => $destinations->values(),
+                'meta' => ['total' => $destinations->count(), 'cached' => true],
             ]);
         } catch (\Exception $e) {
-            Log::error('Erro ao buscar destinos: ' . $e->getMessage());
+            Log::error('Erro ao buscar destinos: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,

@@ -19,14 +19,14 @@ class ShowUserController extends Controller
 
     public function __invoke(int $id): JsonResponse
     {
-        $user        = $this->service->findById($id);
+        $user = $this->service->findById($id);
         $currentUser = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             throw new UserException(UserException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
 
-        if (!$currentUser->isApprover() && $user->id !== $currentUser->id) {
+        if (! $currentUser->isApprover() && $user->id !== $currentUser->id) {
             throw new UserException('user.cannot_view', Response::HTTP_FORBIDDEN);
         }
 

@@ -22,7 +22,7 @@ class CreateTravelRequestController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('messages.travel_request.created'),
-            'data'    => $travelRequest,
+            'data' => $travelRequest,
         ], 201);
     }
 }

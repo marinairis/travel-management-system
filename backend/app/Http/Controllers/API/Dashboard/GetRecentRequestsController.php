@@ -18,7 +18,7 @@ class GetRecentRequestsController
     {
         return response()->json([
             'success' => true,
-            'data'    => $this->service->getRecentRequests(Auth::user()),
+            'data' => $this->service->getRecentRequests(Auth::user()),
         ]);
     }
 }

@@ -15,7 +15,7 @@ class LoginController extends Controller
     {
         $credentials = $request->only('email', 'password');
 
-        if (!$token = JWTAuth::attempt($credentials)) {
+        if (! $token = JWTAuth::attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => __('messages.auth.invalid_credentials'),
@@ -23,9 +23,9 @@ class LoginController extends Controller
         }
 
         return response()->json([
-            'success'    => true,
-            'message'    => __('messages.auth.login_success'),
-            'data'       => ['user' => auth()->user(), 'token' => $token, 'token_type' => 'bearer'],
+            'success' => true,
+            'message' => __('messages.auth.login_success'),
+            'data' => ['user' => auth()->user(), 'token' => $token, 'token_type' => 'bearer'],
         ]);
     }
 }

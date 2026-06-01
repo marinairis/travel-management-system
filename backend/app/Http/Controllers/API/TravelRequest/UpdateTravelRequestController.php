@@ -22,15 +22,15 @@ class UpdateTravelRequestController extends Controller
     {
         $travelRequest = $this->service->getTravelRequest($id);
 
-        if (!$travelRequest) {
+        if (! $travelRequest) {
             throw new TravelRequestException(TravelRequestException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
 
-        if (!$this->service->canUpdateTravelRequest($travelRequest, Auth::user())) {
+        if (! $this->service->canUpdateTravelRequest($travelRequest, Auth::user())) {
             throw new TravelRequestException(TravelRequestException::UNAUTHORIZED, Response::HTTP_FORBIDDEN);
         }
 
-        if (!$this->service->canModifyTravelRequest($travelRequest)) {
+        if (! $this->service->canModifyTravelRequest($travelRequest)) {
             throw new TravelRequestException(TravelRequestException::NOT_EDITABLE, Response::HTTP_FORBIDDEN);
         }
 
@@ -39,7 +39,7 @@ class UpdateTravelRequestController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('messages.travel_request.updated'),
-            'data'    => $updated,
+            'data' => $updated,
         ]);
     }
 }

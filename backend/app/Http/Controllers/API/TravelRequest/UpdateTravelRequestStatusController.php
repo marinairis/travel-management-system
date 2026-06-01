@@ -22,11 +22,11 @@ class UpdateTravelRequestStatusController extends Controller
     {
         $travelRequest = $this->service->getTravelRequest($id);
 
-        if (!$travelRequest) {
+        if (! $travelRequest) {
             throw new TravelRequestException(TravelRequestException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
 
-        if (!$this->service->canUpdateStatus($travelRequest, Auth::user())) {
+        if (! $this->service->canUpdateStatus($travelRequest, Auth::user())) {
             throw new TravelRequestException(TravelRequestException::CANNOT_CHANGE_OWN_STATUS, Response::HTTP_FORBIDDEN);
         }
 
@@ -35,7 +35,7 @@ class UpdateTravelRequestStatusController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('messages.travel_request.status_updated'),
-            'data'    => $updated,
+            'data' => $updated,
         ]);
     }
 }

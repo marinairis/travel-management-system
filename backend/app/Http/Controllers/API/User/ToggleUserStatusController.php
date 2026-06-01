@@ -21,7 +21,7 @@ class ToggleUserStatusController extends Controller
     {
         $user = $this->service->findById($id, withTrashed: true);
 
-        if (!$user) {
+        if (! $user) {
             throw new UserException(UserException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
 
@@ -38,7 +38,7 @@ class ToggleUserStatusController extends Controller
         return response()->json([
             'success' => true,
             'message' => __($messageKey),
-            'data'    => $result['user'],
+            'data' => $result['user'],
         ]);
     }
 }

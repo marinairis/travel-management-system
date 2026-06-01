@@ -15,7 +15,7 @@ class MeController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('messages.general.success'),
-            'data'    => $request->user(),
+            'data' => $request->user(),
         ]);
     }
 }

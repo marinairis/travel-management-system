@@ -22,12 +22,12 @@ class ListTravelRequestsController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('messages.general.success'),
-            'data'    => $travelRequests->items(),
-            'meta'    => [
+            'data' => $travelRequests->items(),
+            'meta' => [
                 'current_page' => $travelRequests->currentPage(),
-                'last_page'    => $travelRequests->lastPage(),
-                'per_page'     => $travelRequests->perPage(),
-                'total'        => $travelRequests->total(),
+                'last_page' => $travelRequests->lastPage(),
+                'per_page' => $travelRequests->perPage(),
+                'total' => $travelRequests->total(),
             ],
         ]);
     }

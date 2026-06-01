@@ -21,7 +21,7 @@ class UpdateUserController extends Controller
     {
         $user = $this->service->findById($id);
 
-        if (!$user) {
+        if (! $user) {
             throw new UserException(UserException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
 
@@ -30,7 +30,7 @@ class UpdateUserController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('messages.user.updated'),
-            'data'    => $updated,
+            'data' => $updated,
         ]);
     }
 }

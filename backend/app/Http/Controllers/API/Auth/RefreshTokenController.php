@@ -18,7 +18,7 @@ class RefreshTokenController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => __('messages.auth.token_refresh_success'),
-                'data'    => ['token' => $token, 'token_type' => 'bearer'],
+                'data' => ['token' => $token, 'token_type' => 'bearer'],
             ]);
         } catch (\Exception $e) {
             return response()->json([

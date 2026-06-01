@@ -2,7 +2,7 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Travel Management API",
-        "description": "API REST para gerenciamento de pedidos de viagem corporativa. Autenticação via JWT Bearer token.",
+        "description": "REST API for corporate travel request management. Authentication via JWT Bearer token.",
         "contact": {
             "email": "marinairis.dev@gmail.com"
         },
@@ -11,61 +11,95 @@
     "servers": [
         {
             "url": "http://localhost:8000",
-            "description": "Servidor local"
+            "description": "Local server"
         }
     ],
     "paths": {
-        "/api/register": {
-            "post": {
+        "/api/activity-logs": {
+            "get": {
                 "tags": [
-                    "Auth"
+                    "Activity Logs"
                 ],
-                "summary": "Registrar novo usuário",
-                "operationId": "a718f172ff3ac464d723835815f8fb57",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "name",
-                                    "email",
-                                    "password",
-                                    "password_confirmation"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Maria Silva"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "maria@example.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "minLength": 6,
-                                        "example": "secret123"
-                                    },
-                                    "password_confirmation": {
-                                        "type": "string",
-                                        "example": "secret123"
-                                    }
-                                },
-                                "type": "object"
-                            }
+                "summary": "List activity logs (requesters see own logs only; managers and admins see all)",
+                "operationId": "f9133be4888e08c3da8705fd77e0710c",
+                "parameters": [
+                    {
+                        "name": "user_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "action",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 100
+                        }
+                    },
+                    {
+                        "name": "model_type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 100
+                        }
+                    },
+                    {
+                        "name": "model_id",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "maximum": 100,
+                            "minimum": 1
                         }
                     }
-                },
+                ],
                 "responses": {
-                    "201": {
-                        "description": "Usuário registrado com token JWT"
+                    "200": {
+                        "description": "Paginated activity logs",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
-                    "422": {
-                        "description": "Dados inválidos"
+                    "401": {
+                        "description": "Unauthenticated"
                     }
-                }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/login": {
@@ -73,8 +107,8 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Autenticar usuário e obter token JWT",
-                "operationId": "44212a9096e4b09358281e9ec8a0701d",
+                "summary": "Authenticate user and return JWT token",
+                "operationId": "2378c48bb8a72f903c8a9e34e652c798",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -88,11 +122,12 @@
                                     "email": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "admin@example.com"
+                                        "example": "user@example.com"
                                     },
                                     "password": {
                                         "type": "string",
-                                        "example": "secret123"
+                                        "format": "password",
+                                        "example": "Secret@123"
                                     }
                                 },
                                 "type": "object"
@@ -102,30 +137,77 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Token JWT retornado com dados do usuário"
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "type": "object"
+                                                },
+                                                "token": {
+                                                    "type": "string"
+                                                },
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "bearer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Credenciais inválidas"
+                        "description": "Invalid credentials"
                     },
                     "422": {
-                        "description": "Dados inválidos"
+                        "description": "Validation error"
                     }
                 }
             }
         },
-        "/api/me": {
-            "get": {
+        "/api/logout": {
+            "post": {
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Retornar dados do usuário autenticado",
-                "operationId": "f606b7972b0f95109c9cd5b591061f41",
+                "summary": "Invalidate the current JWT token",
+                "operationId": "ddb6bd3d2ca68949db30f747e7e3aad4",
                 "responses": {
                     "200": {
-                        "description": "Dados do usuário autenticado"
+                        "description": "Logout successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Não autenticado"
+                        "description": "Unauthenticated"
                     }
                 },
                 "security": [
@@ -135,19 +217,38 @@
                 ]
             }
         },
-        "/api/logout": {
-            "post": {
+        "/api/me": {
+            "get": {
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Encerrar sessão e invalidar token",
-                "operationId": "79854151e609bd20032aa5aa4d5a35c0",
+                "summary": "Return the authenticated user's data",
+                "operationId": "885f45d7f1c83cc70ff9e94601d5694a",
                 "responses": {
                     "200": {
-                        "description": "Logout realizado com sucesso"
+                        "description": "Authenticated user data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Não autenticado"
+                        "description": "Unauthenticated"
                     }
                 },
                 "security": [
@@ -162,14 +263,42 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Renovar token JWT",
-                "operationId": "7d5da2870d3eba95cdd67878ab20da3a",
+                "summary": "Refresh the JWT token",
+                "operationId": "a016d291bfcb0015604055c23843daf7",
                 "responses": {
                     "200": {
-                        "description": "Novo token JWT"
+                        "description": "Token refreshed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "token": {
+                                                    "type": "string"
+                                                },
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "bearer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Token inválido ou expirado"
+                        "description": "Invalid or expired token"
                     }
                 },
                 "security": [
@@ -184,8 +313,8 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Solicitar link de redefinição de senha",
-                "operationId": "0d08416e4be00d9d79e28720a602d0c6",
+                "summary": "Send a password reset link to the user's email",
+                "operationId": "e917666b8175138a9913002ddfdde051",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -198,7 +327,7 @@
                                     "email": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "maria@example.com"
+                                        "example": "user@example.com"
                                     }
                                 },
                                 "type": "object"
@@ -208,10 +337,29 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Link enviado por e-mail"
+                        "description": "Reset link sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "422": {
-                        "description": "E-mail não encontrado"
+                        "description": "Validation error"
+                    },
+                    "500": {
+                        "description": "Failed to send email"
                     }
                 }
             }
@@ -221,33 +369,37 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Redefinir senha com token recebido por e-mail",
-                "operationId": "c8051546add6ded950f79e0f2f64a021",
+                "summary": "Reset the user's password using a token",
+                "operationId": "7ebbe33b90e57302ec36e02c9845bac2",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "token",
                                     "email",
                                     "password",
-                                    "password_confirmation"
+                                    "password_confirmation",
+                                    "token"
                                 ],
                                 "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "user@example.com"
+                                    },
                                     "token": {
                                         "type": "string"
                                     },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email"
-                                    },
                                     "password": {
                                         "type": "string",
-                                        "minLength": 6
+                                        "format": "password",
+                                        "example": "NewSecret@123"
                                     },
                                     "password_confirmation": {
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "NewSecret@123"
                                     }
                                 },
                                 "type": "object"
@@ -257,45 +409,375 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Senha redefinida com sucesso"
+                        "description": "Password reset successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "400": {
-                        "description": "Token inválido ou expirado"
+                        "description": "Invalid token, user or throttled"
                     },
                     "422": {
-                        "description": "Dados inválidos"
+                        "description": "Validation error"
                     }
                 }
             }
         },
-        "/api/locations/cities": {
+        "/api/dashboard/stats": {
             "get": {
                 "tags": [
-                    "Locations"
+                    "Dashboard"
                 ],
-                "summary": "Buscar municípios brasileiros via IBGE",
-                "operationId": "15da042b5a8197653c614f8ec4d07bdc",
+                "summary": "Get dashboard statistics for the authenticated user",
+                "operationId": "2398be79290d890a218dd6945b3f21da",
+                "responses": {
+                    "200": {
+                        "description": "Dashboard statistics",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "by_status": {
+                                                    "type": "object"
+                                                },
+                                                "by_travel_type": {
+                                                    "type": "object"
+                                                },
+                                                "top_destinations": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/dashboard/pending-approval": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get the oldest travel request pending approval",
+                "operationId": "beefccdd92412dac9acbdbfb5ce726ad",
+                "responses": {
+                    "200": {
+                        "description": "Oldest pending approval request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/dashboard/recent-requests": {
+            "get": {
+                "tags": [
+                    "Dashboard"
+                ],
+                "summary": "Get the most recent travel requests for the authenticated user",
+                "operationId": "298376d130f2227888cff4e925794bae",
+                "responses": {
+                    "200": {
+                        "description": "Recent travel requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/invitations/{token}": {
+            "get": {
+                "tags": [
+                    "Invitations"
+                ],
+                "summary": "Retrieve a valid (non-accepted, non-expired) invitation by token",
+                "operationId": "b1d24999faa8737309c28954ea2df810",
                 "parameters": [
                     {
-                        "name": "q",
-                        "in": "query",
-                        "description": "Texto para busca por nome do município",
-                        "required": false,
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
                         "schema": {
-                            "type": "string",
-                            "example": "São Paulo"
+                            "type": "string"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Lista de municípios filtrada"
+                        "description": "Invitation data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "email": {
+                                                    "type": "string"
+                                                },
+                                                "role": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Invitation not found, already accepted or expired"
+                    }
+                }
+            }
+        },
+        "/api/invitations/{token}/accept": {
+            "post": {
+                "tags": [
+                    "Invitations"
+                ],
+                "summary": "Accept an invitation and create the user account",
+                "operationId": "5d3107628844bd5496e151b5efa0a91b",
+                "parameters": [
+                    {
+                        "name": "token",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Secret@123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "Secret@123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Invitation accepted and user created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "user": {
+                                                    "type": "object"
+                                                },
+                                                "token": {
+                                                    "type": "string"
+                                                },
+                                                "token_type": {
+                                                    "type": "string",
+                                                    "example": "bearer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Invitation not found or validation error"
+                    }
+                }
+            }
+        },
+        "/api/users/invite": {
+            "post": {
+                "tags": [
+                    "Invitations"
+                ],
+                "summary": "Send an invitation email to a new user (admin only)",
+                "operationId": "f53df427dc5612bba5e1e176d1030aec",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "newuser@example.com"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "requester",
+                                            "manager",
+                                            "admin"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Invitation sent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Não autenticado"
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "422": {
+                        "description": "Validation error or email already in use"
                     },
                     "500": {
-                        "description": "Erro ao consultar API do IBGE"
+                        "description": "Failed to send email"
                     }
                 },
                 "security": [
@@ -310,16 +792,781 @@
                 "tags": [
                     "Locations"
                 ],
-                "summary": "Listar destinos já utilizados em pedidos (público)",
-                "operationId": "4335bdd0e4948df385cca59735da19d8",
+                "summary": "Return the list of popular/cached destinations (public endpoint)",
+                "operationId": "a93a3b91333d1be4bfa94a524b607bd2",
                 "responses": {
                     "200": {
-                        "description": "Lista de destinos em cache"
+                        "description": "List of destinations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "cached": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "500": {
-                        "description": "Erro ao buscar destinos"
+                        "description": "Server error"
                     }
                 }
+            }
+        },
+        "/api/locations/cities": {
+            "get": {
+                "tags": [
+                    "Locations"
+                ],
+                "summary": "Search cities by name (IBGE dataset)",
+                "operationId": "383b9e943743b57c0e42610916d852f2",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Search term",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "maxLength": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of matching cities",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer"
+                                                },
+                                                "has_query": {
+                                                    "type": "boolean"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "500": {
+                        "description": "Server error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "List the last 50 notifications for the authenticated user",
+                "operationId": "403b5e0b5bbfda0a405b2f5ab871253f",
+                "responses": {
+                    "200": {
+                        "description": "Notifications list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "data": {
+                                                        "type": "object"
+                                                    },
+                                                    "read_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "nullable": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "unread_count": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/read-all": {
+            "patch": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark all unread notifications as read",
+                "operationId": "c6d0a1b50306c16a54e4fac3191297b7",
+                "responses": {
+                    "200": {
+                        "description": "All notifications marked as read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/notifications/{id}/read": {
+            "patch": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark a single notification as read",
+                "operationId": "1cd9788414703047b2ef869eda46dede",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Notification UUID",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Notification marked as read",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "404": {
+                        "description": "Notification not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/travel-requests": {
+            "get": {
+                "tags": [
+                    "Travel Requests"
+                ],
+                "summary": "List travel requests with optional filters and pagination",
+                "operationId": "c20c7b6b6815a3a3d6ad67a65d9bbdfa",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "requested",
+                                "approved",
+                                "cancelled",
+                                "expired"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "destination",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "start_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "end_date",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "maximum": 100,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of travel requests",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer"
+                                                },
+                                                "last_page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Travel Requests"
+                ],
+                "summary": "Create a new travel request",
+                "operationId": "51ec98a4646f5530fce3f7cc05b015b2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "requester_name",
+                                    "destination",
+                                    "departure_date",
+                                    "return_date"
+                                ],
+                                "properties": {
+                                    "requester_name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "destination": {
+                                        "type": "string",
+                                        "example": "São Paulo, SP"
+                                    },
+                                    "departure_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-07-10"
+                                    },
+                                    "return_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-07-15"
+                                    },
+                                    "travel_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "bus",
+                                            "plane",
+                                            "car",
+                                            "hotel"
+                                        ],
+                                        "nullable": true
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Travel request created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/travel-requests/{id}": {
+            "get": {
+                "tags": [
+                    "Travel Requests"
+                ],
+                "summary": "Get a single travel request by ID",
+                "operationId": "f270240a752c91ce379b0546047c3772",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Travel request data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Travel Requests"
+                ],
+                "summary": "Update a travel request (only when status is 'requested')",
+                "operationId": "638305912724ed2e482a50e0e5ae50e2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "requester_name": {
+                                        "type": "string"
+                                    },
+                                    "destination": {
+                                        "type": "string"
+                                    },
+                                    "departure_date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "return_date": {
+                                        "type": "string",
+                                        "format": "date"
+                                    },
+                                    "travel_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "bus",
+                                            "plane",
+                                            "car",
+                                            "hotel"
+                                        ],
+                                        "nullable": true
+                                    },
+                                    "notes": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Travel request updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden or not editable"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/travel-requests/{id}/cancel": {
+            "patch": {
+                "tags": [
+                    "Travel Requests"
+                ],
+                "summary": "Cancel a travel request",
+                "operationId": "20144cfdd6d431b23ba962a0a9cafc6f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "reason": {
+                                        "type": "string",
+                                        "maxLength": 500,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Travel request cancelled",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Already cancelled, expired or not cancellable"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/travel-requests/{id}/status": {
+            "patch": {
+                "tags": [
+                    "Travel Requests"
+                ],
+                "summary": "Approve or cancel a travel request (manager or admin only)",
+                "operationId": "78b64127a22cf6c52cb9694e8fd93158",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "approved",
+                                            "cancelled"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Status updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden or cannot change own request status"
+                    },
+                    "404": {
+                        "description": "Not found"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
             }
         },
         "/api/users": {
@@ -327,8 +1574,8 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Listar todos os usuários (apenas admin)",
-                "operationId": "d7a57f4d7de18fb0f92501172472c9b6",
+                "summary": "List all users with optional filters and pagination (admin only)",
+                "operationId": "dd6f8e615672b2949674a4206ed74ced",
                 "parameters": [
                     {
                         "name": "user_type",
@@ -349,20 +1596,119 @@
                         "in": "query",
                         "required": false,
                         "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
                             "type": "string",
-                            "example": "maria@"
+                            "enum": [
+                                "active",
+                                "inactive"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10,
+                            "maximum": 100,
+                            "minimum": 1
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Lista de usuários"
+                        "description": "Paginated list of users",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer"
+                                                },
+                                                "last_page": {
+                                                    "type": "integer"
+                                                },
+                                                "per_page": {
+                                                    "type": "integer"
+                                                },
+                                                "total": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Não autenticado"
+                        "description": "Unauthenticated"
                     },
                     "403": {
-                        "description": "Acesso negado — não é admin"
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/basic": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Return a minimal list of users (id, name, email) for dropdowns",
+                "operationId": "cb321bf3687b238334ee07d40dac7fcd",
+                "responses": {
+                    "200": {
+                        "description": "Basic user list",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
                     }
                 },
                 "security": [
@@ -377,8 +1723,8 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Consultar dados de um usuário",
-                "operationId": "40a5104e23b52137e78c3d3ac48b88a8",
+                "summary": "Get a user by ID (own profile or approver access)",
+                "operationId": "f9f28b51535d897036b280e7a73be506",
                 "parameters": [
                     {
                         "name": "id",
@@ -391,16 +1737,32 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Dados do usuário"
+                        "description": "User data",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Não autenticado"
+                        "description": "Unauthenticated"
                     },
                     "403": {
-                        "description": "Sem permissão"
+                        "description": "Forbidden"
                     },
                     "404": {
-                        "description": "Usuário não encontrado"
+                        "description": "Not found"
                     }
                 },
                 "security": [
@@ -413,8 +1775,8 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Atualizar usuário (apenas admin)",
-                "operationId": "b166772cec9714067040e77cf14beeba",
+                "summary": "Update a user's name or role (admin only)",
+                "operationId": "21c5c207e37309d6098f9bfc52ebc2ce",
                 "parameters": [
                     {
                         "name": "id",
@@ -432,8 +1794,7 @@
                             "schema": {
                                 "properties": {
                                     "name": {
-                                        "type": "string",
-                                        "example": "Maria Silva"
+                                        "type": "string"
                                     },
                                     "role": {
                                         "type": "string",
@@ -451,19 +1812,38 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Usuário atualizado"
+                        "description": "User updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Não autenticado"
+                        "description": "Unauthenticated"
                     },
                     "403": {
-                        "description": "Acesso negado"
+                        "description": "Forbidden"
                     },
                     "404": {
-                        "description": "Usuário não encontrado"
+                        "description": "Not found"
                     },
                     "422": {
-                        "description": "Dados inválidos"
+                        "description": "Validation error"
                     }
                 },
                 "security": [
@@ -476,8 +1856,8 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Excluir usuário (apenas admin)",
-                "operationId": "ce06860a51ab016ef66e753544fe4563",
+                "summary": "Delete a user (admin only, cannot delete self)",
+                "operationId": "77b166c576d3595d0976baf00bf9abbe",
                 "parameters": [
                     {
                         "name": "id",
@@ -490,16 +1870,32 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Usuário excluído"
+                        "description": "User deleted",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Não autenticado"
+                        "description": "Unauthenticated"
                     },
                     "403": {
-                        "description": "Sem permissão"
+                        "description": "Forbidden or cannot delete self"
                     },
                     "404": {
-                        "description": "Usuário não encontrado"
+                        "description": "Not found"
                     }
                 },
                 "security": [
@@ -514,8 +1910,8 @@
                 "tags": [
                     "Users"
                 ],
-                "summary": "Ativar ou desativar um usuário (apenas admin)",
-                "operationId": "f6222699f2750eaacc1ecd011ce428a1",
+                "summary": "Activate or deactivate a user (admin only, cannot toggle self)",
+                "operationId": "22e006ba4a78e2d866f002b3b1f814d5",
                 "parameters": [
                     {
                         "name": "id",
@@ -528,16 +1924,94 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Status do usuário alterado com sucesso"
+                        "description": "User status toggled",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Não autenticado"
+                        "description": "Unauthenticated"
                     },
                     "403": {
-                        "description": "Acesso negado"
+                        "description": "Forbidden or cannot toggle self"
                     },
                     "404": {
-                        "description": "Usuário não encontrado"
+                        "description": "Not found"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/users/{id}/pending-requests-count": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Return the number of pending travel requests for a user (admin only)",
+                "operationId": "ec54dac396d36f9bd2678ce65ac8ffcf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pending request count",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "count": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not found"
                     }
                 },
                 "security": [
@@ -560,15 +2034,35 @@
     "tags": [
         {
             "name": "Auth",
-            "description": "Autenticação e gerenciamento de sessão"
+            "description": "Authentication and session management"
+        },
+        {
+            "name": "Travel Requests",
+            "description": "Corporate travel requests"
         },
         {
             "name": "Users",
-            "description": "Gerenciamento de usuários (admin)"
+            "description": "User management (admin only)"
         },
         {
             "name": "Locations",
-            "description": "Cidades e destinos (IBGE)"
+            "description": "Cities and destinations (IBGE)"
+        },
+        {
+            "name": "Dashboard",
+            "description": "Dashboard statistics and summaries"
+        },
+        {
+            "name": "Invitations",
+            "description": "User invitation flow"
+        },
+        {
+            "name": "Activity Logs",
+            "description": "Audit trail of user actions"
+        },
+        {
+            "name": "Notifications",
+            "description": "In-app notifications"
         }
     ]
 }

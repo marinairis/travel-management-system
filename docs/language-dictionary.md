@@ -80,6 +80,15 @@ Estrutura de chaves usada nos arquivos `src/i18n/locales/*.json`:
 
 ---
 
+## Swagger Doc Files
+
+| Termo | Significado |
+|---|---|
+| `Doc file` | Classe PHP abstrata em `app/Docs/` que contém apenas anotações `@OA\*` para o Swagger |
+| `app/Docs/` | Pasta exclusiva para documentação OpenAPI — sem lógica de negócio |
+
+---
+
 ## Rotas de API (padrão de nomenclatura)
 
 | Recurso | Prefixo de rota |

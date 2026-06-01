@@ -12,21 +12,21 @@ class ListNotificationsController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        $user          = Auth::user();
+        $user = Auth::user();
         $notifications = $user->notifications()
             ->latest()
             ->take(50)
             ->get()
             ->map(fn ($notification) => [
-                'id'         => $notification->id,
-                'data'       => $notification->data,
-                'read_at'    => $notification->read_at,
+                'id' => $notification->id,
+                'data' => $notification->data,
+                'read_at' => $notification->read_at,
                 'created_at' => $notification->created_at,
             ]);
 
         return response()->json([
-            'success'      => true,
-            'data'         => $notifications,
+            'success' => true,
+            'data' => $notifications,
             'unread_count' => $user->unreadNotifications()->count(),
         ]);
     }

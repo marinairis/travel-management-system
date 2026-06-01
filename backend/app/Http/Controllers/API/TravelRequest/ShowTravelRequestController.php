@@ -21,11 +21,11 @@ class ShowTravelRequestController extends Controller
     {
         $travelRequest = $this->service->getTravelRequest($id);
 
-        if (!$travelRequest) {
+        if (! $travelRequest) {
             throw new TravelRequestException(TravelRequestException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
 
-        if (!$this->service->canViewTravelRequest($travelRequest, Auth::user())) {
+        if (! $this->service->canViewTravelRequest($travelRequest, Auth::user())) {
             throw new TravelRequestException(TravelRequestException::UNAUTHORIZED, Response::HTTP_FORBIDDEN);
         }
 

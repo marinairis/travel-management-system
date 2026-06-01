@@ -21,14 +21,14 @@ class CancelTravelRequestController extends Controller
 
     public function __invoke(CancelTravelRequestRequest $request, int $id): JsonResponse
     {
-        $user          = Auth::user();
+        $user = Auth::user();
         $travelRequest = $this->service->getTravelRequest($id);
 
-        if (!$travelRequest) {
+        if (! $travelRequest) {
             throw new TravelRequestException(TravelRequestException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
 
-        if ($travelRequest->user_id !== $user->id && !$user->isApprover()) {
+        if ($travelRequest->user_id !== $user->id && ! $user->isApprover()) {
             throw new TravelRequestException(TravelRequestException::UNAUTHORIZED, Response::HTTP_FORBIDDEN);
         }
 
@@ -40,7 +40,7 @@ class CancelTravelRequestController extends Controller
             throw new TravelRequestException(TravelRequestException::ALREADY_EXPIRED, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        if (!$this->service->canBeCancelled($travelRequest)) {
+        if (! $this->service->canBeCancelled($travelRequest)) {
             throw new TravelRequestException(TravelRequestException::NOT_CANCELLABLE, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
@@ -49,7 +49,7 @@ class CancelTravelRequestController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('messages.travel_request.cancelled'),
-            'data'    => $cancelled,
+            'data' => $cancelled,
         ]);
     }
 }

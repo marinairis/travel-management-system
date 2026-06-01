@@ -14,7 +14,7 @@ class ListActivityLogsController extends Controller
 {
     public function __invoke(ActivityLogFilterRequest $request): JsonResponse
     {
-        $user  = Auth::user();
+        $user = Auth::user();
         $query = ActivityLog::with(['user' => fn ($userQuery) => $userQuery->select('id', 'name', 'email', 'role')])
             ->orderBy('created_at', 'desc');
 
@@ -26,7 +26,7 @@ class ListActivityLogsController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => $query->paginate($request->get('per_page', 10)),
+            'data' => $query->paginate($request->get('per_page', 10)),
         ]);
     }
 

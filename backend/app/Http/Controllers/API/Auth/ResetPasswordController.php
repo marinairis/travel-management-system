@@ -30,7 +30,7 @@ class ResetPasswordController extends Controller
 
         $messageKeys = [
             Password::INVALID_TOKEN => 'auth.reset_password_invalid_token',
-            Password::INVALID_USER  => 'auth.reset_password_invalid_user',
+            Password::INVALID_USER => 'auth.reset_password_invalid_user',
             Password::RESET_THROTTLED => 'auth.reset_password_throttled',
         ];
 

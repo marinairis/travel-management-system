@@ -156,9 +156,28 @@ if ($status === TravelRequestStatus::APPROVED) { ... }
 
 ---
 
-### 11. Sem Annotations
+### 11. Sem Annotations nos Controllers
 
-Não utilize annotations PHP (`#[Attribute]`) nem docblocks como lógica de negócio. Registre middlewares, bindings e rotas via código explícito.
+Não utilize annotations PHP (`#[Attribute]`) nem docblocks como lógica de negócio nos controllers. Registre middlewares, bindings e rotas via código explícito.
+
+---
+
+### 15. Swagger / OpenAPI
+
+Anotações `@OA\*` ficam em `app/Docs/`, **nunca nos controllers**. Cada arquivo cobre um domínio:
+
+| Arquivo | Domínio |
+|---|---|
+| `app/Docs/AuthDoc.php` | Auth |
+| `app/Docs/TravelRequestDoc.php` | Travel Requests |
+| `app/Docs/UserDoc.php` | Users |
+| `app/Docs/DashboardDoc.php` | Dashboard |
+| `app/Docs/InvitationDoc.php` | Invitations |
+| `app/Docs/LocationDoc.php` | Locations |
+| `app/Docs/ActivityLogDoc.php` | Activity Logs |
+| `app/Docs/NotificationDoc.php` | Notifications |
+
+**Regra obrigatória:** qualquer alteração em um controller (novo parâmetro, response code, rota) ou criação de um novo controller exige atualização/criação do Doc file correspondente. Regenerar com `php artisan l5-swagger:generate`.
 
 ---
 

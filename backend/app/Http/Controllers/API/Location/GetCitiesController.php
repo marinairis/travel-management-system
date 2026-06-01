@@ -23,11 +23,11 @@ class GetCitiesController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data'    => $cities->values(),
-                'meta'    => ['total' => $cities->count(), 'has_query' => $request->filled('q')],
+                'data' => $cities->values(),
+                'meta' => ['total' => $cities->count(), 'has_query' => $request->filled('q')],
             ]);
         } catch (\Exception $e) {
-            Log::error('Erro ao buscar municípios: ' . $e->getMessage());
+            Log::error('Erro ao buscar municípios: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,

@@ -23,15 +23,15 @@ class AcceptInvitationController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$invitation) {
+        if (! $invitation) {
             throw new InvitationException(InvitationException::NOT_FOUND, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $user = User::create([
-            'name'     => $request->name,
-            'email'    => $invitation->email,
+            'name' => $request->name,
+            'email' => $invitation->email,
             'password' => Hash::make($request->password),
-            'role'     => $invitation->role,
+            'role' => $invitation->role,
         ]);
 
         $invitation->accepted_at = now();
@@ -42,7 +42,7 @@ class AcceptInvitationController extends Controller
         return response()->json([
             'success' => true,
             'message' => __('messages.invitation.accepted'),
-            'data'    => ['user' => $user, 'token' => $jwtToken, 'token_type' => 'bearer'],
+            'data' => ['user' => $user, 'token' => $jwtToken, 'token_type' => 'bearer'],
         ], 201);
     }
 }
