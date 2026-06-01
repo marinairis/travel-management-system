@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import api from '@/plugins/axios'
+import * as destinationRepository from '@/plugins/destinationRepository'
 
 export const useDestinationsStore = defineStore('destinations', {
   state: () => ({
@@ -29,7 +29,6 @@ export const useDestinationsStore = defineStore('destinations', {
 
     searchDestinations: (state) => (query) => {
       if (!query) return state.destinations
-
       const searchTerm = query.toLowerCase()
       return state.destinations.filter(
         (dest) =>
@@ -51,18 +50,17 @@ export const useDestinationsStore = defineStore('destinations', {
       this.error = null
 
       try {
-        const response = await api.get('/locations/destinations')
-
+        const response = await destinationRepository.fetchDestinations()
         if (response.data.success) {
           this.destinations = response.data.data
           this.lastFetch = Date.now()
           this.error = null
         } else {
-          throw new Error(response.data.message || 'Erro ao buscar destinos')
+          throw new Error(response.data.message || 'Failed to fetch destinations')
         }
       } catch (error) {
-        console.error('Erro ao buscar destinos:', error)
-        this.error = error.message || 'Erro ao carregar destinos'
+        console.error(error)
+        this.error = error.message || 'Failed to load destinations'
         throw error
       } finally {
         this.loading = false
@@ -75,7 +73,6 @@ export const useDestinationsStore = defineStore('destinations', {
       if (this.isCacheValid && this.destinations.length > 0) {
         return this.destinations
       }
-
       return await this.fetchDestinations()
     },
 

@@ -71,13 +71,13 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { usePasswordResetStore } from '@/stores/passwordReset'
 import { useI18n } from 'vue-i18n'
 import { MapLocation, Message } from '@element-plus/icons-vue'
 
 const { t } = useI18n()
 
-const authStore = useAuthStore()
+const passwordResetStore = usePasswordResetStore()
 
 const formRef = ref(null)
 const loading = ref(false)
@@ -101,7 +101,7 @@ const handleSubmit = async () => {
     if (valid) {
       loading.value = true
       try {
-        await authStore.forgotPassword(formData.email)
+        await passwordResetStore.forgotPassword(formData.email)
         success.value = true
       } catch (error) {
         console.error(t('auth.emailSendError'), error)

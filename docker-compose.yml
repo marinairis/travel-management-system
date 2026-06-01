@@ -46,13 +46,28 @@ services:
       QUEUE_CONNECTION: database
       CACHE_STORE: database
       SESSION_DRIVER: database
-      MAIL_MAILER: log
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: 1025
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      MAIL_ENCRYPTION: ""
       JWT_TTL: 60
       JWT_ALGO: HS256
       L5_SWAGGER_GENERATE_ALWAYS: "true"
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - travel-network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: travel_mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+      - "1025:1025"
     networks:
       - travel-network
 

@@ -280,7 +280,7 @@
     "inviteSubtitle": "Um e-mail será enviado. O usuário definirá sua própria senha.",
     "inviteName": "Nome completo",
     "inviteNamePh": "Maria Silva",
-    "inviteEmailPh": "maria@empresa.com",
+    "inviteEmailPh": "maria{'@'}empresa.com",
     "inviteRoleSelect": "Perfil de acesso",
     "inviteSentTitle": "Convite enviado!",
     "inviteSentMsg": "E-mail enviado para",

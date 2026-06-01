@@ -211,7 +211,7 @@
     "inviteSubtitle": "Se enviará un correo. El usuario definirá su propia contraseña.",
     "inviteName": "Nombre completo",
     "inviteNamePh": "María García",
-    "inviteEmailPh": "maria@empresa.com",
+    "inviteEmailPh": "maria{'@'}empresa.com",
     "inviteRoleSelect": "Perfil de acceso",
     "inviteSentTitle": "¡Invitación enviada!",
     "inviteSentMsg": "Correo enviado a",

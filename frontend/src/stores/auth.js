@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import api from '@/plugins/axios'
+import * as authRepository from '@/plugins/authRepository'
 import router from '@/router'
 import { ElMessage } from 'element-plus'
 
@@ -20,11 +20,11 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(credentials) {
       try {
-        const response = await api.post('/login', credentials)
+        const response = await authRepository.login(credentials)
         if (response.data.success) {
           this.token = response.data.data.token
           this.user = response.data.data.user
-          ElMessage.success('Login realizado com sucesso!')
+          ElMessage.success(response.data.message)
           router.push('/')
         }
       } catch (error) {
@@ -34,11 +34,11 @@ export const useAuthStore = defineStore('auth', {
 
     async register(userData) {
       try {
-        const response = await api.post('/register', userData)
+        const response = await authRepository.register(userData)
         if (response.data.success) {
           this.token = response.data.data.token
           this.user = response.data.data.user
-          ElMessage.success('Cadastro realizado com sucesso!')
+          ElMessage.success(response.data.message)
           router.push('/')
         }
       } catch (error) {
@@ -52,51 +52,30 @@ export const useAuthStore = defineStore('auth', {
         router.push('/login')
         return
       }
+      let successMessage = null
       try {
-        await api.post('/logout')
+        const response = await authRepository.logout()
+        if (response.data.success) successMessage = response.data.message
       } catch (error) {
-        console.error('Erro ao fazer logout:', error)
+        console.error(error)
       } finally {
         this.user = null
         this.token = null
         router.push('/login')
-        ElMessage.success('Logout realizado com sucesso!')
+        if (successMessage) ElMessage.success(successMessage)
       }
     },
 
     async fetchUser() {
       try {
-        const response = await api.get('/me')
+        const response = await authRepository.fetchCurrentUser()
         if (response.data.success) {
           this.user = response.data.data
         }
-      } catch (error) {
+      } catch {
         this.user = null
         this.token = null
         router.push('/login')
-      }
-    },
-
-    async forgotPassword(email) {
-      try {
-        const response = await api.post('/forgot-password', { email })
-        if (response.data.success) {
-          ElMessage.success(response.data.message)
-        }
-      } catch (error) {
-        throw error
-      }
-    },
-
-    async resetPassword(data) {
-      try {
-        const response = await api.post('/reset-password', data)
-        if (response.data.success) {
-          ElMessage.success(response.data.message)
-          router.push('/login')
-        }
-      } catch (error) {
-        throw error
       }
     },
   },

@@ -18,7 +18,7 @@ logs-frontend:
 
 reset:
 	docker compose down -v
-	docker compose up -d
+	docker compose up -d --build
 
 test:
 	docker compose exec backend php artisan test

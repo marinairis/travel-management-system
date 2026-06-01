@@ -146,7 +146,7 @@ import { useRequestStatus } from '@/composables/useRequestStatus'
 
 const { formatDateShort: formatDate, formatDateLong, formatDateTime } = useDateFormat()
 const { travelTypeIcon, getTravelTypeColor, formatRequestId } = useTravelType()
-const { getStatusType, translateStatus } = useRequestStatus()
+const { getStatusType, translateStatus, isSystemCancellation } = useRequestStatus()
 const props = defineProps({
   data: { type: Array, required: true },
   loading: { type: Boolean, default: false },
@@ -200,17 +200,10 @@ const handleEdit = (row) => {
 
 const canChangeStatus = (row) => {
   if (!row) return false
-  if (row.status === 'cancelled' && isCancelledBySystem(row)) return false
+  if (row.status === 'cancelled' && isSystemCancellation(row.status, row.cancel_reason)) return false
   return authStore.isApprover && row.user_id !== authStore.user?.id
 }
 
-const isCancelledBySystem = (row) => {
-  if (!row || row.status !== 'cancelled') return false
-  const systemPatterns = ['usuário desativado', 'usuário excluído', 'Usuário desativado', 'Usuário excluído']
-  return systemPatterns.some(pattern => 
-    row.cancel_reason?.includes(pattern)
-  )
-}
 
 const handleApprove = (row) => {
   selectedRequest.value = row

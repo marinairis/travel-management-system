@@ -8,7 +8,7 @@ Para termos de domínio, consulte [`../docs/language-dictionary.md`](../docs/lan
 ## Arquitetura
 
 ```
-View (*View.vue) → Store (Pinia) → plugins/axios.js → API Backend
+View (*View.vue) → Store (Pinia) → plugins/[domain]Repository.js → plugins/axios.js → API Backend
        ↑
   Component (reutilizável)
        ↑
@@ -19,7 +19,8 @@ View (*View.vue) → Store (Pinia) → plugins/axios.js → API Backend
 |---|---|---|
 | **View** | Página completa, uma por rota. Orquestra stores e componentes. | `src/views/` |
 | **Component** | Bloco de UI reutilizável. Sem chamadas HTTP diretas. | `src/components/` |
-| **Store** | Estado e ações de um domínio. Toda chamada HTTP passa aqui. | `src/stores/` |
+| **Store** | Estado e ações de um domínio. Chama repositórios, nunca o axios diretamente. | `src/stores/` |
+| **Repository** | Endpoints e chamadas HTTP por domínio. Sem lógica de estado. | `src/plugins/*Repository.js` |
 | **Composable** | Lógica reutilizável entre componentes. | `src/composables/` |
 | **axios plugin** | HTTP client com interceptors de auth e erro. | `src/plugins/axios.js` |
 
@@ -84,8 +85,9 @@ const emit = defineEmits(['update', 'cancel'])
 |---|---|
 | Responsabilidade por componente | 1 |
 | Linhas de template por componente | máximo 200 |
+| Linhas por arquivo `.js` | máximo 100 |
 
-Ao ultrapassar 200 linhas de template, quebre em subcomponentes.
+Ao ultrapassar 200 linhas de template, quebre em subcomponentes. Ao ultrapassar 100 linhas em um `.js`, quebre em arquivos com responsabilidade única (não se aplica a `.vue`).
 
 ---
 
@@ -159,5 +161,46 @@ const label = t('travelRequest.status.pending')
 
 - Sem `v-html` com dados vindos do usuário ou da API — risco de XSS.
 - Tokens de autenticação gerenciados exclusivamente pela store `auth` — sem acesso direto ao `localStorage` nos componentes.
-- Inputs sensíveis (senhas) nunca persistidos no estado da store.
+- Inputs sensíveis (senhas, CPF) nunca persistidos no estado da store além do estritamente necessário.
 - Rotas protegidas declaradas via meta `requiresAuth`, `requiresAdmin` no router — não via condicionais nos componentes.
+- Valide e sanitize todos os inputs do usuário nas fronteiras do sistema.
+
+---
+
+## Idioma
+
+- Todos os identificadores em inglês: variáveis, funções, enums, tipos.
+- Strings de chaves i18n e mensagens de tradução são exceção.
+
+---
+
+## Sem Decorators
+
+- Sem decorators ou docblocks como lógica de negócio no código frontend.
+
+---
+
+## Tipagem
+
+- Evite `any`. Use o tipo concreto: `Number`, `String`, `Boolean`, `Array`, `Object`.
+- Funções têm no máximo 3 parâmetros. Se precisar de mais, agrupe em um objeto tipado.
+
+```js
+// Errado
+const fetchData = (id, page, perPage, status, destination) => { ... }
+
+// Correto
+const fetchData = ({ id, page, perPage, status, destination }) => { ... }
+```
+
+---
+
+## Reuso
+
+Antes de criar qualquer composable, componente, store ou repositório, verifique:
+
+- `src/components/` — componentes reutilizáveis de UI
+- `src/composables/` — composables e lógica reutilizável
+- `src/stores/` — stores Pinia por domínio
+- `src/plugins/` — repositórios e HTTP client
+- `src/views/` — views

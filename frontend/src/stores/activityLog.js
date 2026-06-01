@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import api from '@/plugins/axios'
+import * as activityLogRepository from '@/plugins/activityLogRepository'
+import * as userRepository from '@/plugins/userRepository'
 
 export const useActivityLogStore = defineStore('activityLog', {
   state: () => ({
@@ -18,14 +19,13 @@ export const useActivityLogStore = defineStore('activityLog', {
     async fetchLogs(filters = {}) {
       this.loading = true
       try {
-        const params = new URLSearchParams()
-        if (filters.user_id) params.append('user_id', filters.user_id)
-        if (filters.action) params.append('action', filters.action)
-        if (filters.model_type) params.append('model_type', filters.model_type)
-        params.append('per_page', filters.per_page || this.pagination.per_page || 10)
-        params.append('page', filters.page || this.pagination.current_page || 1)
-
-        const response = await api.get(`/activity-logs?${params}`)
+        const response = await activityLogRepository.fetchAll({
+          userId: filters.user_id,
+          action: filters.action,
+          modelType: filters.model_type,
+          perPage: filters.per_page || this.pagination.per_page,
+          page: filters.page || this.pagination.current_page,
+        })
         if (response.data.success) {
           this.logs = response.data.data.data
           this.pagination = {
@@ -36,20 +36,36 @@ export const useActivityLogStore = defineStore('activityLog', {
           }
         }
       } catch (error) {
-        console.error('Erro ao buscar logs:', error)
+        console.error(error)
       } finally {
         this.loading = false
       }
     },
 
+    async fetchForRequest(modelId) {
+      try {
+        const response = await activityLogRepository.fetchForModel({
+          modelId,
+          modelType: 'App\\Models\\TravelRequest',
+          perPage: 20,
+        })
+        if (response.data.success) {
+          return response.data.data?.data || []
+        }
+        return []
+      } catch {
+        return []
+      }
+    },
+
     async fetchUsers() {
       try {
-        const response = await api.get('/users')
+        const response = await userRepository.fetchBasic()
         if (response.data.success) {
           this.users = response.data.data
         }
       } catch (error) {
-        console.error('Erro ao buscar usuários:', error)
+        console.error(error)
       }
     },
   },

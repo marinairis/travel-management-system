@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import api from '@/plugins/axios'
+import * as notificationRepository from '@/plugins/notificationRepository'
 
 export const useNotificationStore = defineStore('notification', {
   state: () => ({
@@ -11,38 +11,38 @@ export const useNotificationStore = defineStore('notification', {
   actions: {
     async fetchNotifications() {
       try {
-        const response = await api.get('/notifications')
+        const response = await notificationRepository.fetchAll()
         if (response.data.success) {
           this.notifications = response.data.data
           this.unreadCount = response.data.unread_count
         }
-      } catch (error) {
+      } catch {
         // Silently fail — polling should not create noise on network errors
       }
     },
 
     async markAsRead(id) {
       try {
-        await api.patch(`/notifications/${id}/read`)
-        const n = this.notifications.find((n) => n.id === id)
-        if (n && !n.read_at) {
-          n.read_at = new Date().toISOString()
+        await notificationRepository.markAsRead(id)
+        const notification = this.notifications.find((n) => n.id === id)
+        if (notification && !notification.read_at) {
+          notification.read_at = new Date().toISOString()
           if (this.unreadCount > 0) this.unreadCount--
         }
       } catch (error) {
-        console.error('Erro ao marcar notificação como lida:', error)
+        console.error(error)
       }
     },
 
     async markAllAsRead() {
       try {
-        await api.patch('/notifications/read-all')
+        await notificationRepository.markAllAsRead()
         this.notifications.forEach((n) => {
           if (!n.read_at) n.read_at = new Date().toISOString()
         })
         this.unreadCount = 0
       } catch (error) {
-        console.error('Erro ao marcar todas as notificações como lidas:', error)
+        console.error(error)
       }
     },
 

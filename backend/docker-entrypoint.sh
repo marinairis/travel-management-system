@@ -9,16 +9,22 @@ if [ ! -f .env ]; then
     cp .env.example .env
 fi
 
-# Força configurações de banco do ambiente Docker no .env,
-# removendo quaisquer linhas DB_ existentes (inclusive comentadas) e reescrevendo com os valores corretos
+# Força configurações de banco e mail do ambiente Docker no .env
 {
-    grep -v "^DB_\|^#.*DB_" .env
+    grep -v "^DB_\|^#.*DB_\|^MAIL_\|^#.*MAIL_" .env
     echo "DB_CONNECTION=${DB_CONNECTION:-mysql}"
     echo "DB_HOST=${DB_HOST:-db}"
     echo "DB_PORT=${DB_PORT:-3306}"
     echo "DB_DATABASE=${DB_DATABASE:-travel_management}"
     echo "DB_USERNAME=${DB_USERNAME:-laravel}"
     echo "DB_PASSWORD=${DB_PASSWORD:-secret}"
+    echo "MAIL_MAILER=${MAIL_MAILER:-log}"
+    echo "MAIL_HOST=${MAIL_HOST:-127.0.0.1}"
+    echo "MAIL_PORT=${MAIL_PORT:-2525}"
+    echo "MAIL_USERNAME=${MAIL_USERNAME:-}"
+    echo "MAIL_PASSWORD=${MAIL_PASSWORD:-}"
+    echo "MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-}"
+    echo "MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-noreply@travelsystem.com}"
 } > /tmp/.env.tmp && mv /tmp/.env.tmp .env
 
 echo "==> Gerando APP_KEY..."

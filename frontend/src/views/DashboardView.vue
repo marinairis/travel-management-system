@@ -98,7 +98,7 @@
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px">
-      <el-card shadow="never" v-loading="travelRequestStore.isLoadingDashboard">
+      <el-card shadow="never" v-loading="dashboardStore.isLoading">
         <template #header>
           <div style="display: flex; align-items: center; justify-content: space-between">
             <div style="display: flex; align-items: center; gap: 8px">
@@ -174,7 +174,7 @@
         </div>
       </el-card>
 
-      <el-card shadow="never" v-loading="travelRequestStore.isLoadingDashboard">
+      <el-card shadow="never" v-loading="dashboardStore.isLoading">
         <template #header>
           <div style="display: flex; align-items: center; justify-content: space-between">
             <div style="display: flex; align-items: center; gap: 8px">
@@ -187,12 +187,12 @@
           </div>
         </template>
         <el-empty
-          v-if="travelRequestStore.recentRequests.length === 0"
+          v-if="dashboardStore.recentRequests.length === 0"
           :description="$t('dashboard.recentEmpty')"
           :image-size="50"
         />
         <div
-          v-for="req in travelRequestStore.recentRequests"
+          v-for="req in dashboardStore.recentRequests"
           :key="req.id"
           style="
             display: flex;
@@ -395,6 +395,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useTravelRequestStore } from '@/stores/travelRequest'
+import { useDashboardStore } from '@/stores/dashboard'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useUserStore } from '@/stores/user'
@@ -427,6 +428,7 @@ const { formatDate } = useDateFormat()
 const { travelTypeIcon, formatRequestId } = useTravelType()
 const { getStatusType, translateStatus } = useRequestStatus()
 const travelRequestStore = useTravelRequestStore()
+const dashboardStore = useDashboardStore()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 const userStore = useUserStore()
@@ -439,14 +441,12 @@ const cancelDialogVisible = ref(false)
 const cancelReason = ref('')
 const selectedRequest = ref(null)
 
-const pendingApproval = computed(() => travelRequestStore.pendingApproval)
-
-const dashboardStats = computed(() => travelRequestStore.dashboardStats)
+const pendingApproval = computed(() => dashboardStore.pendingApproval)
 
 const stats = computed(() => {
-  const byStatus = dashboardStats.value.by_status || {}
+  const byStatus = dashboardStore.stats.by_status || {}
   return {
-    total: dashboardStats.value.total || 0,
+    total: dashboardStore.stats.total || 0,
     pending: byStatus.requested || 0,
     approved: byStatus.approved || 0,
     cancelled: byStatus.cancelled || 0,
@@ -455,7 +455,7 @@ const stats = computed(() => {
 })
 
 const travelTypeStats = computed(() => {
-  const byType = dashboardStats.value.by_travel_type || {}
+  const byType = dashboardStore.stats.by_travel_type || {}
   return [
     { key: 'plane', icon: Promotion,  color: 'var(--travel-type-plane)', count: byType.plane || 0 },
     { key: 'bus',   icon: Van,         color: 'var(--travel-type-bus)',   count: byType.bus   || 0 },
@@ -474,15 +474,15 @@ const sortedTravelTypes = computed(() => {
     }))
 })
 
-const topDestinations = computed(() => dashboardStats.value.top_destinations || [])
+const topDestinations = computed(() => dashboardStore.stats.top_destinations || [])
 
 
 const handleApprove = async (req) => {
   approvingId.value = req.id
   await travelRequestStore.updateStatus(req.id, 'approved')
   approvingId.value = null
-  travelRequestStore.fetchPendingApproval()
-  travelRequestStore.fetchDashboardStats()
+  dashboardStore.fetchPendingApproval()
+  dashboardStore.fetchStats()
 }
 
 const handleCancel = (req) => {
@@ -493,13 +493,13 @@ const handleCancel = (req) => {
 
 const confirmCancel = async () => {
   cancellingId.value = true
-  await travelRequestStore.cancelWithReason(selectedRequest.value.id, cancelReason.value)
+  await travelRequestStore.cancelTravelRequest(selectedRequest.value.id, cancelReason.value)
   cancellingId.value = false
   cancelReason.value = ''
   cancelDialogVisible.value = false
   selectedRequest.value = null
-  travelRequestStore.fetchPendingApproval()
-  travelRequestStore.fetchDashboardStats()
+  dashboardStore.fetchPendingApproval()
+  dashboardStore.fetchStats()
 }
 
 const handleCreate = async (data) => {
@@ -509,9 +509,9 @@ const handleCreate = async (data) => {
 
 onMounted(() => {
   themeStore.initTheme()
-  travelRequestStore.fetchDashboardStats()
-  travelRequestStore.fetchPendingApproval()
-  travelRequestStore.fetchRecentRequests()
+  dashboardStore.fetchStats()
+  dashboardStore.fetchPendingApproval()
+  dashboardStore.fetchRecentRequests()
   userStore.fetchBasicUsers()
   destinationsStore.getDestinations()
 })

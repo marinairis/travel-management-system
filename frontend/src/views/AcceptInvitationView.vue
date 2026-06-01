@@ -89,17 +89,15 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useRoute } from 'vue-router'
+import { useInvitationStore } from '@/stores/invitation'
 import { useI18n } from 'vue-i18n'
 import { MapLocation, User, Lock, Loading } from '@element-plus/icons-vue'
 import LanguageSelector from '@/components/LanguageSelector.vue'
-import api from '@/plugins/axios'
 
 const { t } = useI18n()
 const route = useRoute()
-const router = useRouter()
-const authStore = useAuthStore()
+const invitationStore = useInvitationStore()
 
 const formRef = ref(null)
 const loading = ref(true)
@@ -145,9 +143,9 @@ const rules = {
 
 onMounted(async () => {
   try {
-    const response = await api.get(`/invitations/${route.params.token}`)
-    if (response.data.success) {
-      invitation.value = response.data.data
+    const data = await invitationStore.fetchInvitation(route.params.token)
+    if (data) {
+      invitation.value = data
     } else {
       error.value = true
     }
@@ -165,14 +163,9 @@ const handleAccept = async () => {
     if (valid) {
       submitting.value = true
       try {
-        const response = await api.post(`/invitations/${route.params.token}/accept`, formData)
-        if (response.data.success) {
-          const { user, token } = response.data.data
-          authStore.$patch({ user, token })
-          router.push('/')
-        }
-      } catch (err) {
-        console.error('Erro ao aceitar convite:', err)
+        const accepted = await invitationStore.acceptInvitation(route.params.token, formData)
+        if (!accepted) error.value = true
+      } catch {
         error.value = true
       } finally {
         submitting.value = false

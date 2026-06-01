@@ -14,5 +14,11 @@ export function useRequestStatus() {
       expired: t('status.expired'),
     })[status] || status
 
-  return { getStatusType, translateStatus }
+  const isSystemCancellation = (status, cancelReason) => {
+    if (status !== 'cancelled') return false
+    const systemPatterns = ['usuário desativado', 'usuário excluído', 'Usuário desativado', 'Usuário excluído']
+    return systemPatterns.some((pattern) => cancelReason?.includes(pattern))
+  }
+
+  return { getStatusType, translateStatus, isSystemCancellation }
 }

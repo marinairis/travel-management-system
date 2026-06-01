@@ -199,9 +199,9 @@
 
 <script setup>
 import TravelRequestForm from '@/components/TravelRequestForm.vue'
-import api from '@/plugins/axios'
 import { useAuthStore } from '@/stores/auth'
 import { useTravelRequestStore } from '@/stores/travelRequest'
+import { useActivityLogStore } from '@/stores/activityLog'
 import { Edit } from '@element-plus/icons-vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -213,11 +213,12 @@ import { useRequestStatus } from '@/composables/useRequestStatus'
 const { t } = useI18n()
 const { formatDateWithYear: formatDate, formatDateTimeCompact: formatDateTime } = useDateFormat()
 const { travelTypeIcon, getTravelTypeColor, formatRequestId } = useTravelType()
-const { getStatusType, translateStatus } = useRequestStatus()
+const { getStatusType, translateStatus, isSystemCancellation } = useRequestStatus()
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
 const travelRequestStore = useTravelRequestStore()
+const activityLogStore = useActivityLogStore()
 
 const request = ref(null)
 const timeline = ref([])
@@ -270,14 +271,9 @@ const canCancelRequest = computed(() => {
   return true
 })
 
-const isCancelledBySystem = computed(() => {
-  if (!request.value || request.value.status !== 'cancelled') return false
-  // Verifica se tem cancel_reason que indica cancelamento pelo sistema
-  const systemPatterns = ['usuário desativado', 'usuário excluído', 'Usuário desativado', 'Usuário excluído']
-  return systemPatterns.some(pattern => 
-    request.value.cancel_reason?.includes(pattern)
-  )
-})
+const isCancelledBySystem = computed(() =>
+  isSystemCancellation(request.value?.status, request.value?.cancel_reason)
+)
 
 const handleGoBack = () => {
   if (window.history.length > 2) {
@@ -300,34 +296,19 @@ const timelineType = (action) =>
 
 const fetchRequest = async () => {
   loading.value = true
-  try {
-    const res = await api.get(`/travel-requests/${route.params.id}`)
-    if (res.data.success) {
-      request.value = res.data.data
-      editFormData.value = {
-        requester_name: request.value.requester_name,
-        destination: request.value.destination,
-        travel_type: request.value.travel_type,
-        notes: request.value.notes,
-        departure_date: request.value.departure_date,
-        return_date: request.value.return_date,
-      }
+  const data = await travelRequestStore.fetchRequestDetail(route.params.id)
+  request.value = data
+  if (data) {
+    editFormData.value = {
+      requester_name: data.requester_name,
+      destination: data.destination,
+      travel_type: data.travel_type,
+      notes: data.notes,
+      departure_date: data.departure_date,
+      return_date: data.return_date,
     }
-  } catch {
-    request.value = null
   }
-
-  try {
-    const logsRes = await api.get('/activity-logs', {
-      params: { model_id: route.params.id, model_type: 'App\\Models\\TravelRequest', per_page: 20 },
-    })
-    if (logsRes.data.success) {
-      timeline.value = logsRes.data.data?.data || []
-    }
-  } catch {
-    timeline.value = []
-  }
-
+  timeline.value = await activityLogStore.fetchForRequest(route.params.id)
   loading.value = false
 }
 

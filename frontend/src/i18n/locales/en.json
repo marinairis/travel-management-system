@@ -211,7 +211,7 @@
     "inviteSubtitle": "An invite email will be sent. The user will set their own password.",
     "inviteName": "Full name",
     "inviteNamePh": "Jane Smith",
-    "inviteEmailPh": "jane@company.com",
+    "inviteEmailPh": "jane{'@'}company.com",
     "inviteRoleSelect": "Access role",
     "inviteSentTitle": "Invite sent!",
     "inviteSentMsg": "Email sent to",
