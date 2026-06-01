@@ -32,7 +32,7 @@ describe('travelRequest store', () => {
   it('estado inicial está vazio', () => {
     const store = useTravelRequestStore()
     expect(store.travelRequests).toEqual([])
-    expect(store.loading).toBe(false)
+    expect(store.isLoading).toBe(false)
   })
 
   it('fetchTravelRequests popula a lista', async () => {
@@ -42,7 +42,7 @@ describe('travelRequest store', () => {
     await store.fetchTravelRequests()
 
     expect(store.travelRequests).toEqual(mockRequests)
-    expect(store.loading).toBe(false)
+    expect(store.isLoading).toBe(false)
   })
 
   it('fetchTravelRequests envia filtro de status na URL', async () => {
@@ -122,10 +122,10 @@ describe('travelRequest store', () => {
     api.get.mockReturnValueOnce(new Promise((res) => { resolveGet = res }))
 
     const fetchPromise = store.fetchTravelRequests()
-    expect(store.loading).toBe(true)
+    expect(store.isLoading).toBe(true)
 
     resolveGet({ data: { success: true, data: [] } })
     await fetchPromise
-    expect(store.loading).toBe(false)
+    expect(store.isLoading).toBe(false)
   })
 })

@@ -117,3 +117,24 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: var(--el-border-color-dark);
 }
+
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0 4px;
+  border-top: 1px solid var(--el-border-color);
+}
+
+.voa-data-card .el-table__body-wrapper {
+  overflow-y: auto;
+  max-height: calc(100vh - 340px);
+}
+
+.clickable-tag {
+  cursor: pointer;
+  font-weight: 500;
+}
+.clickable-tag:hover {
+  opacity: 0.8;
+}

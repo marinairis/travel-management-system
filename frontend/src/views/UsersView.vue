@@ -53,8 +53,8 @@
       </el-form>
     </el-card>
 
-    <el-card shadow="never" class="voa-users-card">
-      <el-table :data="tableRows" v-loading="userStore.loading" style="width: 100%">
+    <el-card shadow="never" class="voa-data-card">
+      <el-table :data="tableRows" v-loading="userStore.isLoading" style="width: 100%">
         <el-table-column :label="$t('users.name')" min-width="150">
           <template #default="scope">
             <div v-if="scope.row.is_invited" style="display: flex; align-items: center; gap: 10px">
@@ -309,6 +309,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAvatar } from '@/composables/useAvatar'
 import { useRole } from '@/composables/useRole'
+import { useListPage } from '@/composables/useListPage'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -333,8 +334,7 @@ const tableRows = computed(() => [
   ...userStore.users,
 ])
 
-const currentPage = ref(1)
-const pageSize = ref(10)
+const { currentPage, pageSize, paginationParams, resetPage } = useListPage(route)
 
 const filters = reactive({
   userType: '',
@@ -374,19 +374,13 @@ const loadFiltersFromQuery = () => {
   filters.userType = route.query.user_type || ''
   filters.status = route.query.status || ''
   filters.email = route.query.email || ''
-  currentPage.value = parseInt(route.query.page) || 1
-  pageSize.value = parseInt(route.query.per_page) || 10
 }
+
+const fetchUsers = () => userStore.fetchUsers({ ...filters, ...paginationParams() })
 
 const handleFilter = () => {
   updateQueryParams()
-  userStore.fetchUsers({
-    userType: filters.userType,
-    status: filters.status,
-    email: filters.email,
-    page: currentPage.value,
-    per_page: pageSize.value,
-  })
+  fetchUsers()
 }
 
 let emailTimeout = null
@@ -399,20 +393,14 @@ const handleReset = () => {
   filters.userType = ''
   filters.status = ''
   filters.email = ''
-  currentPage.value = 1
+  resetPage()
   router.replace({ query: {} })
-  handleFilter()
+  fetchUsers()
 }
 
 const handlePageChange = () => {
   updateQueryParams()
-  userStore.fetchUsers({
-    userType: filters.userType,
-    status: filters.status,
-    email: filters.email,
-    page: currentPage.value,
-    per_page: pageSize.value,
-  })
+  fetchUsers()
 }
 
 const openInvite = () => {
@@ -429,13 +417,7 @@ const resetInviteForm = () => {
 
 onMounted(() => {
   loadFiltersFromQuery()
-  userStore.fetchUsers({
-    userType: filters.userType,
-    status: filters.status,
-    email: filters.email,
-    page: currentPage.value,
-    per_page: pageSize.value,
-  })
+  fetchUsers()
 })
 
 const handleEdit = (user) => {
@@ -528,7 +510,6 @@ const handleStatusClick = async (user) => {
   
   let message
   if (user.is_active) {
-    // Buscar contagem de pedidos pendentes para desativação
     const count = await userStore.getPendingRequestsCount(user.id)
     message = count > 0
       ? t('users.confirmDeactivateMessage', { name: user.name, count: count })
@@ -548,27 +529,3 @@ const handleStatusClick = async (user) => {
   }
 }
 </script>
-
-<style scoped>
-.voa-users-card :deep(.el-table__body-wrapper) {
-  overflow-y: auto;
-  max-height: calc(100vh - 340px);
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 0 4px;
-  border-top: 1px solid var(--el-border-color);
-}
-
-.clickable-tag {
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.clickable-tag:hover {
-  opacity: 0.8;
-}
-</style>

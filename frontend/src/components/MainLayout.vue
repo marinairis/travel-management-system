@@ -4,9 +4,11 @@
 
     <el-container height="100vh">
       <el-aside :class="['voa-aside', sidebarOpen ? 'is-open' : '']" width="248px">
-        <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
+        <div style="display: flex; flex-direction: column; height: 100%; overflow: hidden">
           <div class="voa-brand">
-            <div class="voa-brand-icon">✈</div>
+            <el-icon :size="36" class="voa-brand-name">
+              <Place />
+            </el-icon>
             <div>
               <div class="voa-brand-name">{{ $t('auth.title') }}</div>
               <div class="voa-brand-tag">{{ $t('navigation.tagline') }}</div>
@@ -15,7 +17,7 @@
 
           <el-menu
             :default-active="activeMenu"
-            style="flex:1;overflow-y:auto;border-right:none;background:transparent"
+            style="flex: 1; overflow-y: auto; border-right: none; background: transparent"
             @select="handleMenuSelect"
           >
             <div class="voa-nav-section">{{ $t('navigation.sectionMain') }}</div>
@@ -37,7 +39,7 @@
                 <el-badge
                   v-if="notificationStore.unreadCount > 0"
                   :value="notificationStore.unreadCount"
-                  style="margin-left:auto"
+                  style="margin-left: auto"
                 />
               </template>
             </el-menu-item>
@@ -66,11 +68,16 @@
             <div class="voa-user-chip" @click="handleMenuSelect('settings')">
               <el-avatar
                 :size="32"
-                :style="{ background: avatarBg(authStore.user?.id || 'x'), color: '#fff', fontSize: '12px', fontWeight: 700 }"
+                :style="{
+                  background: avatarBg(authStore.user?.id || 'x'),
+                  color: '#fff',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                }"
               >
                 {{ initials(authStore.user?.name || '?') }}
               </el-avatar>
-              <div style="flex:1;min-width:0">
+              <div style="flex: 1; min-width: 0">
                 <div class="voa-user-name">{{ authStore.user?.name }}</div>
                 <div class="voa-user-role">{{ roleLabel }}</div>
               </div>
@@ -112,7 +119,7 @@ const route = useRoute()
 const sidebarOpen = ref(false)
 const isMobile = ref(false)
 
-const sidebarWidth = computed(() => isMobile.value ? '248px' : '248px')
+const sidebarWidth = computed(() => (isMobile.value ? '248px' : '248px'))
 
 const activeMenu = computed(() => {
   const path = route.path

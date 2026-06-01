@@ -35,7 +35,7 @@
             style="width: 280px"
             clearable
             filterable
-            :loading="destinationsStore.loading"
+            :loading="destinationsStore.isLoading"
             @change="handleFilter"
             @focus="loadDestinations"
           />
@@ -61,10 +61,10 @@
       </el-form>
     </el-card>
 
-    <el-card shadow="never" class="voa-table-card">
+    <el-card shadow="never" class="voa-data-card">
       <TravelRequestTable
         :data="travelRequestStore.travelRequests"
-        :loading="travelRequestStore.loading"
+        :loading="travelRequestStore.isLoading"
         @cancel="handleCancel"
         @approve="handleApprove"
         @status-change="handleStatusChange"
@@ -121,6 +121,7 @@ import { useI18n } from 'vue-i18n'
 import { Refresh } from '@element-plus/icons-vue'
 import TravelRequestTable from '@/components/TravelRequestTable.vue'
 import TravelRequestForm from '@/components/TravelRequestForm.vue'
+import { useListPage } from '@/composables/useListPage'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -129,14 +130,14 @@ const travelRequestStore = useTravelRequestStore()
 const destinationsStore = useDestinationsStore()
 const userStore = useUserStore()
 
+const { currentPage, pageSize, paginationParams, resetPage } = useListPage(route)
+
 const showCreateDialog = ref(false)
 const showEditDialog = ref(false)
 const formRef = ref(null)
 const editFormRef = ref(null)
 const editingRequest = ref({})
 const dateRange = ref([])
-const currentPage = ref(1)
-const pageSize = ref(10)
 
 const filters = reactive({
   status: '',
@@ -172,9 +173,7 @@ const loadFiltersFromQuery = () => {
   filters.destination = route.query.destination || ''
   filters.start_date = route.query.start_date || ''
   filters.end_date = route.query.end_date || ''
-  currentPage.value = parseInt(route.query.page) || 1
-  pageSize.value = parseInt(route.query.per_page) || 10
-  
+
   if (filters.start_date && filters.end_date) {
     dateRange.value = [filters.start_date, filters.end_date]
   } else {
@@ -184,7 +183,7 @@ const loadFiltersFromQuery = () => {
 
 const handleFilter = () => {
   updateQueryParams()
-  travelRequestStore.fetchTravelRequests({ ...filters, page: currentPage.value, per_page: pageSize.value })
+  travelRequestStore.fetchTravelRequests({ ...filters, ...paginationParams() })
 }
 
 const handleDateChange = (dates) => {
@@ -204,8 +203,9 @@ const handleReset = () => {
   filters.start_date = ''
   filters.end_date = ''
   dateRange.value = []
+  resetPage()
   router.replace({ query: {} })
-  handleFilter()
+  travelRequestStore.fetchTravelRequests({ ...filters, ...paginationParams() })
 }
 
 const handleCreate = async (data) => {
@@ -239,38 +239,19 @@ const handleUpdate = async (data) => {
   if (success) {
     showEditDialog.value = false
     editingRequest.value = {}
-    travelRequestStore.fetchTravelRequests({ ...filters, page: currentPage.value, per_page: pageSize.value })
+    travelRequestStore.fetchTravelRequests({ ...filters, ...paginationParams() })
   }
 }
 
 const handlePageChange = () => {
   updateQueryParams()
-  travelRequestStore.fetchTravelRequests({
-    ...filters,
-    page: currentPage.value,
-    per_page: pageSize.value,
-  })
+  travelRequestStore.fetchTravelRequests({ ...filters, ...paginationParams() })
 }
 
 onMounted(async () => {
   loadFiltersFromQuery()
-  travelRequestStore.fetchTravelRequests({ ...filters, page: currentPage.value, per_page: pageSize.value })
+  travelRequestStore.fetchTravelRequests({ ...filters, ...paginationParams() })
   userStore.fetchBasicUsers()
   await loadDestinations()
 })
 </script>
-
-<style scoped>
-.voa-table-card :deep(.el-table__body-wrapper) {
-  overflow-y: auto;
-  max-height: calc(100vh - 340px);
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 0 4px;
-  border-top: 1px solid var(--el-border-color);
-}
-</style>

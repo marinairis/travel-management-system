@@ -1,11 +1,12 @@
 <template>
-  <div class="forgot-container">
+  <div class="auth-container">
     <div class="language-selector-container">
+      <LanguageSelector />
     </div>
-    <el-card class="forgot-card">
+    <el-card class="auth-card">
       <template #header>
-        <div class="card-header">
-          <el-icon :size="32" color="#409EFF">
+        <div class="auth-card-header">
+          <el-icon :size="32" class="auth-icon">
             <MapLocation />
           </el-icon>
           <h2>{{ $t('auth.forgotPassword') }}</h2>
@@ -50,18 +51,18 @@
           <el-button
             v-if="!success"
             type="primary"
-            style="width: 100%"
+            class="auth-button"
             :loading="loading"
             @click="handleSubmit"
           >
             {{ $t('auth.sendLink') }}
           </el-button>
-          <el-button v-else style="width: 100%" @click="$router.push('/login')">
+          <el-button v-else class="auth-button" @click="$router.push('/login')">
             {{ $t('auth.backToLogin') }}
           </el-button>
         </el-form-item>
 
-        <div class="form-links">
+        <div class="auth-form-links center">
           <router-link to="/login">{{ $t('auth.backToLogin') }}</router-link>
         </div>
       </el-form>
@@ -74,6 +75,7 @@ import { ref, reactive } from 'vue'
 import { usePasswordResetStore } from '@/stores/passwordReset'
 import { useI18n } from 'vue-i18n'
 import { MapLocation, Message } from '@element-plus/icons-vue'
+import LanguageSelector from '@/components/LanguageSelector.vue'
 
 const { t } = useI18n()
 
@@ -112,55 +114,3 @@ const handleSubmit = async () => {
   })
 }
 </script>
-
-<style scoped>
-.forgot-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
-  position: relative;
-}
-
-.language-selector-container {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-}
-
-.forgot-card {
-  width: 100%;
-  max-width: 400px;
-}
-
-.card-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.card-header h2 {
-  margin: 0;
-  font-size: 24px;
-}
-
-.form-links {
-  display: flex;
-  justify-content: center;
-  margin-top: 16px;
-}
-
-.form-links a {
-  color: var(--el-color-primary);
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.form-links a:hover {
-  text-decoration: underline;
-}
-</style>

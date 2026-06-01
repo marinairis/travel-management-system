@@ -6,13 +6,13 @@ export const useTravelRequestStore = defineStore('travelRequest', {
   state: () => ({
     travelRequests: [],
     currentRequest: null,
-    loading: false,
+    isLoading: false,
     pagination: { current_page: 1, last_page: 1, per_page: 10, total: 0 },
   }),
 
   actions: {
     async fetchTravelRequests(filters = {}) {
-      this.loading = true
+      this.isLoading = true
       try {
         const response = await travelRequestRepository.fetchAll(filters)
         if (response.data.success) {
@@ -22,12 +22,12 @@ export const useTravelRequestStore = defineStore('travelRequest', {
       } catch (error) {
         console.error(error)
       } finally {
-        this.loading = false
+        this.isLoading = false
       }
     },
 
     async fetchRequestDetail(id) {
-      this.loading = true
+      this.isLoading = true
       try {
         const response = await travelRequestRepository.getById(id)
         if (response.data.success) {
@@ -39,7 +39,7 @@ export const useTravelRequestStore = defineStore('travelRequest', {
         this.currentRequest = null
         return null
       } finally {
-        this.loading = false
+        this.isLoading = false
       }
     },
 

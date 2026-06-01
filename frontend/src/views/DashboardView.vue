@@ -372,23 +372,11 @@
       <TravelRequestForm @submit="handleCreate" @cancel="showCreateDialog = false" />
     </el-dialog>
 
-    <el-dialog v-model="cancelDialogVisible" :title="$t('travelRequest.cancelTitle')" width="450px" align-center>
-      <p>{{ $t('travelRequest.cancelConfirmMessage') }}</p>
-      <el-form-item :label="$t('travelRequest.cancelReasonLabel')" required style="margin-top: 16px;">
-        <el-input
-          v-model="cancelReason"
-          type="textarea"
-          :rows="3"
-          :placeholder="$t('travelRequest.cancelReasonPlaceholder')"
-        />
-      </el-form-item>
-      <template #footer>
-        <el-button @click="cancelDialogVisible = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="warning" @click="confirmCancel" :loading="cancellingId" :disabled="!cancelReason.trim()">
-          {{ $t('common.confirm') }}
-        </el-button>
-      </template>
-    </el-dialog>
+    <CancelRequestDialog
+      v-model="cancelDialogVisible"
+      :is-loading="!!cancellingId"
+      @confirm="confirmCancel"
+    />
   </div>
 </template>
 
@@ -422,6 +410,7 @@ import {
 import { useDateFormat } from '@/composables/useDateFormat'
 import { useTravelType } from '@/composables/useTravelType'
 import { useRequestStatus } from '@/composables/useRequestStatus'
+import CancelRequestDialog from '@/components/CancelRequestDialog.vue'
 
 const { t } = useI18n()
 const { formatDate } = useDateFormat()
@@ -436,9 +425,8 @@ const destinationsStore = useDestinationsStore()
 
 const showCreateDialog = ref(false)
 const approvingId = ref(null)
-const cancellingId = ref(null)
+const cancellingId = ref(false)
 const cancelDialogVisible = ref(false)
-const cancelReason = ref('')
 const selectedRequest = ref(null)
 
 const pendingApproval = computed(() => dashboardStore.pendingApproval)
@@ -487,15 +475,13 @@ const handleApprove = async (req) => {
 
 const handleCancel = (req) => {
   selectedRequest.value = req
-  cancelReason.value = ''
   cancelDialogVisible.value = true
 }
 
-const confirmCancel = async () => {
+const confirmCancel = async (reason) => {
   cancellingId.value = true
-  await travelRequestStore.cancelTravelRequest(selectedRequest.value.id, cancelReason.value)
+  await travelRequestStore.cancelTravelRequest(selectedRequest.value.id, reason)
   cancellingId.value = false
-  cancelReason.value = ''
   cancelDialogVisible.value = false
   selectedRequest.value = null
   dashboardStore.fetchPendingApproval()

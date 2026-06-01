@@ -6,9 +6,9 @@
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:200px 1fr;gap:18px;align-items:start">
-      <el-card shadow="never" style="padding:0">
-        <el-menu :default-active="activeTab" @select="activeTab = $event" style="border-right:none">
+    <div class="settings-layout">
+      <el-card shadow="never" class="settings-nav-card">
+        <el-menu :default-active="activeTab" @select="activeTab = $event" class="settings-nav-menu">
           <el-menu-item index="profile">{{ $t('settings.profileTab') }}</el-menu-item>
           <el-menu-item index="appearance">{{ $t('settings.appearanceTab') }}</el-menu-item>
           <el-menu-item index="language">{{ $t('settings.languageTab') }}</el-menu-item>
@@ -18,7 +18,7 @@
 
       <el-card shadow="never">
         <div v-if="activeTab === 'profile'">
-          <div style="display:flex;align-items:center;gap:14px;padding-bottom:18px;margin-bottom:4px;border-bottom:1px solid var(--el-border-color)">
+          <div class="settings-profile-header">
             <el-avatar
               :size="52"
               :style="{ background: avatarBg(authStore.user?.id || 'x'), color: '#fff', fontSize: '14px', fontWeight: 700 }"
@@ -26,59 +26,59 @@
               {{ initials(authStore.user?.name || '?') }}
             </el-avatar>
             <div>
-              <div style="font-weight:700;font-size:16px">{{ authStore.user?.name }}</div>
-              <div style="color:var(--el-text-color-secondary);font-size:13px;margin-top:2px">{{ authStore.user?.email }}</div>
-              <el-tag :type="roleTagType" size="small" style="margin-top:6px">{{ roleLabel }}</el-tag>
+              <div class="settings-profile-name">{{ authStore.user?.name }}</div>
+              <div class="settings-profile-email">{{ authStore.user?.email }}</div>
+              <el-tag :type="roleTagType" size="small" class="settings-profile-tag">{{ roleLabel }}</el-tag>
             </div>
           </div>
-          <div style="margin-top:16px;display:flex;flex-direction:column;gap:14px">
+          <div class="settings-fields">
             <div>
-              <div style="font-size:13px;font-weight:500;margin-bottom:5px;color:var(--el-text-color-regular)">{{ $t('settings.name') }}</div>
+              <div class="settings-field-label">{{ $t('settings.name') }}</div>
               <el-input :model-value="authStore.user?.name" disabled />
             </div>
             <div>
-              <div style="font-size:13px;font-weight:500;margin-bottom:5px;color:var(--el-text-color-regular)">{{ $t('settings.email') }}</div>
+              <div class="settings-field-label">{{ $t('settings.email') }}</div>
               <el-input :model-value="authStore.user?.email" disabled />
             </div>
             <div>
-              <div style="font-size:13px;font-weight:500;margin-bottom:5px;color:var(--el-text-color-regular)">{{ $t('settings.role') }}</div>
+              <div class="settings-field-label">{{ $t('settings.role') }}</div>
               <el-input :model-value="roleLabel" disabled />
             </div>
           </div>
         </div>
 
         <div v-else-if="activeTab === 'appearance'">
-          <div style="font-weight:700;margin-bottom:14px">{{ $t('settings.appearanceTab') }}</div>
-          <div style="display:flex;flex-direction:column;gap:8px;max-width:280px">
+          <div class="settings-section-title">{{ $t('settings.appearanceTab') }}</div>
+          <div class="settings-options-list">
             <div
               :class="['voa-theme-opt', !themeStore.isDark ? 'active' : '']"
               @click="setTheme(false)"
             >
               <span>☀ {{ $t('settings.themeLight') }}</span>
-              <span v-if="!themeStore.isDark" style="margin-left:auto;color:var(--el-color-primary)">✓</span>
+              <span v-if="!themeStore.isDark" class="settings-option-check">✓</span>
             </div>
             <div
               :class="['voa-theme-opt', themeStore.isDark ? 'active' : '']"
               @click="setTheme(true)"
             >
               <span>🌙 {{ $t('settings.themeDark') }}</span>
-              <span v-if="themeStore.isDark" style="margin-left:auto;color:var(--el-color-primary)">✓</span>
+              <span v-if="themeStore.isDark" class="settings-option-check">✓</span>
             </div>
           </div>
         </div>
 
         <div v-else-if="activeTab === 'language'">
-          <div style="font-weight:700;margin-bottom:14px">{{ $t('settings.languageTab') }}</div>
-          <div style="display:flex;flex-direction:column;gap:8px;max-width:280px">
+          <div class="settings-section-title">{{ $t('settings.languageTab') }}</div>
+          <div class="settings-options-list">
             <div
               v-for="l in locales"
               :key="l.code"
               :class="['voa-lang-opt', localeStore.currentLocale === l.code ? 'active' : '']"
               @click="setLocale(l.code)"
             >
-              <span style="font-size:18px">{{ l.flag }}</span>
+              <span class="settings-locale-flag">{{ l.flag }}</span>
               {{ l.label }}
-              <span v-if="localeStore.currentLocale === l.code" style="margin-left:auto;color:var(--el-color-primary)">✓</span>
+              <span v-if="localeStore.currentLocale === l.code" class="settings-option-check">✓</span>
             </div>
           </div>
         </div>
@@ -86,8 +86,8 @@
         <div v-else-if="activeTab === 'notifications'">
           <div class="voa-notif-setting">
             <div>
-              <div style="font-weight:600">{{ $t('settings.notifPush') }}</div>
-              <div style="font-size:13px;color:var(--el-text-color-secondary)">{{ $t('settings.notifPushDesc') }}</div>
+              <div class="settings-notif-title">{{ $t('settings.notifPush') }}</div>
+              <div class="settings-notif-desc">{{ $t('settings.notifPushDesc') }}</div>
             </div>
             <el-switch v-model="notifPush" />
           </div>
@@ -134,9 +134,92 @@ const setLocale = (code) => {
 </script>
 
 <style scoped>
+.settings-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.settings-nav-card :deep(.el-card__body) {
+  padding: 0;
+}
+
+.settings-nav-menu {
+  border-right: none;
+}
+
+.settings-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 18px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--el-border-color);
+}
+
+.settings-profile-name {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.settings-profile-email {
+  color: var(--el-text-color-secondary);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.settings-profile-tag {
+  margin-top: 6px;
+}
+
+.settings-fields {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-field-label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: var(--el-text-color-regular);
+}
+
+.settings-section-title {
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.settings-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 280px;
+}
+
+.settings-option-check {
+  margin-left: auto;
+  color: var(--el-color-primary);
+}
+
+.settings-locale-flag {
+  font-size: 18px;
+}
+
+.settings-notif-title {
+  font-weight: 600;
+}
+
+.settings-notif-desc {
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
+}
+
 @media (max-width: 768px) {
-  div[style*="grid-template-columns:200px"] {
-    grid-template-columns: 1fr !important;
+  .settings-layout {
+    grid-template-columns: 1fr;
   }
 }
 </style>

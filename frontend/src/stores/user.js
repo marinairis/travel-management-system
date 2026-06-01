@@ -7,14 +7,14 @@ export const useUserStore = defineStore('user', {
     users: [],
     pendingInvitations: [],
     basicUsers: [],
-    loading: false,
+    isLoading: false,
     pagination: { current_page: 1, last_page: 1, per_page: 10, total: 0 },
     filters: { userType: '', email: '' },
   }),
 
   actions: {
     async fetchUsers(filters = {}) {
-      this.loading = true
+      this.isLoading = true
       try {
         const filterData = filters || this.filters
         const response = await userRepository.fetchAll({
@@ -32,7 +32,7 @@ export const useUserStore = defineStore('user', {
       } catch (error) {
         console.error(error)
       } finally {
-        this.loading = false
+        this.isLoading = false
       }
     },
 

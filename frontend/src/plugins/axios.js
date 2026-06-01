@@ -3,6 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useLocaleStore } from '@/stores/locale'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
+import { i18n } from '@/i18n'
 
 const api = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api`,
@@ -33,19 +34,20 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response) {
+      const t = (key) => i18n.global.t(key)
       switch (error.response.status) {
         case 401:
           const authStore = useAuthStore()
           if (authStore.token) {
             authStore.logout()
-            ElMessage.error('Sessão expirada. Faça login novamente.')
+            ElMessage.error(t('errors.sessionExpired'))
           }
           break
         case 403:
-          ElMessage.error('Você não tem permissão para realizar esta ação.')
+          ElMessage.error(t('errors.forbidden'))
           break
         case 404:
-          ElMessage.error('Recurso não encontrado.')
+          ElMessage.error(t('errors.notFound'))
           break
         case 422:
           if (error.response.data.errors) {
@@ -54,13 +56,13 @@ api.interceptors.response.use(
           }
           break
         case 500:
-          ElMessage.error('Erro interno do servidor.')
+          ElMessage.error(t('errors.serverError'))
           break
         default:
-          ElMessage.error(error.response.data.message || 'Erro desconhecido.')
+          ElMessage.error(error.response.data.message || t('errors.unknownError'))
       }
     } else if (error.request) {
-      ElMessage.error('Erro de conexão com o servidor.')
+      ElMessage.error(i18n.global.t('errors.connectionError'))
     }
     return Promise.reject(error)
   },

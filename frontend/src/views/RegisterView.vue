@@ -76,10 +76,12 @@ import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
 import { MapLocation, Message, Lock, User } from '@element-plus/icons-vue'
 import LanguageSelector from '@/components/LanguageSelector.vue'
+import { usePasswordValidation } from '@/composables/usePasswordValidation'
 
 const { t } = useI18n()
 
 const authStore = useAuthStore()
+const { passwordComplexityRule, passwordMatchRule } = usePasswordValidation()
 
 const formRef = ref(null)
 const loading = ref(false)
@@ -91,14 +93,6 @@ const formData = reactive({
   password_confirmation: '',
 })
 
-const validatePasswordMatch = (rule, value, callback) => {
-  if (value !== formData.password) {
-    callback(new Error(t('auth.passwordsDoNotMatch')))
-  } else {
-    callback()
-  }
-}
-
 const rules = {
   name: [{ required: true, message: t('users.nameRequired'), trigger: 'blur' }],
   email: [
@@ -108,20 +102,11 @@ const rules = {
   password: [
     { required: true, message: t('auth.passwordRequired'), trigger: 'blur' },
     { min: 8, message: t('auth.passwordMinLength'), trigger: 'blur' },
-    {
-      validator: (rule, value, cb) => {
-        if (!/[A-Z]/.test(value) || !/[0-9]/.test(value) || !/[^A-Za-z0-9]/.test(value)) {
-          cb(new Error(t('auth.passwordComplexity')))
-        } else {
-          cb()
-        }
-      },
-      trigger: 'blur',
-    },
+    passwordComplexityRule,
   ],
   password_confirmation: [
     { required: true, message: t('auth.confirmPasswordRequired'), trigger: 'blur' },
-    { validator: validatePasswordMatch, trigger: 'blur' },
+    passwordMatchRule(formData),
   ],
 }
 
@@ -142,12 +127,3 @@ const handleRegister = async () => {
   })
 }
 </script>
-
-<style scoped>
-.language-selector-container {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-}
-</style>

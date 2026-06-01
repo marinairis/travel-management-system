@@ -116,24 +116,11 @@
     </el-table-column>
   </el-table>
 
-  <!-- Cancel dialog -->
-  <el-dialog v-model="cancelDialogVisible" :title="$t('travelRequest.cancelTitle')" width="450px" align-center>
-    <p>{{ $t('travelRequest.cancelConfirmMessage') }}</p>
-    <el-form-item :label="$t('travelRequest.cancelReasonLabel')" required style="margin-top: 16px;">
-      <el-input
-        v-model="cancelReason"
-        type="textarea"
-        :rows="3"
-        :placeholder="$t('travelRequest.cancelReasonPlaceholder')"
-      />
-    </el-form-item>
-    <template #footer>
-      <el-button @click="cancelDialogVisible = false">{{ $t('common.cancel') }}</el-button>
-      <el-button type="warning" @click="confirmCancel" :loading="cancelling" :disabled="!cancelReason.trim()">
-        {{ $t('common.confirm') }}
-      </el-button>
-    </template>
-  </el-dialog>
+  <CancelRequestDialog
+    v-model="cancelDialogVisible"
+    :is-loading="cancelling"
+    @confirm="confirmCancel"
+  />
 </template>
 
 <script setup>
@@ -143,6 +130,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useDateFormat } from '@/composables/useDateFormat'
 import { useTravelType } from '@/composables/useTravelType'
 import { useRequestStatus } from '@/composables/useRequestStatus'
+import CancelRequestDialog from '@/components/CancelRequestDialog.vue'
 
 const { formatDateShort: formatDate, formatDateLong, formatDateTime } = useDateFormat()
 const { travelTypeIcon, getTravelTypeColor, formatRequestId } = useTravelType()
@@ -158,7 +146,6 @@ const authStore = useAuthStore()
 const cancelDialogVisible = ref(false)
 const cancelling = ref(false)
 const selectedRequest = ref(null)
-const cancelReason = ref('')
 
 const tableData = computed(() => props.data)
 const showApprover = computed(() => authStore.isApprover)
@@ -212,15 +199,13 @@ const handleApprove = (row) => {
 
 const handleCancel = (row) => {
   selectedRequest.value = row
-  cancelReason.value = ''
   cancelDialogVisible.value = true
 }
 
-const confirmCancel = async () => {
+const confirmCancel = async (reason) => {
   cancelling.value = true
-  await emit('cancel', { id: selectedRequest.value.id, reason: cancelReason.value })
+  await emit('cancel', { id: selectedRequest.value.id, reason })
   cancelling.value = false
-  cancelReason.value = ''
   cancelDialogVisible.value = false
 }
 

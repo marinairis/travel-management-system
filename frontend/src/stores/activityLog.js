@@ -6,7 +6,7 @@ export const useActivityLogStore = defineStore('activityLog', {
   state: () => ({
     logs: [],
     users: [],
-    loading: false,
+    isLoading: false,
     pagination: {
       current_page: 1,
       last_page: 1,
@@ -17,7 +17,7 @@ export const useActivityLogStore = defineStore('activityLog', {
 
   actions: {
     async fetchLogs(filters = {}) {
-      this.loading = true
+      this.isLoading = true
       try {
         const response = await activityLogRepository.fetchAll({
           userId: filters.user_id,
@@ -38,7 +38,7 @@ export const useActivityLogStore = defineStore('activityLog', {
       } catch (error) {
         console.error(error)
       } finally {
-        this.loading = false
+        this.isLoading = false
       }
     },
 

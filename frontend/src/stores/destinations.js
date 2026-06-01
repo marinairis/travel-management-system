@@ -4,7 +4,7 @@ import * as destinationRepository from '@/plugins/destinationRepository'
 export const useDestinationsStore = defineStore('destinations', {
   state: () => ({
     destinations: [],
-    loading: false,
+    isLoading: false,
     error: null,
     lastFetch: null,
     cacheTimeout: 30 * 60 * 1000,
@@ -46,7 +46,7 @@ export const useDestinationsStore = defineStore('destinations', {
         return this.destinations
       }
 
-      this.loading = true
+      this.isLoading = true
       this.error = null
 
       try {
@@ -63,7 +63,7 @@ export const useDestinationsStore = defineStore('destinations', {
         this.error = error.message || 'Failed to load destinations'
         throw error
       } finally {
-        this.loading = false
+        this.isLoading = false
       }
 
       return this.destinations

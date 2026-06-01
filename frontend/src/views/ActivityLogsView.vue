@@ -62,10 +62,10 @@
       </el-form>
     </el-card>
 
-    <el-card class="table-card voa-logs-card">
+    <el-card class="voa-data-card">
       <el-table
         :data="activityLogStore.logs"
-        v-loading="activityLogStore.loading"
+        v-loading="activityLogStore.isLoading"
         style="width: 100%"
       >
         <el-table-column prop="id" :label="$t('users.id')" width="90" sortable>
@@ -338,18 +338,3 @@ const formatLogId = (id) => {
   return `LOG-${String(id).padStart(4, '0')}`
 }
 </script>
-
-<style scoped>
-.voa-logs-card :deep(.el-table__body-wrapper) {
-  overflow-y: auto;
-  max-height: calc(100vh - 340px);
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 0 4px;
-  border-top: 1px solid var(--el-border-color);
-}
-</style>

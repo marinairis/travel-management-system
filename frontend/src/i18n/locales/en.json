@@ -307,5 +307,13 @@
     "notifEmailDesc": "Status updates by email.",
     "notifPush": "Push",
     "notifPushDesc": "Real-time browser alerts."
+  },
+  "errors": {
+    "sessionExpired": "Session expired. Please log in again.",
+    "forbidden": "You do not have permission to perform this action.",
+    "notFound": "Resource not found.",
+    "serverError": "Internal server error.",
+    "unknownError": "Unknown error.",
+    "connectionError": "Connection error with the server."
   }
 }

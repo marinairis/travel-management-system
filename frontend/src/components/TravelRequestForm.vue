@@ -12,7 +12,7 @@
         :placeholder="$t('travelRequest.requesterNamePlaceholder')"
         filterable
         style="width: 100%"
-        :loading="userStore.loading"
+        :loading="userStore.isLoading"
       >
         <el-option
           v-for="u in userStore.basicUsers"
@@ -31,7 +31,7 @@
         style="width: 100%"
         filterable
         clearable
-        :loading="destinationsStore.loading"
+        :loading="destinationsStore.isLoading"
         @focus="loadDestinations"
       >
         <template #default="{ item }">
@@ -220,7 +220,6 @@ const handleSubmit = async () => {
     }
     emit('submit', payload)
   } catch {
-    // Validation failed
   } finally {
     loading.value = false
   }

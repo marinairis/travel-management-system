@@ -148,37 +148,12 @@
       </el-timeline>
     </el-card>
 
-    <el-dialog
+    <CancelRequestDialog
       v-model="cancelOpen"
-      :title="$t('travelRequest.detailCancel')"
-      width="440px"
-      destroy-on-close
-    >
-      <div>
-        <div
-          style="
-            font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 6px;
-            color: var(--el-text-color-regular);
-          "
-        >
-          {{ $t('travelRequest.detailCancelReason') }}
-        </div>
-        <el-input
-          v-model="cancelReason"
-          type="textarea"
-          :rows="3"
-          :placeholder="$t('travelRequest.detailCancelReasonPh')"
-        />
-      </div>
-      <template #footer>
-        <el-button @click="cancelOpen = false">{{ $t('common.cancel') }}</el-button>
-        <el-button type="danger" :loading="actionLoading === 'cancel'" @click="handleCancel">
-          {{ $t('travelRequest.detailCancelConfirm') }}
-        </el-button>
-      </template>
-    </el-dialog>
+      :is-loading="actionLoading === 'cancel'"
+      confirm-type="danger"
+      @confirm="handleCancel"
+    />
 
     <el-dialog
       v-model="editDialogOpen"
@@ -199,6 +174,7 @@
 
 <script setup>
 import TravelRequestForm from '@/components/TravelRequestForm.vue'
+import CancelRequestDialog from '@/components/CancelRequestDialog.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useTravelRequestStore } from '@/stores/travelRequest'
 import { useActivityLogStore } from '@/stores/activityLog'
@@ -224,7 +200,6 @@ const request = ref(null)
 const timeline = ref([])
 const loading = ref(true)
 const cancelOpen = ref(false)
-const cancelReason = ref('')
 const actionLoading = ref(null)
 const editDialogOpen = ref(false)
 const editFormRef = ref(null)
@@ -319,12 +294,11 @@ const handleApprove = async () => {
   await fetchRequest()
 }
 
-const handleCancel = async () => {
+const handleCancel = async (reason) => {
   actionLoading.value = 'cancel'
-  await travelRequestStore.cancelTravelRequest(route.params.id, cancelReason.value)
+  await travelRequestStore.cancelTravelRequest(route.params.id, reason)
   actionLoading.value = null
   cancelOpen.value = false
-  cancelReason.value = ''
   await fetchRequest()
 }
 

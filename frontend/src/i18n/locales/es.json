@@ -226,6 +226,9 @@
     "deactivate": "Desactivar usuario",
     "confirmDeactivateTitle": "Desactivar Usuario",
     "confirmDeactivateMessage": "¿Está seguro de que desea desactivar al usuario {name}? No podrá iniciar sesión.",
+    "confirmDeactivateSimple": "¿Está seguro de que desea desactivar al usuario {name}? No podrá iniciar sesión.",
+    "confirmDeleteTitle": "Eliminar Usuario",
+    "confirmDeleteMessage": "¿Está seguro de que desea eliminar al usuario {name}? {count} solicitud(es) de viaje pendiente(s) será(n) cancelada(s) con el motivo: usuario eliminado.",
     "confirmActivateTitle": "Activar Usuario",
     "confirmActivateMessage": "¿Está seguro de que desea activar al usuario {name}? Se enviará una nueva invitación por correo.",
     "profile": "Perfil",
@@ -304,5 +307,13 @@
     "notifEmailDesc": "Actualizaciones de estado por correo.",
     "notifPush": "Push",
     "notifPushDesc": "Alertas en tiempo real en el navegador."
+  },
+  "errors": {
+    "sessionExpired": "Sesión expirada. Por favor, inicie sesión de nuevo.",
+    "forbidden": "No tiene permiso para realizar esta acción.",
+    "notFound": "Recurso no encontrado.",
+    "serverError": "Error interno del servidor.",
+    "unknownError": "Error desconocido.",
+    "connectionError": "Error de conexión con el servidor."
   }
 }
