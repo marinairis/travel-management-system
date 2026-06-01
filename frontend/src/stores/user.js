@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 export const useUserStore = defineStore('user', {
   state: () => ({
     users: [],
+    pendingInvitations: [],
     basicUsers: [],
     loading: false,
     pagination: { current_page: 1, last_page: 1, per_page: 10, total: 0 },
@@ -25,6 +26,7 @@ export const useUserStore = defineStore('user', {
         })
         if (response.data.success) {
           this.users = response.data.data
+          this.pendingInvitations = response.data.pending_invitations ?? []
           this.pagination = response.data.meta
         }
       } catch (error) {
@@ -59,6 +61,7 @@ export const useUserStore = defineStore('user', {
     async updateUser(id, data) { return this._mutateUser(() => userRepository.update(id, data)) },
     async deleteUser(id) { return this._mutateUser(() => userRepository.remove(id)) },
     async toggleUserStatus(id) { return this._mutateUser(() => userRepository.toggleStatus(id)) },
+    async resendInvitation(id) { return this._mutateUser(() => userRepository.resendInvitation(id)) },
 
     async fetchBasicUsers() {
       try {

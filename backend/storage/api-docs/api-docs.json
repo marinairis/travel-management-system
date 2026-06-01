@@ -711,6 +711,60 @@
                 }
             }
         },
+        "/api/invitations/{id}/resend": {
+            "post": {
+                "tags": [
+                    "Invitations"
+                ],
+                "summary": "Resend an invitation email (admin only)",
+                "operationId": "08cc7ffb92004729523fc2b918ace032",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Invitation resent",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Invitation not found"
+                    },
+                    "422": {
+                        "description": "Invitation already accepted"
+                    },
+                    "500": {
+                        "description": "Failed to send email"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/users/invite": {
             "post": {
                 "tags": [

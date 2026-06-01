@@ -44,6 +44,7 @@ return [
 
     'invitation' => [
         'sent'                => 'Invitación enviada exitosamente a :email.',
+        'resent'              => 'Invitación reenviada exitosamente a :email.',
         'accepted'            => '¡Cuenta creada exitosamente!',
         'not_found'           => 'Invitación no encontrada, expirada o ya utilizada.',
         'expired'             => 'Esta invitación ha expirado.',

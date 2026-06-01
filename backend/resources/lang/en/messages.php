@@ -44,6 +44,7 @@ return [
 
     'invitation' => [
         'sent'                => 'Invitation sent successfully to :email.',
+        'resent'              => 'Invitation resent successfully to :email.',
         'accepted'            => 'Account created successfully!',
         'not_found'           => 'Invitation not found, expired or already used.',
         'expired'             => 'This invitation has expired.',

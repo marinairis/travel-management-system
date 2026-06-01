@@ -45,6 +45,7 @@ return [
 
     'invitation' => [
         'sent'                => 'Convite enviado com sucesso para :email.',
+        'resent'              => 'Convite reenviado com sucesso para :email.',
         'accepted'            => 'Conta criada com sucesso!',
         'not_found'           => 'Convite não encontrado, expirado ou já utilizado.',
         'expired'             => 'Este convite expirou.',

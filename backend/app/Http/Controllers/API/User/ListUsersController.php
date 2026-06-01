@@ -23,13 +23,14 @@ class ListUsersController extends Controller
         );
 
         return response()->json([
-            'success' => true,
-            'data' => $users->items(),
-            'meta' => [
+            'success'             => true,
+            'data'                => $users->items(),
+            'pending_invitations' => $this->service->getPendingInvitations(),
+            'meta'                => [
                 'current_page' => $users->currentPage(),
-                'last_page' => $users->lastPage(),
-                'per_page' => $users->perPage(),
-                'total' => $users->total(),
+                'last_page'    => $users->lastPage(),
+                'per_page'     => $users->perPage(),
+                'total'        => $users->total(),
             ],
         ]);
     }

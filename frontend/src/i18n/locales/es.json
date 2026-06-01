@@ -228,7 +228,14 @@
     "confirmDeactivateMessage": "¿Está seguro de que desea desactivar al usuario {name}? No podrá iniciar sesión.",
     "confirmActivateTitle": "Activar Usuario",
     "confirmActivateMessage": "¿Está seguro de que desea activar al usuario {name}? Se enviará una nueva invitación por correo.",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "invited": "Esperando aceptación",
+    "inviteExpired": "Invitación expirada",
+    "resendInvite": "Reenviar invitación",
+    "resending": "Reenviando...",
+    "pendingRegistration": "Registro pendiente",
+    "confirmResendTitle": "Reenviar Invitación",
+    "confirmResendMessage": "¿Reenviar invitación a {email}? Se generará un nuevo enlace y el anterior quedará inválido."
   },
   "activityLogs": {
     "title": "Registros de Actividad",

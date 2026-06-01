@@ -54,10 +54,23 @@
     </el-card>
 
     <el-card shadow="never" class="voa-users-card">
-      <el-table :data="userStore.users" v-loading="userStore.loading" style="width: 100%">
+      <el-table :data="tableRows" v-loading="userStore.loading" style="width: 100%">
         <el-table-column :label="$t('users.name')" min-width="150">
           <template #default="scope">
-            <div style="display: flex; align-items: center; gap: 10px">
+            <div v-if="scope.row.is_invited" style="display: flex; align-items: center; gap: 10px">
+              <el-avatar :size="32" style="background: #d0d0d0; color: #888; font-size: 12px; font-weight: 700;">
+                ?
+              </el-avatar>
+              <div>
+                <div style="font-size: 12px; color: var(--el-text-color-placeholder); font-style: italic">
+                  {{ $t('users.pendingRegistration') }}
+                </div>
+                <div style="font-size: 12px; color: var(--el-text-color-secondary)">
+                  {{ scope.row.email }}
+                </div>
+              </div>
+            </div>
+            <div v-else style="display: flex; align-items: center; gap: 10px">
               <el-avatar
                 :size="32"
                 :style="{
@@ -95,14 +108,17 @@
         >
           <template #default="scope">
             <span style="font-family: var(--voa-mono, monospace)">{{
-              scope.row.travel_requests_count ?? 0
+              scope.row.is_invited ? '—' : (scope.row.travel_requests_count ?? 0)
             }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column :label="$t('users.status')" width="100">
+        <el-table-column :label="$t('users.status')" width="140">
           <template #default="scope">
-            <el-tag :type="scope.row.is_active ? 'success' : 'danger'" size="small">
+            <el-tag v-if="scope.row.is_invited" :type="scope.row.is_expired ? 'info' : 'warning'" size="small">
+              {{ scope.row.is_expired ? $t('users.inviteExpired') : $t('users.invited') }}
+            </el-tag>
+            <el-tag v-else :type="scope.row.is_active ? 'success' : 'danger'" size="small">
               {{ scope.row.is_active ? $t('users.active') : $t('users.inactive') }}
             </el-tag>
           </template>
@@ -111,7 +127,7 @@
         <el-table-column width="170">
           <template #default="scope">
             <el-tooltip
-              v-if="scope.row.id !== authStore.user?.id"
+              v-if="!scope.row.is_invited && scope.row.id !== authStore.user?.id"
               :content="scope.row.is_active ? $t('users.deactivate') : $t('users.activate')"
               placement="top"
             >
@@ -128,7 +144,17 @@
 
         <el-table-column :label="$t('users.actions')" width="80" fixed="right">
           <template #default="scope">
-            <el-tooltip :content="$t('common.edit')" placement="top">
+            <el-tooltip v-if="scope.row.is_invited" :content="$t('users.resendInvite')" placement="top">
+              <el-button
+                type="warning"
+                :icon="Message"
+                circle
+                size="small"
+                :loading="resendingId === scope.row.id"
+                @click="handleResend(scope.row)"
+              />
+            </el-tooltip>
+            <el-tooltip v-else :content="$t('common.edit')" placement="top">
               <el-button
                 type="primary"
                 :icon="Edit"
@@ -276,9 +302,9 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth'
 import { useUserStore } from '@/stores/user'
-import { Delete, Edit, Refresh } from '@element-plus/icons-vue'
+import { Delete, Edit, Message, Refresh } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAvatar } from '@/composables/useAvatar'
@@ -297,9 +323,15 @@ const inviteSent = ref(false)
 const updating = ref(false)
 const deleting = ref(false)
 const inviting = ref(false)
+const resendingId = ref(null)
 const selectedUser = ref(null)
 const formRef = ref(null)
 const inviteErrors = ref({})
+
+const tableRows = computed(() => [
+  ...userStore.pendingInvitations.map((inv) => ({ ...inv, is_invited: true })),
+  ...userStore.users,
+])
 
 const currentPage = ref(1)
 const pageSize = ref(10)
@@ -469,6 +501,25 @@ const handleInvite = async () => {
   const success = await userStore.inviteUser(inviteForm)
   inviting.value = false
   if (success) inviteSent.value = true
+}
+
+const handleResend = async (invitation) => {
+  try {
+    await ElMessageBox.confirm(
+      t('users.confirmResendMessage', { email: invitation.email }),
+      t('users.confirmResendTitle'),
+      {
+        confirmButtonText: t('common.confirm'),
+        cancelButtonText: t('common.cancel'),
+        type: 'info',
+      }
+    )
+    resendingId.value = invitation.id
+    await userStore.resendInvitation(invitation.id)
+    resendingId.value = null
+  } catch {
+    resendingId.value = null
+  }
 }
 
 const handleStatusClick = async (user) => {

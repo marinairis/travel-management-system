@@ -7,6 +7,7 @@ namespace App\Interfaces\Services;
 use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 
 interface UserServiceInterface
 {
@@ -23,4 +24,6 @@ interface UserServiceInterface
     public function deleteUser(User $user): void;
 
     public function toggleStatus(User $user): array;
+
+    public function getPendingInvitations(): SupportCollection;
 }

@@ -231,7 +231,14 @@
     "confirmDeleteMessage": "Are you sure you want to delete user {name}? {count} pending travel request(s) will be cancelled with reason: user deleted.",
     "confirmActivateTitle": "Activate User",
     "confirmActivateMessage": "Are you sure you want to activate user {name}? A new invitation will be sent by email.",
-    "profile": "Profile"
+    "profile": "Profile",
+    "invited": "Awaiting acceptance",
+    "inviteExpired": "Invitation expired",
+    "resendInvite": "Resend invitation",
+    "resending": "Resending...",
+    "pendingRegistration": "Pending registration",
+    "confirmResendTitle": "Resend Invitation",
+    "confirmResendMessage": "Resend invitation to {email}? A new link will be generated and the previous one will be invalidated."
   },
   "activityLogs": {
     "title": "Activity Logs",

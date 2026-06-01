@@ -14,6 +14,7 @@ use App\Notifications\UserInvited;
 use App\Traits\HasActivityLogging;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -106,6 +107,20 @@ class UserService implements UserServiceInterface
             'cancelled_count' => 0,
             'action'          => 'activated',
         ];
+    }
+
+    public function getPendingInvitations(): SupportCollection
+    {
+        return Invitation::whereNull('accepted_at')
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn (Invitation $invitation) => [
+                'id'         => $invitation->id,
+                'email'      => $invitation->email,
+                'role'       => $invitation->role,
+                'expires_at' => $invitation->expires_at,
+                'is_expired' => ! $invitation->isPending(),
+            ]);
     }
 
     private function resendInvitation(User $user): void

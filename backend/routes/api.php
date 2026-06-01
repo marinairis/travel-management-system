@@ -21,6 +21,7 @@ use App\Http\Controllers\API\User\ToggleUserStatusController;
 use App\Http\Controllers\API\User\UpdateUserController;
 use App\Http\Controllers\API\Invitation\AcceptInvitationController;
 use App\Http\Controllers\API\Invitation\InviteUserController;
+use App\Http\Controllers\API\Invitation\ResendInvitationController;
 use App\Http\Controllers\API\Invitation\ShowInvitationController;
 use App\Http\Controllers\API\ActivityLog\ListActivityLogsController;
 use App\Http\Controllers\API\Dashboard\GetDashboardStatsController;
@@ -83,4 +84,5 @@ Route::middleware(['auth:api', 'admin'])->group(function () {
     Route::post('/users/invite', InviteUserController::class);
     Route::patch('/users/{id}/toggle-status', ToggleUserStatusController::class);
     Route::get('/users/{id}/pending-requests-count', PendingRequestsCountController::class);
+    Route::post('/invitations/{id}/resend', ResendInvitationController::class);
 });

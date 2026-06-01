@@ -55,6 +55,25 @@ namespace App\Docs;
  * )
  *
  * @OA\Post(
+ *     path="/api/invitations/{id}/resend",
+ *     tags={"Invitations"},
+ *     summary="Resend an invitation email (admin only)",
+ *     security={{"bearerAuth":{}}},
+ *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+ *     @OA\Response(
+ *         response=200,
+ *         description="Invitation resent",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="success", type="boolean", example=true),
+ *             @OA\Property(property="message", type="string")
+ *         )
+ *     ),
+ *     @OA\Response(response=404, description="Invitation not found"),
+ *     @OA\Response(response=422, description="Invitation already accepted"),
+ *     @OA\Response(response=500, description="Failed to send email")
+ * )
+ *
+ * @OA\Post(
  *     path="/api/users/invite",
  *     tags={"Invitations"},
  *     summary="Send an invitation email to a new user (admin only)",

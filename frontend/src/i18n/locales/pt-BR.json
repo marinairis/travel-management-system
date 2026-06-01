@@ -300,6 +300,13 @@
     "confirmDeleteMessage": "Tem certeza que deseja excluir o usuário {name}? {count} pedido(s) de viagem em aberto será(ão) cancelado(s) com o motivo: usuário excluído.",
     "confirmActivateTitle": "Ativar Usuário",
     "confirmActivateMessage": "Tem certeza que deseja ativar o usuário {name}? Um novo convite será enviado por e-mail.",
-    "profile": "Perfil"
+    "profile": "Perfil",
+    "invited": "Aguardando aceite",
+    "inviteExpired": "Convite expirado",
+    "resendInvite": "Reenviar convite",
+    "resending": "Reenviando...",
+    "pendingRegistration": "Cadastro pendente",
+    "confirmResendTitle": "Reenviar Convite",
+    "confirmResendMessage": "Reenviar convite para {email}? Um novo link será gerado e o anterior ficará inválido."
   }
 }
