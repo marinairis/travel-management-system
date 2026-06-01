@@ -8,7 +8,7 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #acc8a2 0%, #1a2517 100%);
+  background: linear-gradient(135deg, #1B263B 0%, #415A77 50%, #778DA9 100%);
   padding: var(--spacing-xl);
   position: relative;
 }
@@ -18,7 +18,12 @@
   width: 100%;
   max-width: 420px;
   border-radius: var(--radius-xl);
-  box-shadow: 0 20px 60px rgba(26, 37, 23, 0.35);
+  box-shadow: 0 20px 60px rgba(27, 38, 59, 0.4);
+  background: var(--el-bg-color);
+}
+
+html.dark .auth-card {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 /* Card header */
@@ -32,12 +37,21 @@
 .auth-card-header h2 {
   margin: 0;
   font-size: 24px;
-  color: var(--color-olive);
+  color: var(--color-navy);
   font-weight: 700;
 }
 
 html.dark .auth-card-header h2 {
   color: var(--el-text-color-primary);
+}
+
+/* Auth icon */
+.auth-icon {
+  color: var(--color-turquoise);
+}
+
+html.dark .auth-icon {
+  color: var(--color-turquoise);
 }
 
 /* Auth form links */
@@ -54,31 +68,39 @@ html.dark .auth-card-header h2 {
 }
 
 .auth-form-links a {
-  color: var(--color-sage-dark);
+  color: var(--color-slate);
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
 }
 
 .auth-form-links a:hover {
-  color: var(--color-olive);
+  color: var(--color-navy);
   text-decoration: underline;
+}
+
+html.dark .auth-form-links a {
+  color: var(--color-turquoise);
+}
+
+html.dark .auth-form-links a:hover {
+  color: var(--el-text-color-primary);
 }
 
 /* Full width button utility for auth forms */
 .auth-button {
   width: 100%;
-  background-color: var(--color-olive);
-  border-color: var(--color-olive);
-  color: var(--color-sage-light);
+  background-color: var(--el-color-primary);
+  border-color: var(--el-color-primary);
+  color: #ffffff;
   font-weight: 600;
   height: 42px;
   font-size: 15px;
 }
 
 .auth-button:hover {
-  background-color: var(--color-olive-light);
-  border-color: var(--color-olive-light);
+  background-color: var(--el-color-primary-dark-2);
+  border-color: var(--el-color-primary-dark-2);
 }
 
 /* Language selector on auth pages */

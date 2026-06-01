@@ -6,7 +6,7 @@
     <el-card class="auth-card">
       <template #header>
         <div class="auth-card-header">
-          <el-icon :size="32" color="#409EFF">
+          <el-icon :size="32" class="auth-icon">
             <MapLocation />
           </el-icon>
           <h2>{{ $t('auth.register') }}</h2>
