@@ -4,59 +4,61 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\DTOs\CityDTO;
 use App\Interfaces\Repositories\CityRepositoryInterface;
 use App\Interfaces\Services\IbgeServiceInterface;
-use App\DTOs\CityDTO;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 
 class CityRepository implements CityRepositoryInterface
 {
-  public function __construct(private IbgeServiceInterface $ibgeService) {}
+    public function __construct(private IbgeServiceInterface $ibgeService) {}
 
-  public function getAll(): Collection
-  {
-    return Cache::remember('destinations_all', 86400, function () {
-      return $this->formatCities($this->ibgeService->getCity());
-    });
-  }
+    public function getAll(): Collection
+    {
+        return Cache::remember('destinations_all', 86400, function () {
+            return $this->formatCities($this->ibgeService->getCity());
+        });
+    }
 
-  public function getDestinations(): Collection
-  {
-    return Cache::remember('destinations_select', 86400, function () {
-      $cities = $this->ibgeService->getCity();
-      return $this->formatCitiesForSelect($cities);
-    });
-  }
+    public function getDestinations(): Collection
+    {
+        return Cache::remember('destinations_select', 86400, function () {
+            $cities = $this->ibgeService->getCity();
 
-  public function search(string|null $query = null): Collection
-  {
-    $cities = $query
-      ? $this->ibgeService->searchCities($query)
-      : $this->ibgeService->getCity();
+            return $this->formatCitiesForSelect($cities);
+        });
+    }
 
-    return $this->formatCities($cities);
-  }
+    public function search(?string $query = null): Collection
+    {
+        $cities = $query
+          ? $this->ibgeService->searchCities($query)
+          : $this->ibgeService->getCity();
 
-  private function formatCities($cities): Collection
-  {
-    return collect($cities)->map(function ($city) {
-      return CityDTO::fromApiResponse($city)->toArray();
-    });
-  }
+        return $this->formatCities($cities);
+    }
 
-  private function formatCitiesForSelect($cities): Collection
-  {
-    return collect($cities)->map(function ($city) {
-      $dto = CityDTO::fromApiResponse($city);
-      return [
-        'value' => $dto->value,
-        'label' => $dto->label,
-        'id' => $dto->id,
-        'nome' => $dto->name,
-        'estado' => $dto->state,
-        'uf' => $dto->uf,
-      ];
-    });
-  }
+    private function formatCities($cities): Collection
+    {
+        return collect($cities)->map(function ($city) {
+            return CityDTO::fromApiResponse($city)->toArray();
+        });
+    }
+
+    private function formatCitiesForSelect($cities): Collection
+    {
+        return collect($cities)->map(function ($city) {
+            $dto = CityDTO::fromApiResponse($city);
+
+            return [
+                'value' => $dto->value,
+                'label' => $dto->label,
+                'id' => $dto->id,
+                'nome' => $dto->name,
+                'estado' => $dto->state,
+                'uf' => $dto->uf,
+            ];
+        });
+    }
 }

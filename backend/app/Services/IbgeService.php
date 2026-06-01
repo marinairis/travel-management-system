@@ -5,43 +5,44 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Interfaces\Services\IbgeServiceInterface;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 
 class IbgeService implements IbgeServiceInterface
 {
-  private const BASE_URL = 'https://servicodados.ibge.gov.br/api/v1';
-  private const CACHE_TTL = 86400;
+    private const BASE_URL = 'https://servicodados.ibge.gov.br/api/v1';
 
-  public function getCity(): array
-  {
-    return Cache::remember('ibge_municipios', self::CACHE_TTL, function () {
-      $response = Http::timeout(30)->get(self::BASE_URL . '/localidades/municipios');
+    private const CACHE_TTL = 86400;
 
-      if (!$response->successful()) {
-        throw new \Exception('Falha ao buscar dados do IBGE: ' . $response->status());
-      }
+    public function getCity(): array
+    {
+        return Cache::remember('ibge_municipios', self::CACHE_TTL, function () {
+            $response = Http::timeout(30)->get(self::BASE_URL.'/localidades/municipios');
 
-      return $response->json();
-    });
-  }
+            if (! $response->successful()) {
+                throw new \Exception('Falha ao buscar dados do IBGE: '.$response->status());
+            }
 
-  public function searchCities(string|null $query = null): mixed
-  {
-    $cities = $this->getCity();
-
-    if (!$query) {
-      return $cities;
+            return $response->json();
+        });
     }
 
-    return collect($cities)->filter(function ($city) use ($query) {
-      $searchable = strtolower(
-        $city['nome'] . ' ' .
-          $city['microrregiao']['mesorregiao']['UF']['sigla'] . ' ' .
-          $city['microrregiao']['mesorregiao']['UF']['nome']
-      );
+    public function searchCities(?string $query = null): mixed
+    {
+        $cities = $this->getCity();
 
-      return str_contains($searchable, strtolower($query));
-    });
-  }
+        if (! $query) {
+            return $cities;
+        }
+
+        return collect($cities)->filter(function ($city) use ($query) {
+            $searchable = strtolower(
+                $city['nome'].' '.
+                  $city['microrregiao']['mesorregiao']['UF']['sigla'].' '.
+                  $city['microrregiao']['mesorregiao']['UF']['nome']
+            );
+
+            return str_contains($searchable, strtolower($query));
+        });
+    }
 }

@@ -27,7 +27,7 @@ class TravelRequestStatusRequest extends FormRequest
     {
         return [
             'status.required' => __('messages.validation.status.required'),
-            'status.in'       => __('messages.validation.status.in'),
+            'status.in' => __('messages.validation.status.in'),
         ];
     }
 }

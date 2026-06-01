@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Interfaces\Services;
 
 use App\Models\User;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection as SupportCollection;
 
 interface UserServiceInterface

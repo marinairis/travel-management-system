@@ -8,5 +8,5 @@ interface IbgeServiceInterface
 {
     public function getCity(): array;
 
-    public function searchCities(string|null $query = null): mixed;
+    public function searchCities(?string $query = null): mixed;
 }

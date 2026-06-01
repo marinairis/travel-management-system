@@ -11,17 +11,17 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AdminOnly
 {
-  public function handle(Request $request, Closure $next): Response
-  {
-    $user = Auth::user();
+    public function handle(Request $request, Closure $next): Response
+    {
+        $user = Auth::user();
 
-    if (!$user || !$user->isAdmin()) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Apenas administradores podem acessar este recurso'
-      ], 403);
+        if (! $user || ! $user->isAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Apenas administradores podem acessar este recurso',
+            ], 403);
+        }
+
+        return $next($request);
     }
-
-    return $next($request);
-  }
 }

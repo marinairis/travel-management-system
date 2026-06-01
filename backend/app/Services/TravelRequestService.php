@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Enums\TravelRequestStatus;
-use App\Exceptions\TravelRequest\TravelRequestException;
 use App\Interfaces\Repositories\TravelRequestRepositoryInterface;
 use App\Interfaces\Services\TravelRequestServiceInterface;
 use App\Models\TravelRequest;
@@ -16,7 +15,6 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
-use Symfony\Component\HttpFoundation\Response;
 
 class TravelRequestService implements TravelRequestServiceInterface
 {
@@ -42,14 +40,14 @@ class TravelRequestService implements TravelRequestServiceInterface
     public function createTravelRequest(array $data): TravelRequest
     {
         $travelRequest = $this->repository->create([
-            'user_id'        => Auth::id(),
+            'user_id' => Auth::id(),
             'requester_name' => $data['requester_name'],
-            'destination'    => $data['destination'],
+            'destination' => $data['destination'],
             'departure_date' => $data['departure_date'],
-            'return_date'    => $data['return_date'],
-            'notes'          => $data['notes'] ?? null,
-            'travel_type'    => $data['travel_type'] ?? null,
-            'status'         => TravelRequestStatus::Requested->value,
+            'return_date' => $data['return_date'],
+            'notes' => $data['notes'] ?? null,
+            'travel_type' => $data['travel_type'] ?? null,
+            'status' => TravelRequestStatus::Requested->value,
         ]);
 
         $this->logActivityCreate($travelRequest);
@@ -63,11 +61,11 @@ class TravelRequestService implements TravelRequestServiceInterface
 
         $travelRequest->update([
             'requester_name' => $data['requester_name'],
-            'destination'    => $data['destination'],
+            'destination' => $data['destination'],
             'departure_date' => $data['departure_date'],
-            'return_date'    => $data['return_date'],
-            'notes'          => $data['notes'] ?? null,
-            'travel_type'    => $data['travel_type'] ?? null,
+            'return_date' => $data['return_date'],
+            'notes' => $data['notes'] ?? null,
+            'travel_type' => $data['travel_type'] ?? null,
         ]);
 
         $this->logActivityUpdate($travelRequest, $oldValues);
@@ -99,10 +97,10 @@ class TravelRequestService implements TravelRequestServiceInterface
     {
         $oldStatus = $travelRequest->status;
 
-        $travelRequest->status      = TravelRequestStatus::Cancelled->value;
+        $travelRequest->status = TravelRequestStatus::Cancelled->value;
         $travelRequest->cancel_reason = $reason;
-        $travelRequest->cancelled_by  = $user->id;
-        $travelRequest->cancelled_at  = now();
+        $travelRequest->cancelled_by = $user->id;
+        $travelRequest->cancelled_at = now();
 
         $updated = $this->repository->save($travelRequest);
 

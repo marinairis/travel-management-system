@@ -15,7 +15,7 @@ trait FailedValidationJson
             response()->json([
                 'success' => false,
                 'message' => __('messages.validation.error'),
-                'errors'  => $validator->errors(),
+                'errors' => $validator->errors(),
             ], 422)
         );
     }

@@ -20,9 +20,9 @@ class UserFilterRequest extends FormRequest
     {
         return [
             'user_type' => 'nullable|string|in:admin,manager,requester,basic',
-            'email'     => 'nullable|string|max:255',
-            'status'    => 'nullable|string|in:active,inactive',
-            'per_page'  => 'nullable|integer|min:1|max:100',
+            'email' => 'nullable|string|max:255',
+            'status' => 'nullable|string|in:active,inactive',
+            'per_page' => 'nullable|integer|min:1|max:100',
         ];
     }
 }

@@ -24,7 +24,7 @@ class PasswordReset extends Notification
     public function toMail($notifiable): MailMessage
     {
         $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:5173'));
-        $resetUrl = $frontendUrl . '/reset-password/' . $this->token;
+        $resetUrl = $frontendUrl.'/reset-password/'.$this->token;
 
         return (new MailMessage)
             ->subject('Redefinição de Senha - Voa - Viagens Corporativas')

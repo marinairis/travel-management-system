@@ -9,9 +9,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class UserException extends DomainException
 {
-    public const NOT_FOUND           = 'user.not_found';
-    public const UNAUTHORIZED        = 'user.unauthorized';
-    public const CANNOT_DELETE_SELF  = 'user.cannot_delete_self';
+    public const NOT_FOUND = 'user.not_found';
+
+    public const UNAUTHORIZED = 'user.unauthorized';
+
+    public const CANNOT_DELETE_SELF = 'user.cannot_delete_self';
+
     public const CANNOT_DISABLE_SELF = 'user.cannot_disable_self';
 
     public function getStatusCode(): int

@@ -178,8 +178,8 @@ class UserRepositoryTest extends TestCase
         $this->repository->cancelOpenRequests($user, 'Test reason');
 
         $this->assertDatabaseHas('travel_requests', [
-            'user_id'       => $user->id,
-            'status'        => 'cancelled',
+            'user_id' => $user->id,
+            'status' => 'cancelled',
             'cancel_reason' => 'Test reason',
         ]);
     }

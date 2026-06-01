@@ -1,0 +1,33 @@
+#!/usr/bin/env sh
+
+is_docker() {
+  [ -f /.dockerenv ]
+}
+
+is_wsl() {
+  grep -qEi "(Microsoft|WSL)" /proc/version 2>/dev/null
+}
+
+echo "→ [backend] testes"
+
+if is_docker; then
+  php artisan test --parallel --processes=10 || { echo "Falha nos testes do backend. Corrija antes de continuar."; exit 1; }
+elif is_wsl; then
+  docker exec travel_backend php artisan test --parallel --processes=10 || { echo "Falha nos testes do backend. Corrija antes de continuar."; exit 1; }
+else
+  echo "Ambiente não reconhecido (não é Docker nem WSL)."
+  exit 1
+fi
+
+echo "→ [frontend] testes"
+
+if is_docker; then
+  npm run test || { echo "Falha nos testes do frontend. Corrija antes de continuar."; exit 1; }
+elif is_wsl; then
+  docker exec travel_frontend npm run test || { echo "Falha nos testes do frontend. Corrija antes de continuar."; exit 1; }
+else
+  echo "Ambiente não reconhecido (não é Docker nem WSL)."
+  exit 1
+fi
+
+exit 0

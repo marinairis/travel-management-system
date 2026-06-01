@@ -17,6 +17,7 @@ class UserRepository implements UserRepositoryInterface
     public function findById(int $id, bool $withTrashed = false): ?User
     {
         $query = $withTrashed ? User::withTrashed() : User::query();
+
         return $query->withCount('travelRequests')->find($id);
     }
 
@@ -44,10 +45,10 @@ class UserRepository implements UserRepositoryInterface
             ->get();
 
         foreach ($requests as $request) {
-            $request->status        = TravelRequestStatus::Cancelled->value;
+            $request->status = TravelRequestStatus::Cancelled->value;
             $request->cancel_reason = $reason;
-            $request->cancelled_by  = Auth::id();
-            $request->cancelled_at  = now();
+            $request->cancelled_by = Auth::id();
+            $request->cancelled_at = now();
             $request->save();
         }
 
@@ -56,7 +57,7 @@ class UserRepository implements UserRepositoryInterface
 
     private function applyFilters($query, array $filters): void
     {
-        if (!empty($filters['user_type'])) {
+        if (! empty($filters['user_type'])) {
             $type = $filters['user_type'];
             if ($type === 'basic') {
                 $query->where('role', '!=', 'admin');
@@ -74,7 +75,7 @@ class UserRepository implements UserRepositoryInterface
             });
         }
 
-        if (!empty($filters['email'])) {
+        if (! empty($filters['email'])) {
             $query->where('email', 'like', "%{$filters['email']}%");
         }
     }

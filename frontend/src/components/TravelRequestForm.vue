@@ -217,7 +217,6 @@ const handleSubmit = async () => {
       notes: formData.notes,
     }
     emit('submit', payload)
-  } catch {
   } finally {
     loading.value = false
   }

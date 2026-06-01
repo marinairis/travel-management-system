@@ -13,7 +13,9 @@ const savedLocale = (() => {
   try {
     const raw = localStorage.getItem('locale-currentLocale')
     if (raw && ['pt-BR', 'en', 'es'].includes(raw)) return raw
-  } catch {}
+  } catch {
+    // localStorage unavailable
+  }
   const lang = navigator.language || 'pt-BR'
   if (lang.startsWith('pt')) return 'pt-BR'
   if (lang.startsWith('es')) return 'es'

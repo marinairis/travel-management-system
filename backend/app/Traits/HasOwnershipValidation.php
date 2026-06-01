@@ -36,7 +36,7 @@ trait HasOwnershipValidation
     {
         return response()->json([
             'success' => false,
-            'message' => $message
+            'message' => $message,
         ], 403);
     }
 
@@ -44,7 +44,7 @@ trait HasOwnershipValidation
     {
         return response()->json([
             'success' => false,
-            'message' => $message
+            'message' => $message,
         ], 404);
     }
 
@@ -52,7 +52,7 @@ trait HasOwnershipValidation
     {
         return response()->json([
             'success' => false,
-            'message' => $message
+            'message' => $message,
         ], 403);
     }
 }

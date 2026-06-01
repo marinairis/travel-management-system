@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\TravelRequest;
 use App\Models\User;
-use Illuminate\Database\Seeder;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class TravelRequestSeeder extends Seeder
 {

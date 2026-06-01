@@ -19,11 +19,11 @@ class ActivityLogFilterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id'    => 'nullable|integer|min:1',
-            'action'     => 'nullable|string|max:100',
+            'user_id' => 'nullable|integer|min:1',
+            'action' => 'nullable|string|max:100',
             'model_type' => 'nullable|string|max:100',
-            'model_id'   => 'nullable|integer|min:1',
-            'per_page'   => 'nullable|integer|min:1|max:100',
+            'model_id' => 'nullable|integer|min:1',
+            'per_page' => 'nullable|integer|min:1|max:100',
         ];
     }
 

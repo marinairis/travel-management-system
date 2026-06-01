@@ -27,7 +27,7 @@ class CancelTravelRequestRequest extends FormRequest
     {
         return [
             'reason.string' => __('messages.validation.reason.string'),
-            'reason.max'    => __('messages.validation.reason.max'),
+            'reason.max' => __('messages.validation.reason.max'),
         ];
     }
 }

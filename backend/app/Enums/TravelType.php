@@ -6,8 +6,8 @@ namespace App\Enums;
 
 enum TravelType: string
 {
-    case Bus   = 'bus';
+    case Bus = 'bus';
     case Plane = 'plane';
-    case Car   = 'car';
+    case Car = 'car';
     case Hotel = 'hotel';
 }

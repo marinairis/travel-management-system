@@ -9,6 +9,7 @@ namespace App\Http\Controllers;
  *     version="1.0.0",
  *     title="Voa - Travel Management API",
  *     description="REST API for corporate travel request management. Authentication via JWT Bearer token.",
+ *
  *     @OA\Contact(email="marinairis.dev@gmail.com")
  * )
  *
@@ -33,6 +34,4 @@ namespace App\Http\Controllers;
  * @OA\Tag(name="Activity Logs", description="Audit trail of user actions")
  * @OA\Tag(name="Notifications", description="In-app notifications")
  */
-abstract class Controller
-{
-}
+abstract class Controller {}

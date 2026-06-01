@@ -7,9 +7,9 @@ namespace App\Enums;
 enum TravelRequestStatus: string
 {
     case Requested = 'requested';
-    case Approved  = 'approved';
+    case Approved = 'approved';
     case Cancelled = 'cancelled';
-    case Expired   = 'expired';
+    case Expired = 'expired';
 
     public function isOpen(): bool
     {
@@ -30,9 +30,9 @@ enum TravelRequestStatus: string
     {
         return match ($this) {
             self::Requested => 'Solicitado',
-            self::Approved  => 'Aprovado',
+            self::Approved => 'Aprovado',
             self::Cancelled => 'Cancelado',
-            self::Expired   => 'Vencido',
+            self::Expired => 'Vencido',
         };
     }
 }

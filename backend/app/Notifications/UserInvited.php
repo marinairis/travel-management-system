@@ -10,6 +10,7 @@ use Illuminate\Notifications\Notification;
 class UserInvited extends Notification
 {
     protected string $token;
+
     protected string $role;
 
     public function __construct(string $token, string $role)
@@ -26,7 +27,7 @@ class UserInvited extends Notification
     public function toMail($notifiable): MailMessage
     {
         $frontendUrl = config('app.frontend_url', env('FRONTEND_URL', 'http://localhost:5173'));
-        $inviteUrl = $frontendUrl . '/invitation/' . $this->token;
+        $inviteUrl = $frontendUrl.'/invitation/'.$this->token;
 
         return (new MailMessage)
             ->subject('Convite para o Voa - Viagens Corporativas')

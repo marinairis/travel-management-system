@@ -17,6 +17,7 @@ class SetLocale
     {
         $locale = $request->header('Accept-Language', 'pt-BR');
         App::setLocale(in_array($locale, self::SUPPORTED, strict: true) ? $locale : 'pt-BR');
+
         return $next($request);
     }
 }

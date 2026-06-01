@@ -10,10 +10,13 @@ namespace App\Docs;
  *     tags={"Dashboard"},
  *     summary="Get dashboard statistics for the authenticated user",
  *     security={{"bearerAuth":{}}},
+ *
  *     @OA\Response(
  *         response=200,
  *         description="Dashboard statistics",
+ *
  *         @OA\JsonContent(
+ *
  *             @OA\Property(property="success", type="boolean", example=true),
  *             @OA\Property(property="data", type="object",
  *                 @OA\Property(property="total", type="integer"),
@@ -23,6 +26,7 @@ namespace App\Docs;
  *             )
  *         )
  *     ),
+ *
  *     @OA\Response(response=401, description="Unauthenticated")
  * )
  *
@@ -31,14 +35,18 @@ namespace App\Docs;
  *     tags={"Dashboard"},
  *     summary="Get the oldest travel request pending approval",
  *     security={{"bearerAuth":{}}},
+ *
  *     @OA\Response(
  *         response=200,
  *         description="Oldest pending approval request",
+ *
  *         @OA\JsonContent(
+ *
  *             @OA\Property(property="success", type="boolean", example=true),
  *             @OA\Property(property="data", type="object", nullable=true)
  *         )
  *     ),
+ *
  *     @OA\Response(response=401, description="Unauthenticated")
  * )
  *
@@ -47,14 +55,18 @@ namespace App\Docs;
  *     tags={"Dashboard"},
  *     summary="Get the most recent travel requests for the authenticated user",
  *     security={{"bearerAuth":{}}},
+ *
  *     @OA\Response(
  *         response=200,
  *         description="Recent travel requests",
+ *
  *         @OA\JsonContent(
+ *
  *             @OA\Property(property="success", type="boolean", example=true),
  *             @OA\Property(property="data", type="array", @OA\Items(type="object"))
  *         )
  *     ),
+ *
  *     @OA\Response(response=401, description="Unauthenticated")
  * )
  */

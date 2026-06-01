@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use App\Enums\TravelRequestStatus;
 use App\Interfaces\Repositories\TravelRequestRepositoryInterface;
 use App\Models\TravelRequest;
 use App\Models\User;
@@ -36,20 +35,21 @@ class TravelRequestRepository implements TravelRequestRepositoryInterface
     public function save(TravelRequest $travelRequest): TravelRequest
     {
         $travelRequest->save();
+
         return $travelRequest->fresh()->load(['user', 'approvedBy', 'cancelledBy']);
     }
 
     private function applyFilters($query, array $filters): void
     {
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->byStatus($filters['status']);
         }
 
-        if (!empty($filters['destination'])) {
+        if (! empty($filters['destination'])) {
             $query->byDestination($filters['destination']);
         }
 
-        if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+        if (! empty($filters['start_date']) && ! empty($filters['end_date'])) {
             $query->byDateRange($filters['start_date'], $filters['end_date']);
         }
     }

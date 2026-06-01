@@ -16,7 +16,7 @@ class ActivityLogFeatureTest extends TestCase
     public function test_requester_sees_only_own_activity_logs(): void
     {
         $requester = User::factory()->create();
-        $other     = User::factory()->create();
+        $other = User::factory()->create();
 
         ActivityLog::factory()->count(2)->create(['user_id' => $requester->id]);
         ActivityLog::factory()->create(['user_id' => $other->id]);
@@ -73,7 +73,7 @@ class ActivityLogFeatureTest extends TestCase
     public function test_filter_by_user_id(): void
     {
         $admin = User::factory()->admin()->create();
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
         ActivityLog::factory()->count(2)->create(['user_id' => $user->id]);
         ActivityLog::factory()->create();
 

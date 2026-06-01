@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Exceptions\User\UserException;
 use App\Interfaces\Repositories\UserRepositoryInterface;
 use App\Interfaces\Services\UserServiceInterface;
 use App\Models\Invitation;
@@ -15,10 +14,8 @@ use App\Traits\HasActivityLogging;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection as SupportCollection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\Response;
 
 class UserService implements UserServiceInterface
 {
@@ -55,6 +52,7 @@ class UserService implements UserServiceInterface
         $oldValues = $user->toArray();
         $user->update($data);
         $this->logActivityUpdate($user, $oldValues);
+
         return $user->fresh();
     }
 
@@ -87,9 +85,9 @@ class UserService implements UserServiceInterface
         $this->logActivityUpdate($user, $oldValues);
 
         return [
-            'user'            => $user->fresh(),
+            'user' => $user->fresh(),
             'cancelled_count' => $cancelledCount,
-            'action'          => 'deactivated',
+            'action' => 'deactivated',
         ];
     }
 
@@ -103,9 +101,9 @@ class UserService implements UserServiceInterface
         $this->logActivityUpdate($user, ['is_active' => false]);
 
         return [
-            'user'            => $user->fresh(),
+            'user' => $user->fresh(),
             'cancelled_count' => 0,
-            'action'          => 'activated',
+            'action' => 'activated',
         ];
     }
 
@@ -115,9 +113,9 @@ class UserService implements UserServiceInterface
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(fn (Invitation $invitation) => [
-                'id'         => $invitation->id,
-                'email'      => $invitation->email,
-                'role'       => $invitation->role,
+                'id' => $invitation->id,
+                'email' => $invitation->email,
+                'role' => $invitation->role,
                 'expires_at' => $invitation->expires_at,
                 'is_expired' => ! $invitation->isPending(),
             ]);
@@ -126,25 +124,25 @@ class UserService implements UserServiceInterface
     private function resendInvitation(User $user): void
     {
         try {
-            $token      = Str::random(64);
+            $token = Str::random(64);
             $invitation = Invitation::where('email', $user->email)->whereNull('accepted_at')->first();
 
             if ($invitation) {
-                $invitation->token      = $token;
+                $invitation->token = $token;
                 $invitation->expires_at = now()->addDays(7);
                 $invitation->save();
             } else {
                 Invitation::create([
-                    'email'      => $user->email,
-                    'role'       => $user->role,
-                    'token'      => $token,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'token' => $token,
                     'expires_at' => now()->addDays(7),
                 ]);
             }
 
             $user->notify(new UserInvited($token, $user->role));
         } catch (\Exception $e) {
-            Log::error('Erro ao reenviar convite: ' . $e->getMessage());
+            Log::error('Erro ao reenviar convite: '.$e->getMessage());
         }
     }
 }

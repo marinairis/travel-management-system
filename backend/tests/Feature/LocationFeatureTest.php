@@ -10,418 +10,418 @@ use Tests\TestCase;
 
 class LocationFeatureTest extends TestCase
 {
-  use RefreshDatabase;
+    use RefreshDatabase;
 
-  protected function setUp(): void
-  {
-    parent::setUp();
-    Cache::flush();
-  }
-
-  public function test_can_get_cities_without_query()
-  {
-    $user = User::factory()->create();
-    $mockData = [
-      [
-        'id' => 1,
-        'nome' => 'São Paulo',
-        'microrregiao' => [
-          'mesorregiao' => [
-            'UF' => [
-              'nome' => 'São Paulo',
-              'sigla' => 'SP'
-            ]
-          ]
-        ]
-      ],
-      [
-        'id' => 2,
-        'nome' => 'Rio de Janeiro',
-        'microrregiao' => [
-          'mesorregiao' => [
-            'UF' => [
-              'nome' => 'Rio de Janeiro',
-              'sigla' => 'RJ'
-            ]
-          ]
-        ]
-      ]
-    ];
-
-    Http::fake([
-      'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
-    ]);
-
-    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
-
-    $response->assertStatus(200)
-      ->assertJsonStructure([
-        'success',
-        'data' => [
-          '*' => [
-            'id',
-            'name',
-            'state',
-            'uf',
-            'label',
-            'value',
-          ],
-        ],
-        'meta' => [
-          'total',
-          'has_query',
-        ],
-      ])
-      ->assertJson([
-        'success' => true,
-        'meta' => [
-          'total' => 2,
-          'has_query' => false,
-        ],
-      ]);
-  }
-
-  public function test_can_search_cities_with_query()
-  {
-    $user = User::factory()->create();
-    $mockData = [
-      [
-        'id' => 1,
-        'nome' => 'São Paulo',
-        'microrregiao' => [
-          'mesorregiao' => [
-            'UF' => [
-              'nome' => 'São Paulo',
-              'sigla' => 'SP'
-            ]
-          ]
-        ]
-      ],
-      [
-        'id' => 2,
-        'nome' => 'São José dos Campos',
-        'microrregiao' => [
-          'mesorregiao' => [
-            'UF' => [
-              'nome' => 'São Paulo',
-              'sigla' => 'SP'
-            ]
-          ]
-        ]
-      ],
-      [
-        'id' => 3,
-        'nome' => 'Rio de Janeiro',
-        'microrregiao' => [
-          'mesorregiao' => [
-            'UF' => [
-              'nome' => 'Rio de Janeiro',
-              'sigla' => 'RJ'
-            ]
-          ]
-        ]
-      ]
-    ];
-
-    Http::fake([
-      'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
-    ]);
-
-    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities?q=São');
-
-    $response->assertStatus(200)
-      ->assertJsonStructure([
-        'success',
-        'data' => [
-          '*' => [
-            'id',
-            'name',
-            'state',
-            'uf',
-            'label',
-            'value',
-          ],
-        ],
-        'meta' => [
-          'total',
-          'has_query',
-        ],
-      ])
-      ->assertJson([
-        'success' => true,
-        'meta' => [
-          'has_query' => true,
-        ],
-      ]);
-
-    $responseData = $response->json('data');
-
-    foreach ($responseData as $city) {
-      $this->assertStringContainsString('São', $city['name']);
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Cache::flush();
     }
-  }
 
-  public function test_can_get_destinations()
-  {
-    $mockData = [
-      [
-        'id' => 1,
-        'nome' => 'São Paulo',
-        'microrregiao' => [
-          'mesorregiao' => [
-            'UF' => [
-              'nome' => 'São Paulo',
-              'sigla' => 'SP'
-            ]
-          ]
-        ]
-      ],
-      [
-        'id' => 2,
-        'nome' => 'Rio de Janeiro',
-        'microrregiao' => [
-          'mesorregiao' => [
-            'UF' => [
-              'nome' => 'Rio de Janeiro',
-              'sigla' => 'RJ'
-            ]
-          ]
-        ]
-      ]
-    ];
+    public function test_can_get_cities_without_query()
+    {
+        $user = User::factory()->create();
+        $mockData = [
+            [
+                'id' => 1,
+                'nome' => 'São Paulo',
+                'microrregiao' => [
+                    'mesorregiao' => [
+                        'UF' => [
+                            'nome' => 'São Paulo',
+                            'sigla' => 'SP',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'id' => 2,
+                'nome' => 'Rio de Janeiro',
+                'microrregiao' => [
+                    'mesorregiao' => [
+                        'UF' => [
+                            'nome' => 'Rio de Janeiro',
+                            'sigla' => 'RJ',
+                        ],
+                    ],
+                ],
+            ],
+        ];
 
-    Http::fake([
-      'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
-    ]);
+        Http::fake([
+            'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200),
+        ]);
 
-    $response = $this->getJson('/api/locations/destinations');
+        $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
 
-    $response->assertStatus(200)
-      ->assertJsonStructure([
-        'success',
-        'data' => [
-          '*' => [
-            'value',
-            'label',
-            'id',
-            'nome',
-            'estado',
-            'uf',
-          ],
-        ],
-        'meta' => [
-          'total',
-          'cached',
-        ],
-      ])
-      ->assertJson([
-        'success' => true,
-        'meta' => [
-          'total' => 2,
-          'cached' => true,
-        ],
-      ]);
-  }
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'name',
+                        'state',
+                        'uf',
+                        'label',
+                        'value',
+                    ],
+                ],
+                'meta' => [
+                    'total',
+                    'has_query',
+                ],
+            ])
+            ->assertJson([
+                'success' => true,
+                'meta' => [
+                    'total' => 2,
+                    'has_query' => false,
+                ],
+            ]);
+    }
 
-  public function test_handles_ibge_service_error()
-  {
-    $user = User::factory()->create();
+    public function test_can_search_cities_with_query()
+    {
+        $user = User::factory()->create();
+        $mockData = [
+            [
+                'id' => 1,
+                'nome' => 'São Paulo',
+                'microrregiao' => [
+                    'mesorregiao' => [
+                        'UF' => [
+                            'nome' => 'São Paulo',
+                            'sigla' => 'SP',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'id' => 2,
+                'nome' => 'São José dos Campos',
+                'microrregiao' => [
+                    'mesorregiao' => [
+                        'UF' => [
+                            'nome' => 'São Paulo',
+                            'sigla' => 'SP',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'id' => 3,
+                'nome' => 'Rio de Janeiro',
+                'microrregiao' => [
+                    'mesorregiao' => [
+                        'UF' => [
+                            'nome' => 'Rio de Janeiro',
+                            'sigla' => 'RJ',
+                        ],
+                    ],
+                ],
+            ],
+        ];
 
-    Http::fake([
-      'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response([], 500)
-    ]);
+        Http::fake([
+            'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200),
+        ]);
 
-    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
+        $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities?q=São');
 
-    $response->assertStatus(500)
-      ->assertJson([
-        'success' => false,
-        'message' => __('messages.general.server_error'),
-      ]);
-  }
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    '*' => [
+                        'id',
+                        'name',
+                        'state',
+                        'uf',
+                        'label',
+                        'value',
+                    ],
+                ],
+                'meta' => [
+                    'total',
+                    'has_query',
+                ],
+            ])
+            ->assertJson([
+                'success' => true,
+                'meta' => [
+                    'has_query' => true,
+                ],
+            ]);
 
-  public function test_handles_ibge_service_timeout()
-  {
-    $user = User::factory()->create();
+        $responseData = $response->json('data');
 
-    Http::fake([
-      'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response([], 408)
-    ]);
+        foreach ($responseData as $city) {
+            $this->assertStringContainsString('São', $city['name']);
+        }
+    }
 
-    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
+    public function test_can_get_destinations()
+    {
+        $mockData = [
+            [
+                'id' => 1,
+                'nome' => 'São Paulo',
+                'microrregiao' => [
+                    'mesorregiao' => [
+                        'UF' => [
+                            'nome' => 'São Paulo',
+                            'sigla' => 'SP',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'id' => 2,
+                'nome' => 'Rio de Janeiro',
+                'microrregiao' => [
+                    'mesorregiao' => [
+                        'UF' => [
+                            'nome' => 'Rio de Janeiro',
+                            'sigla' => 'RJ',
+                        ],
+                    ],
+                ],
+            ],
+        ];
 
-    $response->assertStatus(500)
-      ->assertJson([
-        'success' => false,
-        'message' => __('messages.general.server_error'),
-      ]);
-  }
+        Http::fake([
+            'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200),
+        ]);
 
-  public function test_returns_empty_array_when_no_cities_found()
-  {
-    $user = User::factory()->create();
+        $response = $this->getJson('/api/locations/destinations');
 
-    Http::fake([
-      'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response([], 200)
-    ]);
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
+                'data' => [
+                    '*' => [
+                        'value',
+                        'label',
+                        'id',
+                        'nome',
+                        'estado',
+                        'uf',
+                    ],
+                ],
+                'meta' => [
+                    'total',
+                    'cached',
+                ],
+            ])
+            ->assertJson([
+                'success' => true,
+                'meta' => [
+                    'total' => 2,
+                    'cached' => true,
+                ],
+            ]);
+    }
 
-    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
+    public function test_handles_ibge_service_error()
+    {
+        $user = User::factory()->create();
 
-    $response->assertStatus(200)
-      ->assertJson([
-        'success' => true,
-        'data' => [],
-        'meta' => [
-          'total' => 0,
-          'has_query' => false,
-        ],
-      ]);
-  }
+        Http::fake([
+            'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response([], 500),
+        ]);
 
-  public function test_search_returns_empty_array_when_no_matches()
-  {
-    $user = User::factory()->create();
-    $mockData = [
-      [
-        'id' => 1,
-        'nome' => 'São Paulo',
-        'microrregiao' => [
-          'mesorregiao' => [
-            'UF' => [
-              'nome' => 'São Paulo',
-              'sigla' => 'SP'
-            ]
-          ]
-        ]
-      ]
-    ];
+        $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
 
-    Http::fake([
-      'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
-    ]);
+        $response->assertStatus(500)
+            ->assertJson([
+                'success' => false,
+                'message' => __('messages.general.server_error'),
+            ]);
+    }
 
-    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities?q=NonexistentCity');
+    public function test_handles_ibge_service_timeout()
+    {
+        $user = User::factory()->create();
 
-    $response->assertStatus(200)
-      ->assertJson([
-        'success' => true,
-        'data' => [],
-        'meta' => [
-          'total' => 0,
-          'has_query' => true,
-        ],
-      ]);
-  }
+        Http::fake([
+            'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response([], 408),
+        ]);
 
-  public function test_cities_response_format()
-  {
-    $user = User::factory()->create();
-    $mockData = [
-      [
-        'id' => 1,
-        'nome' => 'São Paulo',
-        'microrregiao' => [
-          'mesorregiao' => [
-            'UF' => [
-              'nome' => 'São Paulo',
-              'sigla' => 'SP'
-            ]
-          ]
-        ]
-      ]
-    ];
+        $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
 
-    Http::fake([
-      'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
-    ]);
+        $response->assertStatus(500)
+            ->assertJson([
+                'success' => false,
+                'message' => __('messages.general.server_error'),
+            ]);
+    }
 
-    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
+    public function test_returns_empty_array_when_no_cities_found()
+    {
+        $user = User::factory()->create();
 
-    $response->assertStatus(200);
-    $cityData = $response->json('data.0');
+        Http::fake([
+            'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response([], 200),
+        ]);
 
-    $this->assertEquals(1, $cityData['id']);
-    $this->assertEquals('São Paulo', $cityData['name']);
-    $this->assertEquals('São Paulo', $cityData['state']);
-    $this->assertEquals('SP', $cityData['uf']);
-    $this->assertEquals('São Paulo - São Paulo - SP', $cityData['label']);
-    $this->assertEquals('São Paulo - São Paulo - SP', $cityData['value']);
-  }
+        $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
 
-  public function test_destinations_response_format()
-  {
-    $mockData = [
-      [
-        'id' => 1,
-        'nome' => 'São Paulo',
-        'microrregiao' => [
-          'mesorregiao' => [
-            'UF' => [
-              'nome' => 'São Paulo',
-              'sigla' => 'SP'
-            ]
-          ]
-        ]
-      ]
-    ];
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data' => [],
+                'meta' => [
+                    'total' => 0,
+                    'has_query' => false,
+                ],
+            ]);
+    }
 
-    Http::fake([
-      'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200)
-    ]);
+    public function test_search_returns_empty_array_when_no_matches()
+    {
+        $user = User::factory()->create();
+        $mockData = [
+            [
+                'id' => 1,
+                'nome' => 'São Paulo',
+                'microrregiao' => [
+                    'mesorregiao' => [
+                        'UF' => [
+                            'nome' => 'São Paulo',
+                            'sigla' => 'SP',
+                        ],
+                    ],
+                ],
+            ],
+        ];
 
-    $response = $this->getJson('/api/locations/destinations');
+        Http::fake([
+            'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200),
+        ]);
 
-    $response->assertStatus(200);
-    $destinationData = $response->json('data.0');
+        $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities?q=NonexistentCity');
 
-    $this->assertEquals(1, $destinationData['id']);
-    $this->assertEquals('São Paulo', $destinationData['nome']);
-    $this->assertEquals('São Paulo', $destinationData['estado']);
-    $this->assertEquals('SP', $destinationData['uf']);
-    $this->assertEquals('São Paulo - São Paulo - SP', $destinationData['value']);
-    $this->assertEquals('São Paulo - São Paulo - SP', $destinationData['label']);
-  }
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data' => [],
+                'meta' => [
+                    'total' => 0,
+                    'has_query' => true,
+                ],
+            ]);
+    }
 
-  public function test_cities_endpoint_requires_authentication()
-  {
-    $response = $this->getJson('/api/locations/cities');
+    public function test_cities_response_format()
+    {
+        $user = User::factory()->create();
+        $mockData = [
+            [
+                'id' => 1,
+                'nome' => 'São Paulo',
+                'microrregiao' => [
+                    'mesorregiao' => [
+                        'UF' => [
+                            'nome' => 'São Paulo',
+                            'sigla' => 'SP',
+                        ],
+                    ],
+                ],
+            ],
+        ];
 
-    $response->assertStatus(401);
-  }
+        Http::fake([
+            'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200),
+        ]);
 
-  public function test_destinations_endpoint_is_public()
-  {
-    Http::fake(['*' => Http::response([], 200)]);
+        $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
 
-    $response = $this->getJson('/api/locations/destinations');
+        $response->assertStatus(200);
+        $cityData = $response->json('data.0');
 
-    $response->assertStatus(200);
-  }
+        $this->assertEquals(1, $cityData['id']);
+        $this->assertEquals('São Paulo', $cityData['name']);
+        $this->assertEquals('São Paulo', $cityData['state']);
+        $this->assertEquals('SP', $cityData['uf']);
+        $this->assertEquals('São Paulo - São Paulo - SP', $cityData['label']);
+        $this->assertEquals('São Paulo - São Paulo - SP', $cityData['value']);
+    }
 
-  public function test_handles_malformed_ibge_response()
-  {
-    $user = User::factory()->create();
-    $malformedData = [
-      [
-        'id' => 1,
-        'nome' => 'Test City',
-      ]
-    ];
+    public function test_destinations_response_format()
+    {
+        $mockData = [
+            [
+                'id' => 1,
+                'nome' => 'São Paulo',
+                'microrregiao' => [
+                    'mesorregiao' => [
+                        'UF' => [
+                            'nome' => 'São Paulo',
+                            'sigla' => 'SP',
+                        ],
+                    ],
+                ],
+            ],
+        ];
 
-    Http::fake([
-      'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($malformedData, 200)
-    ]);
+        Http::fake([
+            'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($mockData, 200),
+        ]);
 
-    $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
+        $response = $this->getJson('/api/locations/destinations');
 
-    $response->assertStatus(200);
-    $cityData = $response->json('data.0');
+        $response->assertStatus(200);
+        $destinationData = $response->json('data.0');
 
-    $this->assertEquals(1, $cityData['id']);
-    $this->assertEquals('Test City', $cityData['name']);
-    $this->assertEquals('', $cityData['state']);
-    $this->assertEquals('', $cityData['uf']);
-    $this->assertEquals('Test City -  - ', $cityData['label']);
-    $this->assertEquals('Test City -  - ', $cityData['value']);
-  }
+        $this->assertEquals(1, $destinationData['id']);
+        $this->assertEquals('São Paulo', $destinationData['nome']);
+        $this->assertEquals('São Paulo', $destinationData['estado']);
+        $this->assertEquals('SP', $destinationData['uf']);
+        $this->assertEquals('São Paulo - São Paulo - SP', $destinationData['value']);
+        $this->assertEquals('São Paulo - São Paulo - SP', $destinationData['label']);
+    }
+
+    public function test_cities_endpoint_requires_authentication()
+    {
+        $response = $this->getJson('/api/locations/cities');
+
+        $response->assertStatus(401);
+    }
+
+    public function test_destinations_endpoint_is_public()
+    {
+        Http::fake(['*' => Http::response([], 200)]);
+
+        $response = $this->getJson('/api/locations/destinations');
+
+        $response->assertStatus(200);
+    }
+
+    public function test_handles_malformed_ibge_response()
+    {
+        $user = User::factory()->create();
+        $malformedData = [
+            [
+                'id' => 1,
+                'nome' => 'Test City',
+            ],
+        ];
+
+        Http::fake([
+            'servicodados.ibge.gov.br/api/v1/localidades/municipios' => Http::response($malformedData, 200),
+        ]);
+
+        $response = $this->actingAs($user, 'api')->getJson('/api/locations/cities');
+
+        $response->assertStatus(200);
+        $cityData = $response->json('data.0');
+
+        $this->assertEquals(1, $cityData['id']);
+        $this->assertEquals('Test City', $cityData['name']);
+        $this->assertEquals('', $cityData['state']);
+        $this->assertEquals('', $cityData['uf']);
+        $this->assertEquals('Test City -  - ', $cityData['label']);
+        $this->assertEquals('Test City -  - ', $cityData['value']);
+    }
 }

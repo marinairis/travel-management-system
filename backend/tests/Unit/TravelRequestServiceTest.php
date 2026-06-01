@@ -31,6 +31,7 @@ class TravelRequestServiceTest extends TestCase
     public function actingAsUser(User $user): self
     {
         Auth::login($user);
+
         return $this;
     }
 

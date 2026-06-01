@@ -2,12 +2,13 @@
 
 namespace Tests\Unit;
 
-use App\Models\User;
-use App\Models\TravelRequest;
 use App\Models\ActivityLog;
+use App\Models\TravelRequest;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class UserTest extends TestCase
 {
@@ -77,7 +78,7 @@ class UserTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->assertInstanceOf(\Tymon\JWTAuth\Contracts\JWTSubject::class, $user);
+        $this->assertInstanceOf(JWTSubject::class, $user);
     }
 
     public function test_get_jwt_identifier_returns_user_id()

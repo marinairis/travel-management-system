@@ -18,9 +18,9 @@ class InvitationFeatureTest extends TestCase
     private function createInvitation(array $overrides = []): Invitation
     {
         return Invitation::create(array_merge([
-            'email'      => 'invited@example.com',
-            'role'       => 'requester',
-            'token'      => Str::random(64),
+            'email' => 'invited@example.com',
+            'role' => 'requester',
+            'token' => Str::random(64),
             'expires_at' => now()->addDays(7),
         ], $overrides));
     }
@@ -34,9 +34,9 @@ class InvitationFeatureTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'data'    => [
+                'data' => [
                     'email' => 'invited@example.com',
-                    'role'  => 'requester',
+                    'role' => 'requester',
                 ],
             ]);
     }
@@ -74,8 +74,8 @@ class InvitationFeatureTest extends TestCase
         $invitation = $this->createInvitation(['email' => 'newuser@example.com', 'role' => 'manager']);
 
         $response = $this->postJson("/api/invitations/{$invitation->token}/accept", [
-            'name'                  => 'New User',
-            'password'              => 'Password@123',
+            'name' => 'New User',
+            'password' => 'Password@123',
             'password_confirmation' => 'Password@123',
         ]);
 
@@ -87,12 +87,12 @@ class InvitationFeatureTest extends TestCase
             ])
             ->assertJson([
                 'success' => true,
-                'data'    => ['token_type' => 'bearer'],
+                'data' => ['token_type' => 'bearer'],
             ]);
 
         $this->assertDatabaseHas('users', [
             'email' => 'newuser@example.com',
-            'role'  => 'manager',
+            'role' => 'manager',
         ]);
 
         $this->assertNotNull($invitation->fresh()->accepted_at);
@@ -101,8 +101,8 @@ class InvitationFeatureTest extends TestCase
     public function test_accept_returns_error_for_invalid_token(): void
     {
         $response = $this->postJson('/api/invitations/invalid-token/accept', [
-            'name'                  => 'New User',
-            'password'              => 'Password@123',
+            'name' => 'New User',
+            'password' => 'Password@123',
             'password_confirmation' => 'Password@123',
         ]);
 
@@ -115,8 +115,8 @@ class InvitationFeatureTest extends TestCase
         $invitation = $this->createInvitation(['expires_at' => now()->subDay()]);
 
         $response = $this->postJson("/api/invitations/{$invitation->token}/accept", [
-            'name'                  => 'New User',
-            'password'              => 'Password@123',
+            'name' => 'New User',
+            'password' => 'Password@123',
             'password_confirmation' => 'Password@123',
         ]);
 
@@ -142,7 +142,7 @@ class InvitationFeatureTest extends TestCase
         $response = $this->actingAs($admin, 'api')
             ->postJson('/api/users/invite', [
                 'email' => 'newinvite@example.com',
-                'role'  => 'requester',
+                'role' => 'requester',
             ]);
 
         $response->assertStatus(201)
@@ -158,7 +158,7 @@ class InvitationFeatureTest extends TestCase
         $response = $this->actingAs($user, 'api')
             ->postJson('/api/users/invite', [
                 'email' => 'newinvite@example.com',
-                'role'  => 'requester',
+                'role' => 'requester',
             ]);
 
         $response->assertStatus(403);
@@ -172,7 +172,7 @@ class InvitationFeatureTest extends TestCase
         $response = $this->actingAs($admin, 'api')
             ->postJson('/api/users/invite', [
                 'email' => 'existing@example.com',
-                'role'  => 'requester',
+                'role' => 'requester',
             ]);
 
         $response->assertStatus(422)
@@ -183,7 +183,7 @@ class InvitationFeatureTest extends TestCase
     {
         $response = $this->postJson('/api/users/invite', [
             'email' => 'newinvite@example.com',
-            'role'  => 'requester',
+            'role' => 'requester',
         ]);
 
         $response->assertStatus(401);

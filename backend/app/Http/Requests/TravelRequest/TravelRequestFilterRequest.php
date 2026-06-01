@@ -19,11 +19,11 @@ class TravelRequestFilterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status'      => 'nullable|string|in:requested,approved,cancelled,expired',
+            'status' => 'nullable|string|in:requested,approved,cancelled,expired',
             'destination' => 'nullable|string|max:255',
-            'start_date'  => 'nullable|date',
-            'end_date'    => 'nullable|date|after_or_equal:start_date',
-            'per_page'    => 'nullable|integer|min:1|max:100',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'per_page' => 'nullable|integer|min:1|max:100',
         ];
     }
 }

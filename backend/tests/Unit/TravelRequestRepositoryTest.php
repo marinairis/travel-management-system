@@ -126,12 +126,12 @@ class TravelRequestRepositoryTest extends TestCase
     {
         $user = User::factory()->create();
         $data = [
-            'user_id'        => $user->id,
+            'user_id' => $user->id,
             'requester_name' => 'John Doe',
-            'destination'    => 'São Paulo, SP',
+            'destination' => 'São Paulo, SP',
             'departure_date' => now()->addDays(10),
-            'return_date'    => now()->addDays(15),
-            'status'         => 'requested',
+            'return_date' => now()->addDays(15),
+            'status' => 'requested',
         ];
 
         $travelRequest = $this->repository->create($data);
@@ -150,7 +150,7 @@ class TravelRequestRepositoryTest extends TestCase
 
         $this->assertEquals('approved', $saved->status);
         $this->assertDatabaseHas('travel_requests', [
-            'id'     => $saved->id,
+            'id' => $saved->id,
             'status' => 'approved',
         ]);
     }

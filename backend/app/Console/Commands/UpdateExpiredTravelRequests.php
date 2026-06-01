@@ -9,7 +9,6 @@ use App\Models\ActivityLog;
 use App\Models\TravelRequest;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class UpdateExpiredTravelRequests extends Command
 {
@@ -27,6 +26,7 @@ class UpdateExpiredTravelRequests extends Command
 
         if ($expiredRequests->isEmpty()) {
             $this->info('No expired travel requests found.');
+
             return Command::SUCCESS;
         }
 
@@ -39,13 +39,13 @@ class UpdateExpiredTravelRequests extends Command
             $request->save();
 
             ActivityLog::create([
-                'user_id'    => Auth::id() ?? 1,
-                'action'     => 'status_change',
+                'user_id' => Auth::id() ?? 1,
+                'action' => 'status_change',
                 'model_type' => get_class($request),
-                'model_id'   => $request->id,
+                'model_id' => $request->id,
                 'description' => 'Pedido de viagem expirado automaticamente (data de partida passou)',
-                'old_values'  => ['status' => $oldStatus],
-                'new_values'  => ['status' => TravelRequestStatus::Expired->value],
+                'old_values' => ['status' => $oldStatus],
+                'new_values' => ['status' => TravelRequestStatus::Expired->value],
             ]);
 
             $this->line("  - Request #{$request->id} ({$request->destination}) marked as expired.");

@@ -138,9 +138,9 @@ import { useTravelType } from '@/composables/useTravelType'
 import { useRequestStatus } from '@/composables/useRequestStatus'
 import CancelRequestDialog from '@/components/CancelRequestDialog.vue'
 
-const { formatDateShort: formatDate, formatDateLong, formatDateTime } = useDateFormat()
+const { formatDateLong } = useDateFormat()
 const { travelTypeIcon, getTravelTypeColor, formatRequestId } = useTravelType()
-const { getStatusType, translateStatus, isSystemCancellation } = useRequestStatus()
+const { getStatusType, translateStatus } = useRequestStatus()
 const props = defineProps({
   data: { type: Array, required: true },
   loading: { type: Boolean, default: false },
@@ -191,13 +191,6 @@ const handleEdit = (row) => {
   emit('edit', row)
 }
 
-const canChangeStatus = (row) => {
-  if (!row) return false
-  if (row.status === 'cancelled' && isSystemCancellation(row.status, row.cancel_reason))
-    return false
-  return authStore.isApprover && row.user_id !== authStore.user?.id
-}
-
 const handleApprove = (row) => {
   selectedRequest.value = row
   emit('approve', row.id)
@@ -213,10 +206,6 @@ const confirmCancel = async (reason) => {
   await emit('cancel', { id: selectedRequest.value.id, reason })
   cancelling.value = false
   cancelDialogVisible.value = false
-}
-
-const handleStatusChangeInline = async (row, newStatusValue) => {
-  await emit('status-change', row.id, newStatusValue)
 }
 
 const handleView = (row) => {

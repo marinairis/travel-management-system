@@ -15,10 +15,10 @@ class ManagerOrAdmin
     {
         $user = Auth::user();
 
-        if (!$user || $user->isRequester()) {
+        if (! $user || $user->isRequester()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Você não tem permissão para executar esta ação'
+                'message' => 'Você não tem permissão para executar esta ação',
             ], 403);
         }
 

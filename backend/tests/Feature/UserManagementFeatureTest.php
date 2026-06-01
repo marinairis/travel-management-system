@@ -368,7 +368,7 @@ class UserManagementFeatureTest extends TestCase
     public function test_admin_can_get_pending_requests_count()
     {
         $admin = User::factory()->admin()->create();
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
 
         TravelRequest::factory()->requested()->create(['user_id' => $user->id]);
         TravelRequest::factory()->approved()->create(['user_id' => $user->id]);
@@ -380,14 +380,14 @@ class UserManagementFeatureTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'data'    => ['count' => 2],
+                'data' => ['count' => 2],
             ]);
     }
 
     public function test_pending_requests_count_returns_zero_when_none(): void
     {
         $admin = User::factory()->admin()->create();
-        $user  = User::factory()->create();
+        $user = User::factory()->create();
 
         $response = $this->actingAs($admin, 'api')
             ->getJson("/api/users/{$user->id}/pending-requests-count");
@@ -395,7 +395,7 @@ class UserManagementFeatureTest extends TestCase
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'data'    => ['count' => 0],
+                'data' => ['count' => 0],
             ]);
     }
 
@@ -412,7 +412,7 @@ class UserManagementFeatureTest extends TestCase
 
     public function test_non_admin_cannot_access_pending_requests_count(): void
     {
-        $user   = User::factory()->create();
+        $user = User::factory()->create();
         $target = User::factory()->create();
 
         $response = $this->actingAs($user, 'api')

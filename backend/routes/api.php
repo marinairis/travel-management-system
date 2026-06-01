@@ -1,11 +1,24 @@
 <?php
 
+use App\Http\Controllers\API\ActivityLog\ListActivityLogsController;
 use App\Http\Controllers\API\Auth\ForgotPasswordController;
 use App\Http\Controllers\API\Auth\LoginController;
 use App\Http\Controllers\API\Auth\LogoutController;
 use App\Http\Controllers\API\Auth\MeController;
 use App\Http\Controllers\API\Auth\RefreshTokenController;
 use App\Http\Controllers\API\Auth\ResetPasswordController;
+use App\Http\Controllers\API\Dashboard\GetDashboardStatsController;
+use App\Http\Controllers\API\Dashboard\GetPendingApprovalController;
+use App\Http\Controllers\API\Dashboard\GetRecentRequestsController;
+use App\Http\Controllers\API\Invitation\AcceptInvitationController;
+use App\Http\Controllers\API\Invitation\InviteUserController;
+use App\Http\Controllers\API\Invitation\ResendInvitationController;
+use App\Http\Controllers\API\Invitation\ShowInvitationController;
+use App\Http\Controllers\API\Location\GetCitiesController;
+use App\Http\Controllers\API\Location\GetDestinationsController;
+use App\Http\Controllers\API\Notification\ListNotificationsController;
+use App\Http\Controllers\API\Notification\MarkAllNotificationsAsReadController;
+use App\Http\Controllers\API\Notification\MarkNotificationAsReadController;
 use App\Http\Controllers\API\TravelRequest\CancelTravelRequestController;
 use App\Http\Controllers\API\TravelRequest\CreateTravelRequestController;
 use App\Http\Controllers\API\TravelRequest\ListTravelRequestsController;
@@ -19,19 +32,6 @@ use App\Http\Controllers\API\User\PendingRequestsCountController;
 use App\Http\Controllers\API\User\ShowUserController;
 use App\Http\Controllers\API\User\ToggleUserStatusController;
 use App\Http\Controllers\API\User\UpdateUserController;
-use App\Http\Controllers\API\Invitation\AcceptInvitationController;
-use App\Http\Controllers\API\Invitation\InviteUserController;
-use App\Http\Controllers\API\Invitation\ResendInvitationController;
-use App\Http\Controllers\API\Invitation\ShowInvitationController;
-use App\Http\Controllers\API\ActivityLog\ListActivityLogsController;
-use App\Http\Controllers\API\Dashboard\GetDashboardStatsController;
-use App\Http\Controllers\API\Dashboard\GetPendingApprovalController;
-use App\Http\Controllers\API\Dashboard\GetRecentRequestsController;
-use App\Http\Controllers\API\Notification\ListNotificationsController;
-use App\Http\Controllers\API\Notification\MarkAllNotificationsAsReadController;
-use App\Http\Controllers\API\Notification\MarkNotificationAsReadController;
-use App\Http\Controllers\API\Location\GetCitiesController;
-use App\Http\Controllers\API\Location\GetDestinationsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/test', fn () => response()->json(['success' => true, 'message' => 'Ok']));

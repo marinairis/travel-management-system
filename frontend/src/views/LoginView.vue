@@ -57,7 +57,7 @@
 import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useI18n } from 'vue-i18n'
-import { MapLocation, Message, Lock } from '@element-plus/icons-vue'
+import { Message, Lock } from '@element-plus/icons-vue'
 import LanguageSelector from '@/components/LanguageSelector.vue'
 
 const { t } = useI18n()

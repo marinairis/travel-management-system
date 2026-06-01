@@ -1,7 +1,7 @@
 <?php
 
 return [
-  /*
+    /*
     |--------------------------------------------------------------------------
     | Available Locales
     |--------------------------------------------------------------------------
@@ -9,12 +9,12 @@ return [
     | List of available locales for the application
     |
     */
-  'available_locales' => [
-    'pt-BR' => 'Português (Brasil)',
-    'en-US' => 'English (United States)',
-  ],
+    'available_locales' => [
+        'pt-BR' => 'Português (Brasil)',
+        'en-US' => 'English (United States)',
+    ],
 
-  /*
+    /*
     |--------------------------------------------------------------------------
     | Default Locale
     |--------------------------------------------------------------------------
@@ -22,9 +22,9 @@ return [
     | The default locale that will be used by the application
     |
     */
-  'default_locale' => 'pt-BR',
+    'default_locale' => 'pt-BR',
 
-  /*
+    /*
     |--------------------------------------------------------------------------
     | Fallback Locale
     |--------------------------------------------------------------------------
@@ -32,5 +32,5 @@ return [
     | The fallback locale that will be used when the requested locale is not available
     |
     */
-  'fallback_locale' => 'pt-BR',
+    'fallback_locale' => 'pt-BR',
 ];

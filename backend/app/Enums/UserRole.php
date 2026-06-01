@@ -7,8 +7,8 @@ namespace App\Enums;
 enum UserRole: string
 {
     case Requester = 'requester';
-    case Manager   = 'manager';
-    case Admin     = 'admin';
+    case Manager = 'manager';
+    case Admin = 'admin';
 
     public function isApprover(): bool
     {

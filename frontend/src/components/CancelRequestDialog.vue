@@ -33,7 +33,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const props = defineProps({
+defineProps({
   modelValue: { type: Boolean, required: true },
   isLoading: { type: Boolean, default: false },
   confirmType: { type: String, default: 'warning' },

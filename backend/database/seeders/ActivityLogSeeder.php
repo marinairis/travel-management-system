@@ -5,8 +5,8 @@ namespace Database\Seeders;
 use App\Models\ActivityLog;
 use App\Models\TravelRequest;
 use App\Models\User;
-use Illuminate\Database\Seeder;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class ActivityLogSeeder extends Seeder
 {

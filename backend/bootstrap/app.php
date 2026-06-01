@@ -1,24 +1,28 @@
 <?php
 
+use App\Http\Middleware\AdminOnly;
+use App\Http\Middleware\JsonUnicodeEncoding;
+use App\Http\Middleware\ManagerOrAdmin;
+use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__ . '/../routes/web.php',
-        api: __DIR__ . '/../routes/api.php',
-        commands: __DIR__ . '/../routes/console.php',
+        web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
+        commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->api(append: [
-            \App\Http\Middleware\JsonUnicodeEncoding::class,
-            \App\Http\Middleware\SetLocale::class,
+            JsonUnicodeEncoding::class,
+            SetLocale::class,
         ]);
         $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminOnly::class,
-            'manager_or_admin' => \App\Http\Middleware\ManagerOrAdmin::class,
+            'admin' => AdminOnly::class,
+            'manager_or_admin' => ManagerOrAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

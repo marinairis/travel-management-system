@@ -19,30 +19,22 @@ export const useAuthStore = defineStore('auth', {
 
   actions: {
     async login(credentials) {
-      try {
-        const response = await authRepository.login(credentials)
-        if (response.data.success) {
-          this.token = response.data.data.token
-          this.user = response.data.data.user
-          ElMessage.success(response.data.message)
-          router.push('/')
-        }
-      } catch (error) {
-        throw error
+      const response = await authRepository.login(credentials)
+      if (response.data.success) {
+        this.token = response.data.data.token
+        this.user = response.data.data.user
+        ElMessage.success(response.data.message)
+        router.push('/')
       }
     },
 
     async register(userData) {
-      try {
-        const response = await authRepository.register(userData)
-        if (response.data.success) {
-          this.token = response.data.data.token
-          this.user = response.data.data.user
-          ElMessage.success(response.data.message)
-          router.push('/')
-        }
-      } catch (error) {
-        throw error
+      const response = await authRepository.register(userData)
+      if (response.data.success) {
+        this.token = response.data.data.token
+        this.user = response.data.data.user
+        ElMessage.success(response.data.message)
+        router.push('/')
       }
     },
 

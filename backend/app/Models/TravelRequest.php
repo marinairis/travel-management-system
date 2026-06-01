@@ -64,6 +64,7 @@ class TravelRequest extends Model
                 return true;
             }
         }
+
         return false;
     }
 
@@ -72,6 +73,7 @@ class TravelRequest extends Model
         if (TravelRequestStatus::from($this->status)->isFinal()) {
             return false;
         }
+
         return $this->departure_date >= now()->startOfDay();
     }
 
@@ -80,6 +82,7 @@ class TravelRequest extends Model
         if ($status) {
             return $query->where('status', $status);
         }
+
         return $query;
     }
 
@@ -88,6 +91,7 @@ class TravelRequest extends Model
         if ($destination) {
             return $query->where('destination', 'like', "%{$destination}%");
         }
+
         return $query;
     }
 
@@ -98,6 +102,7 @@ class TravelRequest extends Model
                 ->orWhereBetween('return_date', [$startDate, $endDate])
                 ->orWhereBetween('created_at', [$startDate, $endDate]);
         }
+
         return $query;
     }
 }

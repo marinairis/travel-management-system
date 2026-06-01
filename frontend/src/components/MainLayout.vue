@@ -119,8 +119,6 @@ const route = useRoute()
 const sidebarOpen = ref(false)
 const isMobile = ref(false)
 
-const sidebarWidth = computed(() => (isMobile.value ? '248px' : '248px'))
-
 const activeMenu = computed(() => {
   const path = route.path
   if (path.startsWith('/requests')) return 'requests'

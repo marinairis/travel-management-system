@@ -310,27 +310,6 @@ const handleUpdate = async (formData) => {
   }
 }
 
-const handleDelete = async (user) => {
-  selectedUser.value = user
-  const count = await userStore.getPendingRequestsCount(user.id)
-  selectedUser.value.pendingRequestsCount = count
-
-  if (count > 0) {
-    ElMessageBox.confirm(
-      t('users.confirmDeleteMessage', { name: user.name, count: count }),
-      t('users.confirmDeleteTitle'),
-      {
-        confirmButtonText: t('common.confirm'),
-        cancelButtonText: t('common.cancel'),
-        type: 'warning',
-      }
-    ).then(async () => {
-      await confirmDelete()
-    }).catch(() => {})
-  } else {
-    showDeleteDialog.value = true
-  }
-}
 const confirmDelete = async () => {
   deleting.value = true
   await userStore.deleteUser(selectedUser.value.id)
@@ -358,7 +337,6 @@ const handleResend = async (invitation) => {
 }
 
 const handleStatusClick = async (user) => {
-  const action = user.is_active ? 'deactivate' : 'activate'
   const title = user.is_active ? t('users.confirmDeactivateTitle') : t('users.confirmActivateTitle')
   
   let message
@@ -379,6 +357,7 @@ const handleStatusClick = async (user) => {
     })
     await userStore.toggleUserStatus(user.id)
   } catch {
+    // user cancelled the confirmation dialog
   }
 }
 </script>

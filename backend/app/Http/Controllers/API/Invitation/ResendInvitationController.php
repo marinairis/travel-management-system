@@ -29,7 +29,7 @@ class ResendInvitationController extends Controller
         }
 
         $token = Str::random(64);
-        $invitation->token      = $token;
+        $invitation->token = $token;
         $invitation->expires_at = now()->addDays(7);
         $invitation->save();
 
@@ -37,7 +37,7 @@ class ResendInvitationController extends Controller
             Notification::route('mail', $invitation->email)
                 ->notify(new UserInvited($token, $invitation->role));
         } catch (\Exception $e) {
-            Log::error('Erro ao reenviar convite: ' . $e->getMessage());
+            Log::error('Erro ao reenviar convite: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,

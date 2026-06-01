@@ -189,7 +189,7 @@ import { useRequestStatus } from '@/composables/useRequestStatus'
 const { t } = useI18n()
 const { formatDateWithYear: formatDate, formatDateTimeCompact: formatDateTime } = useDateFormat()
 const { travelTypeIcon, getTravelTypeColor, formatRequestId } = useTravelType()
-const { getStatusType, translateStatus, isSystemCancellation } = useRequestStatus()
+const { getStatusType, translateStatus } = useRequestStatus()
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -245,10 +245,6 @@ const canCancelRequest = computed(() => {
   }
   return true
 })
-
-const isCancelledBySystem = computed(() =>
-  isSystemCancellation(request.value?.status, request.value?.cancel_reason)
-)
 
 const handleGoBack = () => {
   if (window.history.length > 2) {
