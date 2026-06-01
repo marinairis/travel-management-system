@@ -21,14 +21,21 @@
           <div class="settings-profile-header">
             <el-avatar
               :size="52"
-              :style="{ background: avatarBg(authStore.user?.id || 'x'), color: '#fff', fontSize: '14px', fontWeight: 700 }"
+              :style="{
+                background: avatarBg(authStore.user?.id || 'x'),
+                color: '#fff',
+                fontSize: '14px',
+                fontWeight: 700,
+              }"
             >
               {{ initials(authStore.user?.name || '?') }}
             </el-avatar>
             <div>
               <div class="settings-profile-name">{{ authStore.user?.name }}</div>
               <div class="settings-profile-email">{{ authStore.user?.email }}</div>
-              <el-tag :type="roleTagType" size="small" class="settings-profile-tag">{{ roleLabel }}</el-tag>
+              <el-tag :type="roleTagType" size="small" class="settings-profile-tag">{{
+                roleLabel
+              }}</el-tag>
             </div>
           </div>
           <div class="settings-fields">
@@ -78,7 +85,9 @@
             >
               <span class="settings-locale-flag">{{ l.flag }}</span>
               {{ l.label }}
-              <span v-if="localeStore.currentLocale === l.code" class="settings-option-check">✓</span>
+              <span v-if="localeStore.currentLocale === l.code" class="settings-option-check"
+                >✓</span
+              >
             </div>
           </div>
         </div>

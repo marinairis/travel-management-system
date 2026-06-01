@@ -16,5 +16,6 @@ export const remove = (id) => api.delete(`/users/${id}`)
 export const fetchBasic = () => api.get('/users/basic')
 export const invite = (data) => api.post('/users/invite', data)
 export const toggleStatus = (id) => api.patch(`/users/${id}/toggle-status`)
-export const getPendingRequestsCount = (userId) => api.get(`/users/${userId}/pending-requests-count`)
+export const getPendingRequestsCount = (userId) =>
+  api.get(`/users/${userId}/pending-requests-count`)
 export const resendInvitation = (id) => api.post(`/invitations/${id}/resend`)

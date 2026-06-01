@@ -25,16 +25,21 @@ const i18n = createI18n({
   messages: {
     'pt-BR': {
       travelRequest: {
-        requesterName: 'Solicitante', requesterNamePlaceholder: 'Nome...',
+        requesterName: 'Solicitante',
+        requesterNamePlaceholder: 'Nome...',
         requesterNameRequired: 'Nome obrigatório',
-        destination: 'Destino', destinationPlaceholder: 'Selecione...',
+        destination: 'Destino',
+        destinationPlaceholder: 'Selecione...',
         destinationRequired: 'Destino obrigatório',
-        departureDate: 'Data de saída', datePlaceholder: 'DD/MM/YYYY',
+        departureDate: 'Data de saída',
+        datePlaceholder: 'DD/MM/YYYY',
         departureDateRequired: 'Data de saída obrigatória',
         returnDate: 'Data de retorno',
         returnDateRequired: 'Data de retorno obrigatória',
-        notes: 'Observações', notesPlaceholder: 'Observações opcionais...',
-        createRequest: 'Criar pedido', updateRequest: 'Atualizar pedido',
+        notes: 'Observações',
+        notesPlaceholder: 'Observações opcionais...',
+        createRequest: 'Criar pedido',
+        updateRequest: 'Atualizar pedido',
         loadDestinationsError: 'Erro ao carregar destinos',
       },
       common: { cancel: 'Cancelar' },
@@ -49,7 +54,8 @@ const elStubs = {
   },
   ElFormItem: { template: '<div><slot /></div>', props: ['label', 'prop'] },
   ElInput: {
-    template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
+    template:
+      '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     props: ['modelValue', 'placeholder', 'type', 'rows'],
     emits: ['update:modelValue'],
   },

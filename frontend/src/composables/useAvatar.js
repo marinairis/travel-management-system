@@ -1,6 +1,8 @@
 export function useAvatar() {
   const initials = (name) => {
-    const parts = String(name || '').trim().split(' ')
+    const parts = String(name || '')
+      .trim()
+      .split(' ')
     return ((parts[0]?.[0] || '') + (parts[parts.length - 1]?.[0] || '')).toUpperCase()
   }
 
@@ -15,7 +17,8 @@ export function useAvatar() {
     ]
     let hashValue = 0
     const idString = String(id ?? '')
-    for (let i = 0; i < idString.length; i++) hashValue = idString.charCodeAt(i) + ((hashValue << 5) - hashValue)
+    for (let i = 0; i < idString.length; i++)
+      hashValue = idString.charCodeAt(i) + ((hashValue << 5) - hashValue)
     return colors[Math.abs(hashValue) % colors.length]
   }
 

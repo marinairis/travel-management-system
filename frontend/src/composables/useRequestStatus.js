@@ -6,7 +6,8 @@ export function useRequestStatus() {
   const { t } = useI18n()
 
   const getStatusType = (status) =>
-    ({ requested: 'warning', approved: 'success', cancelled: 'danger', expired: 'info' }[status] || '')
+    ({ requested: 'warning', approved: 'success', cancelled: 'danger', expired: 'info' })[status] ||
+    ''
 
   const translateStatus = (status) =>
     ({

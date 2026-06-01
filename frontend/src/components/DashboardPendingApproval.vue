@@ -67,7 +67,11 @@
           </el-icon>
         </el-tooltip>
       </template>
-      <el-tooltip v-else-if="isApprover && req.user_id === currentUserId" :content="$t('dashboard.cannotApproveOwn')" placement="top">
+      <el-tooltip
+        v-else-if="isApprover && req.user_id === currentUserId"
+        :content="$t('dashboard.cannotApproveOwn')"
+        placement="top"
+      >
         <el-icon style="color: var(--el-text-color-secondary); cursor: help; font-size: 18px">
           <Lock />
         </el-icon>

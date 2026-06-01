@@ -1,5 +1,5 @@
 <template>
-  <div style="display:flex;align-items:center;width:100%;gap:10px">
+  <div style="display: flex; align-items: center; width: 100%; gap: 10px">
     <el-button
       v-if="authStore.isAuthenticated"
       plain
@@ -15,9 +15,11 @@
       size="default"
       clearable
       class="voa-tb-search"
-      style="flex:1;max-width:300px"
+      style="flex: 1; max-width: 300px"
     >
-      <template #prefix><el-icon><Search /></el-icon></template>
+      <template #prefix
+        ><el-icon><Search /></el-icon
+      ></template>
     </el-input>
 
     <div class="voa-tb-actions">
@@ -39,22 +41,20 @@
       </el-tooltip>
 
       <el-dropdown v-if="authStore.isAuthenticated" trigger="click" @command="setLocale">
-        <el-button size="small" plain>
-          {{ currentLocaleLabel }} ▾
-        </el-button>
+        <el-button size="small" plain> {{ currentLocaleLabel }} ▾ </el-button>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item
-              v-for="l in locales"
-              :key="l.code"
-              :command="l.code"
-            >
-              <span style="font-size:12px;color:var(--el-text-color-secondary);margin-right:8px">{{ l.flag }}</span>
+            <el-dropdown-item v-for="l in locales" :key="l.code" :command="l.code">
+              <span
+                style="font-size: 12px; color: var(--el-text-color-secondary); margin-right: 8px"
+                >{{ l.flag }}</span
+              >
               {{ l.label }}
               <span
                 v-if="localeStore.currentLocale === l.code"
-                style="margin-left:auto;color:var(--el-color-primary);padding-left:8px"
-              >✓</span>
+                style="margin-left: auto; color: var(--el-color-primary); padding-left: 8px"
+                >✓</span
+              >
             </el-dropdown-item>
           </el-dropdown-menu>
         </template>
@@ -63,22 +63,32 @@
       <el-dropdown v-if="authStore.isAuthenticated" trigger="click" @command="handleUserCommand">
         <el-avatar
           :size="34"
-          :style="{ background: avatarBg(authStore.user?.id || 'x'), color: '#fff', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }"
+          :style="{
+            background: avatarBg(authStore.user?.id || 'x'),
+            color: '#fff',
+            fontSize: '12px',
+            fontWeight: 700,
+            cursor: 'pointer',
+          }"
         >
           {{ initials(authStore.user?.name || '?') }}
         </el-avatar>
         <template #dropdown>
           <el-dropdown-menu>
-            <div style="padding:10px 14px;border-bottom:1px solid var(--el-border-color)">
-              <div style="font-weight:600;font-size:14px">{{ authStore.user?.name }}</div>
-              <div style="font-size:12px;color:var(--el-text-color-secondary)">{{ authStore.user?.email }}</div>
-              <el-tag :type="roleTagType" size="small" style="margin-top:6px">{{ roleLabel }}</el-tag>
+            <div style="padding: 10px 14px; border-bottom: 1px solid var(--el-border-color)">
+              <div style="font-weight: 600; font-size: 14px">{{ authStore.user?.name }}</div>
+              <div style="font-size: 12px; color: var(--el-text-color-secondary)">
+                {{ authStore.user?.email }}
+              </div>
+              <el-tag :type="roleTagType" size="small" style="margin-top: 6px">{{
+                roleLabel
+              }}</el-tag>
             </div>
             <el-dropdown-item command="settings">
               <el-icon><Setting /></el-icon>
               {{ $t('navigation.settings') }}
             </el-dropdown-item>
-            <el-dropdown-item divided command="logout" style="color:var(--el-color-danger)">
+            <el-dropdown-item divided command="logout" style="color: var(--el-color-danger)">
               <el-icon><SwitchButton /></el-icon>
               {{ $t('common.logout') }}
             </el-dropdown-item>
@@ -117,7 +127,7 @@ const locales = [
 ]
 
 const currentLocaleLabel = computed(() => {
-  const map = { 'pt-BR': 'PT', 'en': 'EN', 'es': 'ES' }
+  const map = { 'pt-BR': 'PT', en: 'EN', es: 'ES' }
   return map[localeStore.currentLocale] || 'PT'
 })
 

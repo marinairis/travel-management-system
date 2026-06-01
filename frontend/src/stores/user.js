@@ -58,10 +58,18 @@ export const useUserStore = defineStore('user', {
       }
     },
 
-    async updateUser(id, data) { return this._mutateUser(() => userRepository.update(id, data)) },
-    async deleteUser(id) { return this._mutateUser(() => userRepository.remove(id)) },
-    async toggleUserStatus(id) { return this._mutateUser(() => userRepository.toggleStatus(id)) },
-    async resendInvitation(id) { return this._mutateUser(() => userRepository.resendInvitation(id)) },
+    async updateUser(id, data) {
+      return this._mutateUser(() => userRepository.update(id, data))
+    },
+    async deleteUser(id) {
+      return this._mutateUser(() => userRepository.remove(id))
+    },
+    async toggleUserStatus(id) {
+      return this._mutateUser(() => userRepository.toggleStatus(id))
+    },
+    async resendInvitation(id) {
+      return this._mutateUser(() => userRepository.resendInvitation(id))
+    },
 
     async fetchBasicUsers() {
       try {

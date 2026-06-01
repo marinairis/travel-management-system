@@ -5,8 +5,8 @@ import es from './locales/es.json'
 
 const messages = {
   'pt-BR': ptBR,
-  'en': en,
-  'es': es,
+  en: en,
+  es: es,
 }
 
 const savedLocale = (() => {

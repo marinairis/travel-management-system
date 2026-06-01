@@ -30,21 +30,11 @@
         >
           ✓ {{ $t('travelRequest.detailApprove') }}
         </el-button>
-        <el-button
-          v-if="canEditRequest"
-          type="primary"
-          plain
-          @click="editDialogOpen = true"
-        >
+        <el-button v-if="canEditRequest" type="primary" plain @click="editDialogOpen = true">
           <el-icon style="margin-right: 4px"><Edit /></el-icon>
           {{ $t('common.edit') }}
         </el-button>
-        <el-button
-          v-if="canCancelRequest"
-          type="danger"
-          plain
-          @click="cancelOpen = true"
-        >
+        <el-button v-if="canCancelRequest" type="danger" plain @click="cancelOpen = true">
           {{ $t('travelRequest.detailCancel') }}
         </el-button>
       </div>

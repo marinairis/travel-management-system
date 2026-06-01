@@ -1,4 +1,5 @@
-t<template>
+t
+<template>
   <el-config-provider :locale="localeStore.currentElementPlusLocale">
     <div id="app">
       <MainLayout v-if="showMainLayout" />
@@ -29,7 +30,7 @@ watch(
   () => localeStore.currentLocale,
   (newLocale) => {
     locale.value = newLocale
-  }
+  },
 )
 
 onMounted(() => {

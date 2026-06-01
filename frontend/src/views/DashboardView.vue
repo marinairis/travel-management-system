@@ -179,7 +179,15 @@ import DashboardStatsGrid from '@/components/DashboardStatsGrid.vue'
 import DashboardPendingApproval from '@/components/DashboardPendingApproval.vue'
 import DashboardRecentRequests from '@/components/DashboardRecentRequests.vue'
 import CancelRequestDialog from '@/components/CancelRequestDialog.vue'
-import { Plus, Location, TrophyBase, Van, Promotion, MapLocation, House } from '@element-plus/icons-vue'
+import {
+  Plus,
+  Location,
+  TrophyBase,
+  Van,
+  Promotion,
+  MapLocation,
+  House,
+} from '@element-plus/icons-vue'
 
 const travelRequestStore = useTravelRequestStore()
 const dashboardStore = useDashboardStore()
@@ -210,10 +218,10 @@ const stats = computed(() => {
 const travelTypeStats = computed(() => {
   const byType = dashboardStore.stats.by_travel_type || {}
   return [
-    { key: 'plane', icon: Promotion,  color: 'var(--travel-type-plane)', count: byType.plane || 0 },
-    { key: 'bus',   icon: Van,         color: 'var(--travel-type-bus)',   count: byType.bus   || 0 },
-    { key: 'car',   icon: MapLocation, color: 'var(--travel-type-car)',   count: byType.car   || 0 },
-    { key: 'hotel', icon: House,       color: 'var(--travel-type-hotel)', count: byType.hotel || 0 },
+    { key: 'plane', icon: Promotion, color: 'var(--travel-type-plane)', count: byType.plane || 0 },
+    { key: 'bus', icon: Van, color: 'var(--travel-type-bus)', count: byType.bus || 0 },
+    { key: 'car', icon: MapLocation, color: 'var(--travel-type-car)', count: byType.car || 0 },
+    { key: 'hotel', icon: House, color: 'var(--travel-type-hotel)', count: byType.hotel || 0 },
   ]
 })
 
@@ -228,7 +236,6 @@ const sortedTravelTypes = computed(() => {
 })
 
 const topDestinations = computed(() => dashboardStore.stats.top_destinations || [])
-
 
 const handleApprove = async (req) => {
   approvingId.value = req.id

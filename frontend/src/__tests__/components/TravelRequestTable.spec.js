@@ -5,7 +5,9 @@ import { createI18n } from 'vue-i18n'
 import TravelRequestTable from '@/components/TravelRequestTable.vue'
 import { useAuthStore } from '@/stores/auth'
 
-vi.mock('@/plugins/axios', () => ({ default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() } }))
+vi.mock('@/plugins/axios', () => ({
+  default: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
+}))
 
 const i18n = createI18n({
   legacy: false,
@@ -14,17 +16,30 @@ const i18n = createI18n({
     'pt-BR': {
       users: { id: 'ID', actions: 'Ações', user: 'Usuário' },
       travelRequest: {
-        requesterName: 'Solicitante', destination: 'Destino',
-        departureDate: 'Saída', returnDate: 'Retorno',
-        approvedBy: 'Aprovado por', confirmDelete: 'Confirmar exclusão',
-        deleteConfirmMessage: 'Deseja excluir?', changeStatus: 'Mudar status',
-        newStatus: 'Novo status', selectStatus: 'Selecione',
-        requestDetails: 'Detalhes', notes: 'Observações', createdAt: 'Criado em',
+        requesterName: 'Solicitante',
+        destination: 'Destino',
+        departureDate: 'Saída',
+        returnDate: 'Retorno',
+        approvedBy: 'Aprovado por',
+        confirmDelete: 'Confirmar exclusão',
+        deleteConfirmMessage: 'Deseja excluir?',
+        changeStatus: 'Mudar status',
+        newStatus: 'Novo status',
+        selectStatus: 'Selecione',
+        requestDetails: 'Detalhes',
+        notes: 'Observações',
+        createdAt: 'Criado em',
         user: 'Usuário',
       },
       dashboard: { status: 'Status' },
       status: { requested: 'Solicitado', approved: 'Aprovado', cancelled: 'Cancelado' },
-      common: { cancel: 'Cancelar', delete: 'Excluir', confirm: 'Confirmar', close: 'Fechar', save: 'Salvar' },
+      common: {
+        cancel: 'Cancelar',
+        delete: 'Excluir',
+        confirm: 'Confirmar',
+        close: 'Fechar',
+        save: 'Salvar',
+      },
     },
   },
 })
@@ -34,10 +49,18 @@ const elStubs = {
   ElTableColumn: { template: '<div><slot /></div>' },
   ElTag: { template: '<span><slot /></span>', props: ['type'] },
   ElButton: { template: '<button @click="$emit(\'click\')"><slot /></button>', emits: ['click'] },
-  ElDialog: { template: '<div v-if="modelValue"><slot /><slot name="footer" /></div>', props: ['modelValue', 'title', 'width', 'alignCenter'], emits: ['update:modelValue'] },
+  ElDialog: {
+    template: '<div v-if="modelValue"><slot /><slot name="footer" /></div>',
+    props: ['modelValue', 'title', 'width', 'alignCenter'],
+    emits: ['update:modelValue'],
+  },
   ElForm: { template: '<form><slot /></form>' },
   ElFormItem: { template: '<div><slot /></div>', props: ['label'] },
-  ElSelect: { template: '<select><slot /></select>', props: ['modelValue', 'placeholder'], emits: ['update:modelValue'] },
+  ElSelect: {
+    template: '<select><slot /></select>',
+    props: ['modelValue', 'placeholder'],
+    emits: ['update:modelValue'],
+  },
   ElOption: { template: '<option />', props: ['label', 'value', 'disabled'] },
   ElDescriptions: { template: '<div><slot /></div>', props: ['column', 'border'] },
   ElDescriptionsItem: { template: '<div><slot /></div>', props: ['label'] },
@@ -45,8 +68,24 @@ const elStubs = {
 }
 
 const mockData = [
-  { id: 1, requester_name: 'Maria Silva', destination: 'São Paulo', departure_date: '2025-08-01', return_date: '2025-08-05', status: 'requested', user_id: 10 },
-  { id: 2, requester_name: 'João Costa', destination: 'Rio de Janeiro', departure_date: '2025-09-01', return_date: '2025-09-05', status: 'approved', user_id: 11 },
+  {
+    id: 1,
+    requester_name: 'Maria Silva',
+    destination: 'São Paulo',
+    departure_date: '2025-08-01',
+    return_date: '2025-08-05',
+    status: 'requested',
+    user_id: 10,
+  },
+  {
+    id: 2,
+    requester_name: 'João Costa',
+    destination: 'Rio de Janeiro',
+    departure_date: '2025-09-01',
+    return_date: '2025-09-05',
+    status: 'approved',
+    user_id: 11,
+  },
 ]
 
 function mountTable(data = mockData) {

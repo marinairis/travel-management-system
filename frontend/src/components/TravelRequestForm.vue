@@ -14,12 +14,7 @@
         style="width: 100%"
         :loading="userStore.isLoading"
       >
-        <el-option
-          v-for="u in userStore.basicUsers"
-          :key="u.id"
-          :label="u.name"
-          :value="u.name"
-        />
+        <el-option v-for="u in userStore.basicUsers" :key="u.id" :label="u.name" :value="u.name" />
       </el-select>
     </el-form-item>
 
@@ -52,25 +47,25 @@
         style="width: 100%"
       >
         <el-option :label="$t('travelRequest.travelTypeBus')" value="bus">
-          <div style="display:flex;align-items:center;gap:8px">
+          <div style="display: flex; align-items: center; gap: 8px">
             <el-icon><Van /></el-icon>
             <span>{{ $t('travelRequest.travelTypeBus') }}</span>
           </div>
         </el-option>
         <el-option :label="$t('travelRequest.travelTypePlane')" value="plane">
-          <div style="display:flex;align-items:center;gap:8px">
+          <div style="display: flex; align-items: center; gap: 8px">
             <el-icon><Promotion /></el-icon>
             <span>{{ $t('travelRequest.travelTypePlane') }}</span>
           </div>
         </el-option>
         <el-option :label="$t('travelRequest.travelTypeCar')" value="car">
-          <div style="display:flex;align-items:center;gap:8px">
+          <div style="display: flex; align-items: center; gap: 8px">
             <el-icon><MapLocation /></el-icon>
             <span>{{ $t('travelRequest.travelTypeCar') }}</span>
           </div>
         </el-option>
         <el-option :label="$t('travelRequest.travelTypeHotel')" value="hotel">
-          <div style="display:flex;align-items:center;gap:8px">
+          <div style="display: flex; align-items: center; gap: 8px">
             <el-icon><House /></el-icon>
             <span>{{ $t('travelRequest.travelTypeHotel') }}</span>
           </div>
@@ -177,7 +172,8 @@ watch(
       formData.destination = newVal.destination || ''
       formData.travel_type = newVal.travel_type || ''
       formData.notes = newVal.notes || ''
-      const toDateStr = (d) => d ? (typeof d === 'string' && d.includes('T') ? d.split('T')[0] : d) : ''
+      const toDateStr = (d) =>
+        d ? (typeof d === 'string' && d.includes('T') ? d.split('T')[0] : d) : ''
       if (newVal.departure_date && newVal.return_date) {
         formData.date_range = [toDateStr(newVal.departure_date), toDateStr(newVal.return_date)]
       } else {

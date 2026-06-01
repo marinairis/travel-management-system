@@ -119,7 +119,11 @@ describe('travelRequest store', () => {
   it('loading é true durante a requisição e false ao finalizar', async () => {
     const store = useTravelRequestStore()
     let resolveGet
-    api.get.mockReturnValueOnce(new Promise((res) => { resolveGet = res }))
+    api.get.mockReturnValueOnce(
+      new Promise((res) => {
+        resolveGet = res
+      }),
+    )
 
     const fetchPromise = store.fetchTravelRequests()
     expect(store.isLoading).toBe(true)

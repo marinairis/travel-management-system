@@ -52,7 +52,10 @@ describe('auth store', () => {
   it('isAdmin retorna true para usuário admin', async () => {
     const store = useAuthStore()
     api.post.mockResolvedValueOnce({
-      data: { success: true, data: { token: 'tok', user: { id: 2, name: 'Admin', role: 'admin' } } },
+      data: {
+        success: true,
+        data: { token: 'tok', user: { id: 2, name: 'Admin', role: 'admin' } },
+      },
     })
 
     await store.login({ email: 'admin@test.com', password: 'Admin@123' })
@@ -63,7 +66,10 @@ describe('auth store', () => {
   it('isManager retorna true para gestor', async () => {
     const store = useAuthStore()
     api.post.mockResolvedValueOnce({
-      data: { success: true, data: { token: 'tok', user: { id: 3, name: 'Gestor', role: 'manager' } } },
+      data: {
+        success: true,
+        data: { token: 'tok', user: { id: 3, name: 'Gestor', role: 'manager' } },
+      },
     })
 
     await store.login({ email: 'gestor@test.com', password: 'Gestor@123' })
@@ -114,7 +120,12 @@ describe('auth store', () => {
       data: { success: true, data: { token: 'new-token', user: fakeUser } },
     })
 
-    await store.register({ name: 'João', email: 'joao@test.com', password: 'Joao@1234', password_confirmation: 'Joao@1234' })
+    await store.register({
+      name: 'João',
+      email: 'joao@test.com',
+      password: 'Joao@1234',
+      password_confirmation: 'Joao@1234',
+    })
 
     expect(store.token).toBe('new-token')
     expect(store.user).toEqual(fakeUser)

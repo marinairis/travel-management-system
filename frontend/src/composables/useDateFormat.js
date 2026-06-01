@@ -6,7 +6,10 @@ export function useDateFormat() {
   const formatDate = (date) => {
     if (!date) return '-'
     const datePart = typeof date === 'string' && date.includes('T') ? date.split('T')[0] : date
-    return new Date(datePart + 'T12:00:00').toLocaleDateString(locale.value, { day: '2-digit', month: 'short' })
+    return new Date(datePart + 'T12:00:00').toLocaleDateString(locale.value, {
+      day: '2-digit',
+      month: 'short',
+    })
   }
 
   const formatDateWithYear = (date) => {
@@ -48,5 +51,12 @@ export function useDateFormat() {
     })
   }
 
-  return { formatDate, formatDateWithYear, formatDateShort, formatDateLong, formatDateTime, formatDateTimeCompact }
+  return {
+    formatDate,
+    formatDateWithYear,
+    formatDateShort,
+    formatDateLong,
+    formatDateTime,
+    formatDateTimeCompact,
+  }
 }

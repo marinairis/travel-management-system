@@ -19,10 +19,10 @@ export function useRole() {
   })
 
   const getRoleLabel = (role) =>
-    ({ admin: t('users.roleAdmin'), manager: t('users.roleManager') })[role] || t('users.roleRequester')
+    ({ admin: t('users.roleAdmin'), manager: t('users.roleManager') })[role] ||
+    t('users.roleRequester')
 
-  const getRoleTagType = (role) =>
-    ({ admin: 'danger', manager: 'warning' })[role] || 'info'
+  const getRoleTagType = (role) => ({ admin: 'danger', manager: 'warning' })[role] || 'info'
 
   return { currentUserRoleLabel, currentUserRoleTagType, getRoleLabel, getRoleTagType }
 }

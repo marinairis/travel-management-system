@@ -1,10 +1,5 @@
 <template>
-  <el-select
-    v-model="currentLocale"
-    size="small"
-    style="width: 100px"
-    @change="handleChange"
-  >
+  <el-select v-model="currentLocale" size="small" style="width: 100px" @change="handleChange">
     <el-option value="pt-BR" label="🇧🇷 PT" />
     <el-option value="en" label="🇺🇸 EN" />
     <el-option value="es" label="🇪🇸 ES" />

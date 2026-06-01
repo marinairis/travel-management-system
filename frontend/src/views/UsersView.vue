@@ -58,11 +58,20 @@
         <el-table-column :label="$t('users.name')" min-width="150">
           <template #default="scope">
             <div v-if="scope.row.is_invited" style="display: flex; align-items: center; gap: 10px">
-              <el-avatar :size="32" style="background: #d0d0d0; color: #888; font-size: 12px; font-weight: 700;">
+              <el-avatar
+                :size="32"
+                style="background: #d0d0d0; color: #888; font-size: 12px; font-weight: 700"
+              >
                 ?
               </el-avatar>
               <div>
-                <div style="font-size: 12px; color: var(--el-text-color-placeholder); font-style: italic">
+                <div
+                  style="
+                    font-size: 12px;
+                    color: var(--el-text-color-placeholder);
+                    font-style: italic;
+                  "
+                >
                   {{ $t('users.pendingRegistration') }}
                 </div>
                 <div style="font-size: 12px; color: var(--el-text-color-secondary)">
@@ -115,7 +124,11 @@
 
         <el-table-column :label="$t('users.status')" width="140">
           <template #default="scope">
-            <el-tag v-if="scope.row.is_invited" :type="scope.row.is_expired ? 'info' : 'warning'" size="small">
+            <el-tag
+              v-if="scope.row.is_invited"
+              :type="scope.row.is_expired ? 'info' : 'warning'"
+              size="small"
+            >
               {{ scope.row.is_expired ? $t('users.inviteExpired') : $t('users.invited') }}
             </el-tag>
             <el-tag v-else :type="scope.row.is_active ? 'success' : 'danger'" size="small">
@@ -144,7 +157,11 @@
 
         <el-table-column :label="$t('users.actions')" width="80" fixed="right">
           <template #default="scope">
-            <el-tooltip v-if="scope.row.is_invited" :content="$t('users.resendInvite')" placement="top">
+            <el-tooltip
+              v-if="scope.row.is_invited"
+              :content="$t('users.resendInvite')"
+              placement="top"
+            >
               <el-button
                 type="warning"
                 :icon="Message"
@@ -326,7 +343,7 @@ const handleResend = async (invitation) => {
         confirmButtonText: t('common.confirm'),
         cancelButtonText: t('common.cancel'),
         type: 'info',
-      }
+      },
     )
     resendingId.value = invitation.id
     await userStore.resendInvitation(invitation.id)
@@ -338,13 +355,14 @@ const handleResend = async (invitation) => {
 
 const handleStatusClick = async (user) => {
   const title = user.is_active ? t('users.confirmDeactivateTitle') : t('users.confirmActivateTitle')
-  
+
   let message
   if (user.is_active) {
     const count = await userStore.getPendingRequestsCount(user.id)
-    message = count > 0
-      ? t('users.confirmDeactivateMessage', { name: user.name, count: count })
-      : t('users.confirmDeactivateSimple', { name: user.name })
+    message =
+      count > 0
+        ? t('users.confirmDeactivateMessage', { name: user.name, count: count })
+        : t('users.confirmDeactivateSimple', { name: user.name })
   } else {
     message = t('users.confirmActivateMessage', { name: user.name })
   }

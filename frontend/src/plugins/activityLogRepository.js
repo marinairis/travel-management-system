@@ -12,4 +12,6 @@ const buildParams = ({ userId, action, modelType, perPage, page }) => {
 
 export const fetchAll = (filters = {}) => api.get(`/activity-logs?${buildParams(filters)}`)
 export const fetchForModel = ({ modelId, modelType, perPage }) =>
-  api.get('/activity-logs', { params: { model_id: modelId, model_type: modelType, per_page: perPage } })
+  api.get('/activity-logs', {
+    params: { model_id: modelId, model_type: modelType, per_page: perPage },
+  })

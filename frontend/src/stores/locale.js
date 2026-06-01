@@ -8,8 +8,8 @@ export const useLocaleStore = defineStore('locale', {
     currentLocale: detectBrowserLocale(),
     elementPlusLocales: {
       'pt-BR': ptBr,
-      'en': en,
-      'es': es,
+      en: en,
+      es: es,
     },
   }),
 

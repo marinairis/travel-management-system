@@ -5,61 +5,61 @@
 /* ── Brand Colors — Navy + Slate + Turquoise palette ────────────────── */
 :root {
   /* Navy palette */
-  --color-navy: #1B263B;
+  --color-navy: #1b263b;
   --color-navy-light: #243351;
-  --color-navy-lighter: #2D4167;
+  --color-navy-lighter: #2d4167;
 
   /* Slate palette */
-  --color-slate: #415A77;
-  --color-slate-light: #5A7494;
-  --color-slate-lighter: #738EB1;
+  --color-slate: #415a77;
+  --color-slate-light: #5a7494;
+  --color-slate-lighter: #738eb1;
 
   /* Medium Blue palette */
-  --color-medium: #778DA9;
-  --color-medium-light: #92A8C4;
-  --color-medium-lighter: #ADC3DF;
+  --color-medium: #778da9;
+  --color-medium-light: #92a8c4;
+  --color-medium-lighter: #adc3df;
 
   /* Light palette */
-  --color-light: #E0E1DD;
-  --color-light-dark: #D0D1CF;
-  --color-light-darker: #C0C1BF;
+  --color-light: #e0e1dd;
+  --color-light-dark: #d0d1cf;
+  --color-light-darker: #c0c1bf;
 
   /* Turquoise palette */
-  --color-turquoise: #A8DADC;
-  --color-turquoise-dark: #8CCED2;
-  --color-turquoise-light: #C4E8EB;
+  --color-turquoise: #a8dadc;
+  --color-turquoise-dark: #8cced2;
+  --color-turquoise-light: #c4e8eb;
 
   /* EP color tokens */
-  --el-color-primary: #415A77;
-  --el-color-primary-light-3: #6B82A3;
-  --el-color-primary-light-5: #8EA3BF;
-  --el-color-primary-light-7: #B1C4DB;
-  --el-color-primary-light-8: #C4D5E8;
-  --el-color-primary-light-9: #D7E6F5;
-  --el-color-primary-dark-2: #334A63;
+  --el-color-primary: #415a77;
+  --el-color-primary-light-3: #6b82a3;
+  --el-color-primary-light-5: #8ea3bf;
+  --el-color-primary-light-7: #b1c4db;
+  --el-color-primary-light-8: #c4d5e8;
+  --el-color-primary-light-9: #d7e6f5;
+  --el-color-primary-dark-2: #334a63;
 
   /* EP background tokens */
-  --el-bg-color-page: #E0E1DD;
+  --el-bg-color-page: #e0e1dd;
   --el-bg-color: #ffffff;
   --el-bg-color-overlay: #ffffff;
 
   /* EP border tokens */
-  --el-border-color: #C8CBD0;
-  --el-border-color-light: #D5D8DD;
-  --el-border-color-lighter: #E2E5EA;
-  --el-border-color-extra-light: #EFF0F2;
+  --el-border-color: #c8cbd0;
+  --el-border-color-light: #d5d8dd;
+  --el-border-color-lighter: #e2e5ea;
+  --el-border-color-extra-light: #eff0f2;
 
   /* EP text tokens */
-  --el-text-color-primary: #1B263B;
-  --el-text-color-regular: #415A77;
-  --el-text-color-secondary: #778DA9;
-  --el-text-color-placeholder: #9AACBD;
-  --el-text-color-disabled: #B8C4D1;
+  --el-text-color-primary: #1b263b;
+  --el-text-color-regular: #415a77;
+  --el-text-color-secondary: #778da9;
+  --el-text-color-placeholder: #9aacbd;
+  --el-text-color-disabled: #b8c4d1;
 
   /* EP fill tokens */
-  --el-fill-color: #E8E9E5;
-  --el-fill-color-light: #EFF0ED;
-  --el-fill-color-lighter: #F5F6F5;
+  --el-fill-color: #e8e9e5;
+  --el-fill-color-light: #eff0ed;
+  --el-fill-color-lighter: #f5f6f5;
   --el-fill-color-blank: #ffffff;
 
   /* EP typography */
@@ -78,29 +78,29 @@
   --el-box-shadow-base: 0 2px 10px rgba(27, 38, 59, 0.08);
 
   /* Voa brand tokens */
-  --voa-sidebar-bg: #1B263B;
+  --voa-sidebar-bg: #1b263b;
   --voa-sidebar-text: rgba(224, 225, 221, 0.7);
-  --voa-sidebar-text-active: #A8DADC;
+  --voa-sidebar-text-active: #a8dadc;
   --voa-sidebar-active-bg: rgba(168, 218, 220, 0.15);
   --voa-sidebar-hover-bg: rgba(168, 218, 220, 0.08);
   --voa-sidebar-section: rgba(224, 225, 221, 0.4);
-  --voa-brand: #A8DADC;
-  --voa-brand-strong: #8CCED2;
+  --voa-brand: #a8dadc;
+  --voa-brand-strong: #8cced2;
   --voa-mono: 'Geist Mono', ui-monospace, monospace;
 
   /* Travel type colors */
-  --travel-type-plane: #415A77;
-  --travel-type-bus: #778DA9;
-  --travel-type-car: #5A7494;
-  --travel-type-hotel: #A8DADC;
+  --travel-type-plane: #415a77;
+  --travel-type-bus: #778da9;
+  --travel-type-car: #5a7494;
+  --travel-type-hotel: #a8dadc;
 
   /* Avatar background colors */
-  --avatar-color-1: #415A77;
-  --avatar-color-2: #5A7494;
-  --avatar-color-3: #A8DADC;
-  --avatar-color-4: #778DA9;
-  --avatar-color-5: #8CCED2;
-  --avatar-color-6: #738EB1;
+  --avatar-color-1: #415a77;
+  --avatar-color-2: #5a7494;
+  --avatar-color-3: #a8dadc;
+  --avatar-color-4: #778da9;
+  --avatar-color-5: #8cced2;
+  --avatar-color-6: #738eb1;
 
   /* Layout tokens */
   --header-height: 64px;
@@ -163,18 +163,18 @@
 /* Dark mode overrides */
 html.dark {
   /* Primary - Turquoise for dark mode accent */
-  --el-color-primary: #A8DADC;
-  --el-color-primary-light-3: #C4E8EB;
-  --el-color-primary-light-5: #D4EEF0;
-  --el-color-primary-light-7: #E2F5F6;
-  --el-color-primary-light-8: #EAF7F8;
-  --el-color-primary-light-9: #1F2E38;
-  --el-color-primary-dark-2: #8CCED2;
+  --el-color-primary: #a8dadc;
+  --el-color-primary-light-3: #c4e8eb;
+  --el-color-primary-light-5: #d4eef0;
+  --el-color-primary-light-7: #e2f5f6;
+  --el-color-primary-light-8: #eaf7f8;
+  --el-color-primary-light-9: #1f2e38;
+  --el-color-primary-dark-2: #8cced2;
 
   /* Backgrounds */
-  --el-bg-color-page: #1B263B;
+  --el-bg-color-page: #1b263b;
   --el-bg-color: #243351;
-  --el-bg-color-overlay: #2D4167;
+  --el-bg-color-overlay: #2d4167;
 
   /* Borders */
   --el-border-color: rgba(119, 141, 169, 0.2);
@@ -183,26 +183,26 @@ html.dark {
   --el-border-color-extra-light: rgba(119, 141, 169, 0.05);
 
   /* Text */
-  --el-text-color-primary: #E0E1DD;
-  --el-text-color-regular: #B8C4D1;
-  --el-text-color-secondary: #92A8C4;
-  --el-text-color-placeholder: #5A7494;
-  --el-text-color-disabled: #415A77;
+  --el-text-color-primary: #e0e1dd;
+  --el-text-color-regular: #b8c4d1;
+  --el-text-color-secondary: #92a8c4;
+  --el-text-color-placeholder: #5a7494;
+  --el-text-color-disabled: #415a77;
 
   /* Fill */
   --el-fill-color: #243351;
-  --el-fill-color-light: #1F2E38;
-  --el-fill-color-lighter: #1A2533;
+  --el-fill-color-light: #1f2e38;
+  --el-fill-color-lighter: #1a2533;
   --el-fill-color-blank: #243351;
 
   /* Sidebar */
-  --voa-sidebar-bg: #0F1824;
+  --voa-sidebar-bg: #0f1824;
   --voa-sidebar-text: rgba(224, 225, 221, 0.6);
-  --voa-sidebar-text-active: #A8DADC;
+  --voa-sidebar-text-active: #a8dadc;
   --voa-sidebar-active-bg: rgba(168, 218, 220, 0.2);
   --voa-sidebar-hover-bg: rgba(168, 218, 220, 0.1);
   --voa-sidebar-section: rgba(224, 225, 221, 0.35);
-  --voa-brand-strong: #A8DADC;
+  --voa-brand-strong: #a8dadc;
 
   /* Shadows */
   --el-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
@@ -678,7 +678,7 @@ body {
 
 /* ── Legacy .dark class compat ──────────────────────────────── */
 .dark {
-  --sidebar-bg: #0F1824;
+  --sidebar-bg: #0f1824;
 }
 
 /* ── el-tag overrides for both themes ─────────────────────── */
@@ -732,6 +732,6 @@ html.dark .el-tag--danger {
 
 html.dark .el-tag--info {
   background-color: rgba(168, 218, 220, 0.15);
-  color: #A8DADC;
+  color: #a8dadc;
   border-color: rgba(168, 218, 220, 0.3);
 }
