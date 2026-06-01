@@ -38,24 +38,16 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async logout() {
+    logout() {
       if (!this.token) {
         this.user = null
         router.push('/login')
         return
       }
-      let successMessage = null
-      try {
-        const response = await authRepository.logout()
-        if (response.data.success) successMessage = response.data.message
-      } catch (error) {
-        console.error(error)
-      } finally {
-        this.user = null
-        this.token = null
-        router.push('/login')
-        if (successMessage) ElMessage.success(successMessage)
-      }
+      authRepository.logout().catch(() => {})
+      this.user = null
+      this.token = null
+      router.push('/login')
     },
 
     async fetchUser() {
