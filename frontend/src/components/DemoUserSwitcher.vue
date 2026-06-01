@@ -51,6 +51,7 @@ const handleSwitch = async (user) => {
   authStore.token = null
   authStore.user = null
   await authStore.login({ email: user.email, password: user.password })
+  window.location.reload()
 }
 </script>
 
