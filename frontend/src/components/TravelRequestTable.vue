@@ -138,20 +138,15 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import {
-  View,
-  Edit,
-  CircleClose,
-  CircleCheck,
-  Promotion,
-  Van,
-  MapLocation,
-  House,
-} from '@element-plus/icons-vue'
+import { View, Edit, CircleClose, CircleCheck } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
-import { useI18n } from 'vue-i18n'
+import { useDateFormat } from '@/composables/useDateFormat'
+import { useTravelType } from '@/composables/useTravelType'
+import { useRequestStatus } from '@/composables/useRequestStatus'
 
-const { t } = useI18n()
+const { formatDateShort: formatDate, formatDateLong, formatDateTime } = useDateFormat()
+const { travelTypeIcon, getTravelTypeColor, formatRequestId } = useTravelType()
+const { getStatusType, translateStatus } = useRequestStatus()
 const props = defineProps({
   data: { type: Array, required: true },
   loading: { type: Boolean, default: false },
@@ -170,27 +165,18 @@ const showApprover = computed(() => authStore.isApprover)
 
 const canApprove = (row) => {
   if (!row) return false
-  // Apenas aprovadores podem aprovar
   if (!authStore.isApprover) return false
-  // Não pode aprovar pedido próprio
   if (row.user_id === authStore.user?.id) return false
-  // Apenas pedidos solicitados podem ser aprovados
   return row.status === 'requested'
 }
 
 const canCancel = (row) => {
   if (!row) return false
-  // Não pode cancelar pedidos vencidos
   if (row.status === 'expired') return false
-  // Apenas pedidos solicitados ou aprovados podem ser cancelados
   if (!['requested', 'approved'].includes(row.status)) return false
-  // Verifica se tem a propriedade can_be_cancelled
   if (row.can_be_cancelled === false) return false
-  // Apenas aprovadores podem cancelar
   if (!authStore.isApprover) return false
-  // Não pode cancelar pedido próprio
   if (row.user_id === authStore.user?.id) return false
-  // Verifica se a data de partida ainda não passou
   if (row.departure_date) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -202,11 +188,8 @@ const canCancel = (row) => {
 
 const canEdit = (row) => {
   if (!row) return false
-  // Apenas pedidos solicitados podem ser editados
   if (row.status !== 'requested') return false
-  // Apenas aprovadores podem editar
   if (!authStore.isApprover) return false
-  // Não pode editar pedido próprio
   if (row.user_id === authStore.user?.id) return false
   return true
 }
@@ -217,71 +200,15 @@ const handleEdit = (row) => {
 
 const canChangeStatus = (row) => {
   if (!row) return false
-  // Não permitir mudança de status se foi cancelado pelo sistema
   if (row.status === 'cancelled' && isCancelledBySystem(row)) return false
   return authStore.isApprover && row.user_id !== authStore.user?.id
 }
 
-// Verificar se o pedido foi cancelado pelo sistema (usuário desativado)
 const isCancelledBySystem = (row) => {
   if (!row || row.status !== 'cancelled') return false
   const systemPatterns = ['usuário desativado', 'usuário excluído', 'Usuário desativado', 'Usuário excluído']
   return systemPatterns.some(pattern => 
     row.cancel_reason?.includes(pattern)
-  )
-}
-
-const getStatusType = (status) => {
-  const types = { requested: 'warning', approved: 'success', cancelled: 'danger', expired: 'info' }
-  return types[status] || ''
-}
-
-const translateStatus = (status) => {
-  const translations = {
-    requested: t('status.requested'),
-    approved: t('status.approved'),
-    cancelled: t('status.cancelled'),
-    expired: t('status.expired'),
-  }
-  return translations[status] || status
-}
-
-const formatDate = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleDateString('pt-BR')
-}
-
-const formatDateLong = (date) => {
-  if (!date) return '-'
-  const d = typeof date === 'string' && date.includes('T') ? date.split('T')[0] : date
-  const dateObj = new Date(d + 'T12:00:00')
-  const day = dateObj.getDate().toString().padStart(2, '0')
-  const month = dateObj.toLocaleDateString('pt-BR', { month: 'short' })
-  return `${day} de ${month}`
-}
-
-const formatDateTime = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleString('pt-BR')
-}
-
-const formatRequestId = (id) => {
-  if (!id) return '-'
-  return `VG-${String(id).padStart(3, '0')}`
-}
-
-const travelTypeIcon = (type) => {
-  return { plane: Promotion, bus: Van, car: MapLocation, hotel: House }[type] || Van
-}
-
-const getTravelTypeColor = (type) => {
-  return (
-    {
-      plane: 'var(--travel-type-plane)',
-      bus: 'var(--travel-type-bus)',
-      car: 'var(--travel-type-car)',
-      hotel: 'var(--travel-type-hotel)',
-    }[type] || 'var(--el-color-primary)'
   )
 }
 

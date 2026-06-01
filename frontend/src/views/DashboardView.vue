@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Page header -->
     <div class="voa-page-head">
       <div>
         <h1 class="voa-page-title">{{ $t('dashboard.title') }}</h1>
@@ -12,7 +11,6 @@
       </el-button>
     </div>
 
-    <!-- Stats grid (status) -->
     <div class="voa-stats-grid">
       <el-card shadow="never">
         <div
@@ -80,7 +78,6 @@
       </el-card>
     </div>
 
-    <!-- Travel type metrics -->
     <div class="voa-stats-grid" style="margin-bottom: 20px">
       <el-card shadow="never" v-for="type in travelTypeStats" :key="type.key">
         <div
@@ -100,9 +97,7 @@
       </el-card>
     </div>
 
-    <!-- Two-column cards: pending + recent requests -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px">
-      <!-- Pending approval -->
       <el-card shadow="never" v-loading="travelRequestStore.isLoadingDashboard">
         <template #header>
           <div style="display: flex; align-items: center; justify-content: space-between">
@@ -179,7 +174,6 @@
         </div>
       </el-card>
 
-      <!-- Recent requests -->
       <el-card shadow="never" v-loading="travelRequestStore.isLoadingDashboard">
         <template #header>
           <div style="display: flex; align-items: center; justify-content: space-between">
@@ -249,9 +243,7 @@
       </el-card>
     </div>
 
-    <!-- Two-column cards: top destinations + travel types most used -->
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
-      <!-- Top 10 destinations -->
       <el-card shadow="never">
         <template #header>
           <div style="display: flex; align-items: center; gap: 8px">
@@ -310,7 +302,6 @@
         </div>
       </el-card>
 
-      <!-- Travel types most used -->
       <el-card shadow="never">
         <template #header>
           <div style="display: flex; align-items: center; gap: 8px">
@@ -371,7 +362,6 @@
       </el-card>
     </div>
 
-    <!-- Create Modal -->
     <el-dialog
       v-model="showCreateDialog"
       :title="$t('travelRequest.title')"
@@ -382,7 +372,6 @@
       <TravelRequestForm @submit="handleCreate" @cancel="showCreateDialog = false" />
     </el-dialog>
 
-    <!-- Cancel dialog -->
     <el-dialog v-model="cancelDialogVisible" :title="$t('travelRequest.cancelTitle')" width="450px" align-center>
       <p>{{ $t('travelRequest.cancelConfirmMessage') }}</p>
       <el-form-item :label="$t('travelRequest.cancelReasonLabel')" required style="margin-top: 16px;">
@@ -429,8 +418,14 @@ import {
   SuccessFilled,
   CircleCloseFilled,
 } from '@element-plus/icons-vue'
+import { useDateFormat } from '@/composables/useDateFormat'
+import { useTravelType } from '@/composables/useTravelType'
+import { useRequestStatus } from '@/composables/useRequestStatus'
 
 const { t } = useI18n()
+const { formatDate } = useDateFormat()
+const { travelTypeIcon, formatRequestId } = useTravelType()
+const { getStatusType, translateStatus } = useRequestStatus()
 const travelRequestStore = useTravelRequestStore()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
@@ -481,34 +476,6 @@ const sortedTravelTypes = computed(() => {
 
 const topDestinations = computed(() => dashboardStats.value.top_destinations || [])
 
-const travelTypeIcon = (type) => {
-  return { plane: Promotion, bus: Van, car: MapLocation, hotel: House }[type] || Location
-}
-
-const getStatusType = (status) => {
-  const types = { requested: 'warning', approved: 'success', cancelled: 'danger', expired: 'info' }
-  return types[status] || ''
-}
-
-const translateStatus = (status) =>
-  ({
-    requested: t('status.requested'),
-    approved: t('status.approved'),
-    cancelled: t('status.cancelled'),
-    expired: t('status.expired'),
-  })[status] || status
-
-const formatDate = (date) => {
-  if (!date) return '-'
-  const d = typeof date === 'string' && date.includes('T') ? date.split('T')[0] : date
-  return new Date(d + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
-}
-
-// Formatar ID do pedido no formato VG-XXX
-const formatRequestId = (id) => {
-  if (!id) return '-'
-  return `VG-${String(id).padStart(3, '0')}`
-}
 
 const handleApprove = async (req) => {
   approvingId.value = req.id

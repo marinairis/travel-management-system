@@ -4,7 +4,6 @@
   <el-empty v-else-if="!request" description="Pedido não encontrado" />
 
   <div v-else>
-    <!-- Back + header -->
     <div class="voa-page-head">
       <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
         <el-button link @click="handleGoBack"> ← {{ $t('travelRequest.detailBack') }} </el-button>
@@ -22,9 +21,7 @@
           {{ translateStatus(request.status) }}
         </el-tag>
       </div>
-      <!-- Actions -->
       <div style="display: flex; gap: 8px; flex-wrap: wrap">
-        <!-- Botão Aprovar - disponível para aprovadores em pedidos solicitados -->
         <el-button
           v-if="canApproveRequest"
           type="success"
@@ -33,7 +30,6 @@
         >
           ✓ {{ $t('travelRequest.detailApprove') }}
         </el-button>
-        <!-- Botão Editar - só mostra se for aprovador e status for 'requested' -->
         <el-button
           v-if="canEditRequest"
           type="primary"
@@ -43,7 +39,6 @@
           <el-icon style="margin-right: 4px"><Edit /></el-icon>
           {{ $t('common.edit') }}
         </el-button>
-        <!-- Botão Cancelar - disponível para aprovadores em pedidos solicitados ou aprovados -->
         <el-button
           v-if="canCancelRequest"
           type="danger"
@@ -55,7 +50,6 @@
       </div>
     </div>
 
-    <!-- Own request info -->
     <el-alert
       v-if="isOwner && request.status === 'requested'"
       type="info"
@@ -68,7 +62,6 @@
       </template>
     </el-alert>
 
-    <!-- Destination banner -->
     <el-card
       shadow="never"
       style="margin-bottom: 16px; background: var(--el-color-primary-light-9)"
@@ -90,7 +83,6 @@
       </div>
     </el-card>
 
-    <!-- KV grid -->
     <el-card shadow="never" style="margin-bottom: 16px">
       <div class="voa-kv-grid">
         <div class="voa-kv">
@@ -137,7 +129,6 @@
       </div>
     </el-card>
 
-    <!-- Timeline from activity logs -->
     <el-card shadow="never" v-if="timeline.length > 0">
       <template #header>
         <span style="font-weight: 700">{{ $t('travelRequest.detailTimeline') }}</span>
@@ -157,7 +148,6 @@
       </el-timeline>
     </el-card>
 
-    <!-- Cancel dialog -->
     <el-dialog
       v-model="cancelOpen"
       :title="$t('travelRequest.detailCancel')"
@@ -190,7 +180,6 @@
       </template>
     </el-dialog>
 
-    <!-- Edit Modal -->
     <el-dialog
       v-model="editDialogOpen"
       :title="$t('travelRequest.updateRequest')"
@@ -213,12 +202,18 @@ import TravelRequestForm from '@/components/TravelRequestForm.vue'
 import api from '@/plugins/axios'
 import { useAuthStore } from '@/stores/auth'
 import { useTravelRequestStore } from '@/stores/travelRequest'
-import { Edit, House, Location, MapLocation, Promotion, Van } from '@element-plus/icons-vue'
+import { Edit } from '@element-plus/icons-vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import { useDateFormat } from '@/composables/useDateFormat'
+import { useTravelType } from '@/composables/useTravelType'
+import { useRequestStatus } from '@/composables/useRequestStatus'
 
 const { t } = useI18n()
+const { formatDateWithYear: formatDate, formatDateTimeCompact: formatDateTime } = useDateFormat()
+const { travelTypeIcon, getTravelTypeColor, formatRequestId } = useTravelType()
+const { getStatusType, translateStatus } = useRequestStatus()
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -233,10 +228,8 @@ const actionLoading = ref(null)
 const editDialogOpen = ref(false)
 const editFormRef = ref(null)
 
-// Dados para o formulário de edição
 const editFormData = ref({})
 
-// Verificar se o usuário logado é o dono do pedido
 const isOwner = computed(() => {
   return (
     request.value &&
@@ -246,43 +239,28 @@ const isOwner = computed(() => {
   )
 })
 
-// Verificar se pode aprovar o pedido
 const canApproveRequest = computed(() => {
   if (!request.value) return false
-  // Apenas aprovadores podem aprovar
   if (!authStore.isApprover) return false
-  // Não pode aprovar pedido próprio
   if (request.value.user_id === authStore.user?.id) return false
-  // Apenas pedidos solicitados podem ser aprovados
   return request.value.status === 'requested'
 })
 
-// Verificar se pode editar o pedido
 const canEditRequest = computed(() => {
   if (!request.value) return false
-  // Apenas pedidos solicitados podem ser editados
   if (request.value.status !== 'requested') return false
-  // Apenas aprovadores podem editar
   if (!authStore.isApprover) return false
-  // Não pode editar pedido próprio
   if (request.value.user_id === authStore.user?.id) return false
   return true
 })
 
-// Verificar se pode cancelar o pedido
 const canCancelRequest = computed(() => {
   if (!request.value) return false
-  // Não pode cancelar pedidos vencidos
   if (request.value.status === 'expired') return false
-  // Apenas pedidos solicitados ou aprovados podem ser cancelados
   if (!['requested', 'approved'].includes(request.value.status)) return false
-  // Apenas aprovadores podem cancelar
   if (!authStore.isApprover) return false
-  // Não pode cancelar pedido próprio
   if (request.value.user_id === authStore.user?.id) return false
-  // Verifica se tem a propriedade can_be_cancelled ou se a data de partida ainda não passou
   if (request.value.can_be_cancelled === false) return false
-  // Verifica se a viagem ainda não começou (pode ser cancelada)
   if (request.value.departure_date) {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -292,7 +270,6 @@ const canCancelRequest = computed(() => {
   return true
 })
 
-// Verificar se o pedido foi cancelado pelo sistema (usuário desativado)
 const isCancelledBySystem = computed(() => {
   if (!request.value || request.value.status !== 'cancelled') return false
   // Verifica se tem cancel_reason que indica cancelamento pelo sistema
@@ -302,29 +279,6 @@ const isCancelledBySystem = computed(() => {
   )
 })
 
-// Ícone do tipo de viagem
-const travelTypeIcon = (type) => {
-  return { plane: Promotion, bus: Van, car: MapLocation, hotel: House }[type] || Location
-}
-
-const getTravelTypeColor = (type) => {
-  return (
-    {
-      plane: 'var(--travel-type-plane)',
-      bus: 'var(--travel-type-bus)',
-      car: 'var(--travel-type-car)',
-      hotel: 'var(--travel-type-hotel)',
-    }[type] || 'var(--el-color-primary)'
-  )
-}
-
-// Formatar ID do pedido no formato VG-XXX
-const formatRequestId = (id) => {
-  if (!id) return '-'
-  return `VG-${String(id).padStart(3, '0')}`
-}
-
-// Voltar para a página anterior ou para a dashboard
 const handleGoBack = () => {
   if (window.history.length > 2) {
     router.back()
@@ -332,17 +286,6 @@ const handleGoBack = () => {
     router.push('/')
   }
 }
-
-const getStatusType = (status) =>
-  ({ requested: 'warning', approved: 'success', cancelled: 'danger', expired: 'info' })[status] || ''
-
-const translateStatus = (status) =>
-  ({
-    requested: t('status.requested'),
-    approved: t('status.approved'),
-    cancelled: t('status.cancelled'),
-    expired: t('status.expired'),
-  })[status] || status
 
 const translateAction = (action) =>
   ({
@@ -355,33 +298,12 @@ const translateAction = (action) =>
 const timelineType = (action) =>
   ({ create: 'primary', status_change: 'success', cancel: 'danger' })[action] || 'primary'
 
-const formatDate = (d) => {
-  if (!d) return '-'
-  const s = typeof d === 'string' && d.includes('T') ? d.split('T')[0] : d
-  return new Date(s + 'T12:00:00').toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-const formatDateTime = (d) => {
-  if (!d) return '-'
-  return new Date(d).toLocaleString('pt-BR', {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
 const fetchRequest = async () => {
   loading.value = true
   try {
     const res = await api.get(`/travel-requests/${route.params.id}`)
     if (res.data.success) {
       request.value = res.data.data
-      // Preparar dados para edição
       editFormData.value = {
         requester_name: request.value.requester_name,
         destination: request.value.destination,

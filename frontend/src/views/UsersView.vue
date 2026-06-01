@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Page header -->
     <div class="voa-page-head">
       <div>
         <h1 class="voa-page-title">{{ $t('users.title') }}</h1>
@@ -9,7 +8,6 @@
       <el-button type="primary" @click="openInvite"> + {{ $t('users.inviteUser') }} </el-button>
     </div>
 
-    <!-- Filters Card -->
     <el-card class="filter-card" shadow="never" style="margin-bottom: 14px">
       <el-form :inline="true" :model="filters">
         <el-form-item :label="$t('users.userType')">
@@ -55,10 +53,8 @@
       </el-form>
     </el-card>
 
-    <!-- Table Card -->
     <el-card shadow="never" class="voa-users-card">
       <el-table :data="userStore.users" v-loading="userStore.loading" style="width: 100%">
-        <!-- Avatar + name column -->
         <el-table-column :label="$t('users.name')" min-width="150">
           <template #default="scope">
             <div style="display: flex; align-items: center; gap: 10px">
@@ -145,7 +141,6 @@
         </el-table-column>
       </el-table>
 
-      <!-- Pagination -->
       <div class="pagination-container">
         <el-pagination
           v-model:current-page="currentPage"
@@ -159,7 +154,6 @@
       </div>
     </el-card>
 
-    <!-- Edit dialog -->
     <el-dialog v-model="showEditDialog" :title="$t('users.editUser')" width="500px">
       <el-form ref="formRef" :model="editForm" :rules="rules" label-position="top">
         <el-form-item :label="$t('users.name')" prop="name">
@@ -181,7 +175,6 @@
       </template>
     </el-dialog>
 
-    <!-- Delete dialog -->
     <el-dialog
       v-model="showDeleteDialog"
       :title="$t('users.confirmDelete')"
@@ -197,7 +190,6 @@
       </template>
     </el-dialog>
 
-    <!-- Invite dialog -->
     <el-dialog
       v-model="showInviteDialog"
       :title="$t('users.inviteUser')"
@@ -205,7 +197,6 @@
       destroy-on-close
       @closed="resetInviteForm"
     >
-      <!-- Success state -->
       <div v-if="inviteSent" class="voa-sent-center">
         <div class="voa-sent-icon">✓</div>
         <div style="font-size: 18px; font-weight: 700; margin-bottom: 6px">
@@ -220,7 +211,6 @@
         }}</el-button>
       </div>
 
-      <!-- Invite form -->
       <div v-else>
         <p style="color: var(--el-text-color-secondary); font-size: 13.5px; margin: -8px 0 16px">
           {{ $t('users.inviteSubtitle') }}
@@ -266,7 +256,6 @@
               <el-option value="admin" :label="$t('users.roleAdmin')" />
             </el-select>
           </div>
-          <!-- Role description card -->
           <div class="voa-role-hint">
             <strong>{{ getRoleLabel(inviteForm.role) }}:</strong>
             {{ roleDesc(inviteForm.role) }}
@@ -292,6 +281,8 @@ import { ElMessageBox } from 'element-plus'
 import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
+import { useAvatar } from '@/composables/useAvatar'
+import { useRole } from '@/composables/useRole'
 
 const { t } = useI18n()
 const userStore = useUserStore()
@@ -327,32 +318,8 @@ const rules = {
   role: [{ required: true, message: t('users.roleRequired'), trigger: 'change' }],
 }
 
-function initials(name) {
-  const parts = String(name || '')
-    .trim()
-    .split(' ')
-  return ((parts[0]?.[0] || '') + (parts[parts.length - 1]?.[0] || '')).toUpperCase()
-}
-
-function avatarBg(id) {
-  const c = [
-    'var(--avatar-color-1)',
-    'var(--avatar-color-2)',
-    'var(--avatar-color-3)',
-    'var(--avatar-color-4)',
-    'var(--avatar-color-5)',
-    'var(--avatar-color-6)',
-  ]
-  let h = 0
-  const s = String(id || '')
-  for (let i = 0; i < s.length; i++) h = s.charCodeAt(i) + ((h << 5) - h)
-  return c[Math.abs(h) % c.length]
-}
-
-const getRoleTagType = (role) => ({ admin: 'danger', manager: 'warning' })[role] || 'info'
-const getRoleLabel = (role) =>
-  ({ admin: t('users.roleAdmin'), manager: t('users.roleManager') })[role] ||
-  t('users.roleRequester')
+const { initials, avatarBg } = useAvatar()
+const { getRoleLabel, getRoleTagType } = useRole()
 const roleDesc = (role) =>
   ({
     requester: t('users.roleDescRequester'),
@@ -466,7 +433,6 @@ const handleUpdate = async () => {
 
 const handleDelete = async (user) => {
   selectedUser.value = user
-  // Buscar contagem de pedidos pendentes antes de mostrar a confirmação
   const count = await userStore.getPendingRequestsCount(user.id)
   selectedUser.value.pendingRequestsCount = count
 
@@ -481,9 +447,7 @@ const handleDelete = async (user) => {
       }
     ).then(async () => {
       await confirmDelete()
-    }).catch(() => {
-      // User cancelled
-    })
+    }).catch(() => {})
   } else {
     showDeleteDialog.value = true
   }
@@ -529,8 +493,7 @@ const handleStatusClick = async (user) => {
       type: user.is_active ? 'warning' : 'info',
     })
     await userStore.toggleUserStatus(user.id)
-  } catch (error) {
-    // User cancelled
+  } catch {
   }
 }
 </script>

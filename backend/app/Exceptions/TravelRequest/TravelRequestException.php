@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Exceptions\TravelRequest;
 
-use Exception;
+use App\Exceptions\DomainException;
 use Symfony\Component\HttpFoundation\Response;
 
-class TravelRequestException extends Exception
+class TravelRequestException extends DomainException
 {
     public const NOT_FOUND       = 'travel_request.not_found';
     public const UNAUTHORIZED    = 'travel_request.unauthorized';

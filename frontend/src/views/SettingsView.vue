@@ -7,7 +7,6 @@
     </div>
 
     <div style="display:grid;grid-template-columns:200px 1fr;gap:18px;align-items:start">
-      <!-- Tab sidebar -->
       <el-card shadow="never" style="padding:0">
         <el-menu :default-active="activeTab" @select="activeTab = $event" style="border-right:none">
           <el-menu-item index="profile">{{ $t('settings.profileTab') }}</el-menu-item>
@@ -17,9 +16,7 @@
         </el-menu>
       </el-card>
 
-      <!-- Tab content -->
       <el-card shadow="never">
-        <!-- Profile -->
         <div v-if="activeTab === 'profile'">
           <div style="display:flex;align-items:center;gap:14px;padding-bottom:18px;margin-bottom:4px;border-bottom:1px solid var(--el-border-color)">
             <el-avatar
@@ -50,7 +47,6 @@
           </div>
         </div>
 
-        <!-- Appearance -->
         <div v-else-if="activeTab === 'appearance'">
           <div style="font-weight:700;margin-bottom:14px">{{ $t('settings.appearanceTab') }}</div>
           <div style="display:flex;flex-direction:column;gap:8px;max-width:280px">
@@ -71,7 +67,6 @@
           </div>
         </div>
 
-        <!-- Language -->
         <div v-else-if="activeTab === 'language'">
           <div style="font-weight:700;margin-bottom:14px">{{ $t('settings.languageTab') }}</div>
           <div style="display:flex;flex-direction:column;gap:8px;max-width:280px">
@@ -88,7 +83,6 @@
           </div>
         </div>
 
-        <!-- Notifications -->
         <div v-else-if="activeTab === 'notifications'">
           <div class="voa-notif-setting">
             <div>
@@ -104,13 +98,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore } from '@/stores/theme'
 import { useLocaleStore } from '@/stores/locale'
+import { useAvatar } from '@/composables/useAvatar'
+import { useRole } from '@/composables/useRole'
 
-const { t, locale } = useI18n()
+const { locale } = useI18n()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
 const localeStore = useLocaleStore()
@@ -124,37 +120,8 @@ const locales = [
   { code: 'es', label: 'Español', flag: '🇪🇸' },
 ]
 
-const roleLabel = computed(() => {
-  if (authStore.isAdmin) return t('users.roleAdmin')
-  if (authStore.isManager) return t('users.roleManager')
-  return t('users.roleRequester')
-})
-
-const roleTagType = computed(() => {
-  if (authStore.isAdmin) return 'danger'
-  if (authStore.isManager) return 'warning'
-  return 'info'
-})
-
-function initials(name) {
-  const parts = String(name).trim().split(' ')
-  return ((parts[0]?.[0] || '') + (parts[parts.length - 1]?.[0] || '')).toUpperCase()
-}
-
-function avatarBg(id) {
-  const c = [
-    'var(--avatar-color-1)',
-    'var(--avatar-color-2)',
-    'var(--avatar-color-3)',
-    'var(--avatar-color-4)',
-    'var(--avatar-color-5)',
-    'var(--avatar-color-6)'
-  ]
-  let h = 0
-  const s = String(id)
-  for (let i = 0; i < s.length; i++) h = s.charCodeAt(i) + ((h << 5) - h)
-  return c[Math.abs(h) % c.length]
-}
+const { initials, avatarBg } = useAvatar()
+const { currentUserRoleLabel: roleLabel, currentUserRoleTagType: roleTagType } = useRole()
 
 const setTheme = (dark) => {
   if (themeStore.isDark !== dark) themeStore.toggleTheme()

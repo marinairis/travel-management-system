@@ -19,25 +19,18 @@ class UpdateUserController extends Controller
 
     public function __invoke(UserFormRequest $request, int $id): JsonResponse
     {
-        try {
-            $user = $this->service->findById($id);
+        $user = $this->service->findById($id);
 
-            if (!$user) {
-                throw new UserException(UserException::NOT_FOUND, Response::HTTP_NOT_FOUND);
-            }
-
-            $updated = $this->service->updateUser($user, $request->only(['name', 'role']));
-
-            return response()->json([
-                'success' => true,
-                'message' => __('messages.user.updated'),
-                'data'    => $updated,
-            ]);
-        } catch (UserException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __("messages.{$e->getMessage()}"),
-            ], $e->getStatusCode());
+        if (!$user) {
+            throw new UserException(UserException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
+
+        $updated = $this->service->updateUser($user, $request->only(['name', 'role']));
+
+        return response()->json([
+            'success' => true,
+            'message' => __('messages.user.updated'),
+            'data'    => $updated,
+        ]);
     }
 }

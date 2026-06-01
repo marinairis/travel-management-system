@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Exceptions\User;
 
-use Exception;
+use App\Exceptions\DomainException;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserException extends Exception
+class UserException extends DomainException
 {
     public const NOT_FOUND           = 'user.not_found';
     public const UNAUTHORIZED        = 'user.unauthorized';

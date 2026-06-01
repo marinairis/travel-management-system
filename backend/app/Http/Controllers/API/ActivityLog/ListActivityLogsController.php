@@ -15,7 +15,7 @@ class ListActivityLogsController extends Controller
     public function __invoke(ActivityLogFilterRequest $request): JsonResponse
     {
         $user  = Auth::user();
-        $query = ActivityLog::with(['user' => fn ($q) => $q->select('id', 'name', 'email', 'role')])
+        $query = ActivityLog::with(['user' => fn ($userQuery) => $userQuery->select('id', 'name', 'email', 'role')])
             ->orderBy('created_at', 'desc');
 
         if ($user->isRequester()) {

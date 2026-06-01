@@ -1,6 +1,5 @@
 <template>
   <div style="display:flex;align-items:center;width:100%;gap:10px">
-    <!-- Mobile hamburger -->
     <el-button
       v-if="authStore.isAuthenticated"
       plain
@@ -11,7 +10,6 @@
       <el-icon><Menu /></el-icon>
     </el-button>
 
-    <!-- Search -->
     <el-input
       :placeholder="$t('common.search')"
       size="default"
@@ -22,9 +20,7 @@
       <template #prefix><el-icon><Search /></el-icon></template>
     </el-input>
 
-    <!-- Right actions -->
     <div class="voa-tb-actions">
-      <!-- Notifications bell -->
       <el-badge
         v-if="authStore.isAuthenticated"
         :value="notificationStore.unreadCount"
@@ -35,7 +31,6 @@
         </el-button>
       </el-badge>
 
-      <!-- Theme cycle -->
       <el-tooltip :content="$t('common.toggleTheme')" placement="bottom">
         <el-button plain size="small" circle @click="cycleTheme">
           <el-icon v-if="themeStore.isDark"><Sunny /></el-icon>
@@ -43,7 +38,6 @@
         </el-button>
       </el-tooltip>
 
-      <!-- Language dropdown -->
       <el-dropdown v-if="authStore.isAuthenticated" trigger="click" @command="setLocale">
         <el-button size="small" plain>
           {{ currentLocaleLabel }} ▾
@@ -66,7 +60,6 @@
         </template>
       </el-dropdown>
 
-      <!-- User avatar dropdown -->
       <el-dropdown v-if="authStore.isAuthenticated" trigger="click" @command="handleUserCommand">
         <el-avatar
           :size="34"
@@ -105,6 +98,8 @@ import { useNotificationStore } from '@/stores/notification'
 import { useLocaleStore } from '@/stores/locale'
 import { useI18n } from 'vue-i18n'
 import { Menu, Search, Bell, Moon, Sunny, Setting, SwitchButton } from '@element-plus/icons-vue'
+import { useAvatar } from '@/composables/useAvatar'
+import { useRole } from '@/composables/useRole'
 
 defineEmits(['toggleSidebar'])
 
@@ -126,37 +121,8 @@ const currentLocaleLabel = computed(() => {
   return map[localeStore.currentLocale] || 'PT'
 })
 
-const roleLabel = computed(() => {
-  if (authStore.isAdmin) return 'Admin'
-  if (authStore.isManager) return 'Gestor'
-  return 'Solicitante'
-})
-
-const roleTagType = computed(() => {
-  if (authStore.isAdmin) return 'danger'
-  if (authStore.isManager) return 'warning'
-  return 'info'
-})
-
-function initials(name) {
-  const parts = String(name).trim().split(' ')
-  return ((parts[0]?.[0] || '') + (parts[parts.length - 1]?.[0] || '')).toUpperCase()
-}
-
-function avatarBg(id) {
-  const c = [
-    'var(--avatar-color-1)',
-    'var(--avatar-color-2)',
-    'var(--avatar-color-3)',
-    'var(--avatar-color-4)',
-    'var(--avatar-color-5)',
-    'var(--avatar-color-6)'
-  ]
-  let h = 0
-  const s = String(id)
-  for (let i = 0; i < s.length; i++) h = s.charCodeAt(i) + ((h << 5) - h)
-  return c[Math.abs(h) % c.length]
-}
+const { initials, avatarBg } = useAvatar()
+const { currentUserRoleLabel: roleLabel, currentUserRoleTagType: roleTagType } = useRole()
 
 const cycleTheme = () => {
   themeStore.toggleTheme()

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Page header -->
     <div class="voa-page-head">
       <div>
         <h1 class="voa-page-title">{{ $t('travelRequest.listTitle') }}</h1>
@@ -11,7 +10,6 @@
       </el-button>
     </div>
 
-    <!-- Filters Card -->
     <el-card class="filter-card" shadow="never" style="margin-bottom: 14px">
       <el-form :inline="true" :model="filters">
         <el-form-item :label="$t('dashboard.status')">
@@ -63,7 +61,6 @@
       </el-form>
     </el-card>
 
-    <!-- Table Card -->
     <el-card shadow="never" class="voa-table-card">
       <TravelRequestTable
         :data="travelRequestStore.travelRequests"
@@ -75,7 +72,6 @@
         @edit="handleEdit"
       />
 
-      <!-- Pagination -->
       <div class="pagination-container">
         <el-pagination
           v-model:current-page="currentPage"
@@ -89,7 +85,6 @@
       </div>
     </el-card>
 
-    <!-- Create Modal -->
     <el-dialog
       v-model="showCreateDialog"
       :title="$t('travelRequest.title')"
@@ -99,7 +94,6 @@
       <TravelRequestForm ref="formRef" @submit="handleCreate" @cancel="showCreateDialog = false" />
     </el-dialog>
 
-    <!-- Edit Modal -->
     <el-dialog
       v-model="showEditDialog"
       :title="$t('travelRequest.updateRequest')"

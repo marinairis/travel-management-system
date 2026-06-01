@@ -20,29 +20,22 @@ class UpdateTravelRequestStatusController extends Controller
 
     public function __invoke(TravelRequestStatusRequest $request, int $id): JsonResponse
     {
-        try {
-            $travelRequest = $this->service->getTravelRequest($id);
+        $travelRequest = $this->service->getTravelRequest($id);
 
-            if (!$travelRequest) {
-                throw new TravelRequestException(TravelRequestException::NOT_FOUND, Response::HTTP_NOT_FOUND);
-            }
-
-            if (!$this->service->canUpdateStatus($travelRequest, Auth::user())) {
-                throw new TravelRequestException(TravelRequestException::CANNOT_CHANGE_OWN_STATUS, Response::HTTP_FORBIDDEN);
-            }
-
-            $updated = $this->service->updateStatus($travelRequest, $request->status, Auth::user());
-
-            return response()->json([
-                'success' => true,
-                'message' => __('messages.travel_request.status_updated'),
-                'data'    => $updated,
-            ]);
-        } catch (TravelRequestException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __("messages.{$e->getMessage()}"),
-            ], $e->getStatusCode());
+        if (!$travelRequest) {
+            throw new TravelRequestException(TravelRequestException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
+
+        if (!$this->service->canUpdateStatus($travelRequest, Auth::user())) {
+            throw new TravelRequestException(TravelRequestException::CANNOT_CHANGE_OWN_STATUS, Response::HTTP_FORBIDDEN);
+        }
+
+        $updated = $this->service->updateStatus($travelRequest, $request->status, Auth::user());
+
+        return response()->json([
+            'success' => true,
+            'message' => __('messages.travel_request.status_updated'),
+            'data'    => $updated,
+        ]);
     }
 }

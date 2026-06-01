@@ -53,14 +53,14 @@ class UserService implements UserServiceInterface
     {
         $oldValues = $user->toArray();
         $user->update($data);
-        $this->logActivityUpdate($user, $oldValues, request());
+        $this->logActivityUpdate($user, $oldValues);
         return $user->fresh();
     }
 
     public function deleteUser(User $user): void
     {
         $this->repository->cancelOpenRequests($user, __('messages.user.deleted'));
-        $this->logActivityDelete($user, request());
+        $this->logActivityDelete($user);
         $user->delete();
     }
 
@@ -83,7 +83,7 @@ class UserService implements UserServiceInterface
         $user->save();
         $user->delete();
 
-        $this->logActivityUpdate($user, $oldValues, request());
+        $this->logActivityUpdate($user, $oldValues);
 
         return [
             'user'            => $user->fresh(),
@@ -99,7 +99,7 @@ class UserService implements UserServiceInterface
         $user->save();
 
         $this->resendInvitation($user);
-        $this->logActivityUpdate($user, ['is_active' => false], request());
+        $this->logActivityUpdate($user, ['is_active' => false]);
 
         return [
             'user'            => $user->fresh(),

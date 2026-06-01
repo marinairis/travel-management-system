@@ -19,33 +19,26 @@ class ToggleUserStatusController extends Controller
 
     public function __invoke(int $id): JsonResponse
     {
-        try {
-            $user = $this->service->findById($id, withTrashed: true);
+        $user = $this->service->findById($id, withTrashed: true);
 
-            if (!$user) {
-                throw new UserException(UserException::NOT_FOUND, Response::HTTP_NOT_FOUND);
-            }
-
-            if ($user->id === Auth::id()) {
-                throw new UserException(UserException::CANNOT_DISABLE_SELF, Response::HTTP_FORBIDDEN);
-            }
-
-            $result = $this->service->toggleStatus($user);
-
-            $messageKey = $result['action'] === 'activated'
-                ? 'messages.user.activated'
-                : 'messages.user.deactivated';
-
-            return response()->json([
-                'success' => true,
-                'message' => __($messageKey),
-                'data'    => $result['user'],
-            ]);
-        } catch (UserException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __("messages.{$e->getMessage()}"),
-            ], $e->getStatusCode());
+        if (!$user) {
+            throw new UserException(UserException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
+
+        if ($user->id === Auth::id()) {
+            throw new UserException(UserException::CANNOT_DISABLE_SELF, Response::HTTP_FORBIDDEN);
+        }
+
+        $result = $this->service->toggleStatus($user);
+
+        $messageKey = $result['action'] === 'activated'
+            ? 'messages.user.activated'
+            : 'messages.user.deactivated';
+
+        return response()->json([
+            'success' => true,
+            'message' => __($messageKey),
+            'data'    => $result['user'],
+        ]);
     }
 }

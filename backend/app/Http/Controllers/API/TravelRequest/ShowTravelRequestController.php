@@ -19,23 +19,16 @@ class ShowTravelRequestController extends Controller
 
     public function __invoke(int $id): JsonResponse
     {
-        try {
-            $travelRequest = $this->service->getTravelRequest($id);
+        $travelRequest = $this->service->getTravelRequest($id);
 
-            if (!$travelRequest) {
-                throw new TravelRequestException(TravelRequestException::NOT_FOUND, Response::HTTP_NOT_FOUND);
-            }
-
-            if (!$this->service->canViewTravelRequest($travelRequest, Auth::user())) {
-                throw new TravelRequestException(TravelRequestException::UNAUTHORIZED, Response::HTTP_FORBIDDEN);
-            }
-
-            return response()->json(['success' => true, 'message' => __('messages.general.success'), 'data' => $travelRequest]);
-        } catch (TravelRequestException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __("messages.{$e->getMessage()}"),
-            ], $e->getStatusCode());
+        if (!$travelRequest) {
+            throw new TravelRequestException(TravelRequestException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
+
+        if (!$this->service->canViewTravelRequest($travelRequest, Auth::user())) {
+            throw new TravelRequestException(TravelRequestException::UNAUTHORIZED, Response::HTTP_FORBIDDEN);
+        }
+
+        return response()->json(['success' => true, 'message' => __('messages.general.success'), 'data' => $travelRequest]);
     }
 }

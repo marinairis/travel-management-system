@@ -18,22 +18,15 @@ class PendingRequestsCountController extends Controller
 
     public function __invoke(int $id): JsonResponse
     {
-        try {
-            $user = $this->service->findById($id);
+        $user = $this->service->findById($id);
 
-            if (!$user) {
-                throw new UserException(UserException::NOT_FOUND, Response::HTTP_NOT_FOUND);
-            }
-
-            return response()->json([
-                'success' => true,
-                'data'    => ['count' => $this->service->pendingRequestsCount($id)],
-            ]);
-        } catch (UserException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __("messages.{$e->getMessage()}"),
-            ], $e->getStatusCode());
+        if (!$user) {
+            throw new UserException(UserException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
+
+        return response()->json([
+            'success' => true,
+            'data'    => ['count' => $this->service->pendingRequestsCount($id)],
+        ]);
     }
 }

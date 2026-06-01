@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Exceptions\Invitation;
 
-use Exception;
+use App\Exceptions\DomainException;
 use Symfony\Component\HttpFoundation\Response;
 
-class InvitationException extends Exception
+class InvitationException extends DomainException
 {
     public const NOT_FOUND    = 'invitation.not_found';
     public const EXPIRED      = 'invitation.expired';

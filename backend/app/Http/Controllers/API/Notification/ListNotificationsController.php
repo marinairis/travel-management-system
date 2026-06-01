@@ -17,11 +17,11 @@ class ListNotificationsController extends Controller
             ->latest()
             ->take(50)
             ->get()
-            ->map(fn ($n) => [
-                'id'         => $n->id,
-                'data'       => $n->data,
-                'read_at'    => $n->read_at,
-                'created_at' => $n->created_at,
+            ->map(fn ($notification) => [
+                'id'         => $notification->id,
+                'data'       => $notification->data,
+                'read_at'    => $notification->read_at,
+                'created_at' => $notification->created_at,
             ]);
 
         return response()->json([

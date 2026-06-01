@@ -18,7 +18,6 @@ class LogoutController extends Controller
                 JWTAuth::invalidate($token);
             }
         } catch (\Exception) {
-            // Token already invalid or missing — logout still succeeds
         }
 
         return response()->json([

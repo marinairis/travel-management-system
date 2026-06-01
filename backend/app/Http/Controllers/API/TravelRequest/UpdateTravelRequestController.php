@@ -20,33 +20,26 @@ class UpdateTravelRequestController extends Controller
 
     public function __invoke(UpdateTravelRequestRequest $request, int $id): JsonResponse
     {
-        try {
-            $travelRequest = $this->service->getTravelRequest($id);
+        $travelRequest = $this->service->getTravelRequest($id);
 
-            if (!$travelRequest) {
-                throw new TravelRequestException(TravelRequestException::NOT_FOUND, Response::HTTP_NOT_FOUND);
-            }
-
-            if (!$this->service->canUpdateTravelRequest($travelRequest, Auth::user())) {
-                throw new TravelRequestException(TravelRequestException::UNAUTHORIZED, Response::HTTP_FORBIDDEN);
-            }
-
-            if (!$this->service->canModifyTravelRequest($travelRequest)) {
-                throw new TravelRequestException(TravelRequestException::NOT_EDITABLE, Response::HTTP_FORBIDDEN);
-            }
-
-            $updated = $this->service->updateTravelRequest($travelRequest, $request->validated());
-
-            return response()->json([
-                'success' => true,
-                'message' => __('messages.travel_request.updated'),
-                'data'    => $updated,
-            ]);
-        } catch (TravelRequestException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __("messages.{$e->getMessage()}"),
-            ], $e->getStatusCode());
+        if (!$travelRequest) {
+            throw new TravelRequestException(TravelRequestException::NOT_FOUND, Response::HTTP_NOT_FOUND);
         }
+
+        if (!$this->service->canUpdateTravelRequest($travelRequest, Auth::user())) {
+            throw new TravelRequestException(TravelRequestException::UNAUTHORIZED, Response::HTTP_FORBIDDEN);
+        }
+
+        if (!$this->service->canModifyTravelRequest($travelRequest)) {
+            throw new TravelRequestException(TravelRequestException::NOT_EDITABLE, Response::HTTP_FORBIDDEN);
+        }
+
+        $updated = $this->service->updateTravelRequest($travelRequest, $request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => __('messages.travel_request.updated'),
+            'data'    => $updated,
+        ]);
     }
 }

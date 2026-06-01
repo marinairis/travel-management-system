@@ -18,38 +18,31 @@ class AcceptInvitationController extends Controller
 {
     public function __invoke(AcceptInvitationRequest $request, string $token): JsonResponse
     {
-        try {
-            $invitation = Invitation::where('token', $token)
-                ->whereNull('accepted_at')
-                ->where('expires_at', '>', now())
-                ->first();
+        $invitation = Invitation::where('token', $token)
+            ->whereNull('accepted_at')
+            ->where('expires_at', '>', now())
+            ->first();
 
-            if (!$invitation) {
-                throw new InvitationException(InvitationException::NOT_FOUND, Response::HTTP_UNPROCESSABLE_ENTITY);
-            }
-
-            $user = User::create([
-                'name'     => $request->name,
-                'email'    => $invitation->email,
-                'password' => Hash::make($request->password),
-                'role'     => $invitation->role,
-            ]);
-
-            $invitation->accepted_at = now();
-            $invitation->save();
-
-            $jwtToken = JWTAuth::fromUser($user);
-
-            return response()->json([
-                'success' => true,
-                'message' => __('messages.invitation.accepted'),
-                'data'    => ['user' => $user, 'token' => $jwtToken, 'token_type' => 'bearer'],
-            ], 201);
-        } catch (InvitationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => __("messages.{$e->getMessage()}"),
-            ], $e->getStatusCode());
+        if (!$invitation) {
+            throw new InvitationException(InvitationException::NOT_FOUND, Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
+        $user = User::create([
+            'name'     => $request->name,
+            'email'    => $invitation->email,
+            'password' => Hash::make($request->password),
+            'role'     => $invitation->role,
+        ]);
+
+        $invitation->accepted_at = now();
+        $invitation->save();
+
+        $jwtToken = JWTAuth::fromUser($user);
+
+        return response()->json([
+            'success' => true,
+            'message' => __('messages.invitation.accepted'),
+            'data'    => ['user' => $user, 'token' => $jwtToken, 'token_type' => 'bearer'],
+        ], 201);
     }
 }

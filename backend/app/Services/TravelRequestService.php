@@ -52,7 +52,7 @@ class TravelRequestService implements TravelRequestServiceInterface
             'status'         => TravelRequestStatus::Requested->value,
         ]);
 
-        $this->logActivityCreate($travelRequest, request());
+        $this->logActivityCreate($travelRequest);
 
         return $travelRequest->load(['user', 'approvedBy']);
     }
@@ -70,7 +70,7 @@ class TravelRequestService implements TravelRequestServiceInterface
             'travel_type'    => $data['travel_type'] ?? null,
         ]);
 
-        $this->logActivityUpdate($travelRequest, $oldValues, request());
+        $this->logActivityUpdate($travelRequest, $oldValues);
 
         return $travelRequest->fresh()->load(['user', 'approvedBy']);
     }
@@ -90,7 +90,7 @@ class TravelRequestService implements TravelRequestServiceInterface
 
         Notification::send($travelRequest->user, new TravelRequestStatusChanged($updated, $oldStatus));
 
-        $this->logActivityStatusChange($updated, $oldStatus, $newStatus, request());
+        $this->logActivityStatusChange($updated, $oldStatus, $newStatus);
 
         return $updated;
     }
@@ -108,7 +108,7 @@ class TravelRequestService implements TravelRequestServiceInterface
 
         Notification::send($travelRequest->user, new TravelRequestStatusChanged($updated, $oldStatus));
 
-        $this->logActivityStatusChange($updated, $oldStatus, TravelRequestStatus::Cancelled->value, request());
+        $this->logActivityStatusChange($updated, $oldStatus, TravelRequestStatus::Cancelled->value);
 
         return $updated;
     }

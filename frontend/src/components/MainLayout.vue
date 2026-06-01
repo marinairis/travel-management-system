@@ -1,14 +1,10 @@
 <template>
   <div class="voa-app">
-    <!-- Mobile backdrop -->
     <div :class="['voa-backdrop', sidebarOpen ? 'is-open' : '']" @click="sidebarOpen = false" />
 
-    <!-- Main layout container -->
     <el-container height="100vh">
-      <!-- Sidebar (coluna esquerda) -->
       <el-aside :class="['voa-aside', sidebarOpen ? 'is-open' : '']" width="248px">
         <div style="display:flex;flex-direction:column;height:100%;overflow:hidden">
-          <!-- Brand -->
           <div class="voa-brand">
             <div class="voa-brand-icon">✈</div>
             <div>
@@ -17,7 +13,6 @@
             </div>
           </div>
 
-          <!-- Navigation -->
           <el-menu
             :default-active="activeMenu"
             style="flex:1;overflow-y:auto;border-right:none;background:transparent"
@@ -67,7 +62,6 @@
             </template>
           </el-menu>
 
-          <!-- User chip -->
           <div class="voa-sidebar-footer">
             <div class="voa-user-chip" @click="handleMenuSelect('settings')">
               <el-avatar
@@ -85,14 +79,11 @@
         </div>
       </el-aside>
 
-      <!-- Container interno (coluna direita: header + main) -->
       <el-container class="voa-right-container" direction="vertical">
-        <!-- Fixed header -->
         <el-header class="voa-header">
           <TheHeader @toggle-sidebar="sidebarOpen = !sidebarOpen" />
         </el-header>
 
-        <!-- Scrollable main content -->
         <el-main class="voa-main">
           <div class="voa-content-inner">
             <router-view />
@@ -108,11 +99,11 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notification'
 import { useRouter, useRoute } from 'vue-router'
-import { useI18n } from 'vue-i18n'
 import TheHeader from '@/components/TheHeader.vue'
 import { House, Document, Bell, Setting, UserFilled, List } from '@element-plus/icons-vue'
+import { useAvatar } from '@/composables/useAvatar'
+import { useRole } from '@/composables/useRole'
 
-const { t } = useI18n()
 const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
 const router = useRouter()
@@ -134,31 +125,8 @@ const activeMenu = computed(() => {
   return 'dashboard'
 })
 
-const roleLabel = computed(() => {
-  if (authStore.isAdmin) return t('users.roleAdmin')
-  if (authStore.isManager) return t('users.roleManager')
-  return t('users.roleRequester')
-})
-
-function initials(name) {
-  const parts = String(name).trim().split(' ')
-  return ((parts[0]?.[0] || '') + (parts[parts.length - 1]?.[0] || '')).toUpperCase()
-}
-
-function avatarBg(id) {
-  const c = [
-    'var(--avatar-color-1)',
-    'var(--avatar-color-2)',
-    'var(--avatar-color-3)',
-    'var(--avatar-color-4)',
-    'var(--avatar-color-5)',
-    'var(--avatar-color-6)'
-  ]
-  let h = 0
-  const s = String(id)
-  for (let i = 0; i < s.length; i++) h = s.charCodeAt(i) + ((h << 5) - h)
-  return c[Math.abs(h) % c.length]
-}
+const { initials, avatarBg } = useAvatar()
+const { currentUserRoleLabel: roleLabel } = useRole()
 
 const handleMenuSelect = (index) => {
   if (isMobile.value) sidebarOpen.value = false

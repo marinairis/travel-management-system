@@ -233,36 +233,19 @@ import { ref, reactive, onMounted } from 'vue'
 import { useActivityLogStore } from '@/stores/activityLog'
 import { useAuthStore } from '@/stores/auth'
 import { View, Refresh } from '@element-plus/icons-vue'
+import { useAvatar } from '@/composables/useAvatar'
+import { useDateFormat } from '@/composables/useDateFormat'
 
 const activityLogStore = useActivityLogStore()
 const authStore = useAuthStore()
+
+const { initials, avatarBg } = useAvatar()
+const { formatDateTime } = useDateFormat()
 
 const showViewDialog = ref(false)
 const selectedLog = ref(null)
 const currentPage = ref(1)
 const pageSize = ref(10)
-
-function initials(name) {
-  const parts = String(name || '')
-    .trim()
-    .split(' ')
-  return ((parts[0]?.[0] || '') + (parts[parts.length - 1]?.[0] || '')).toUpperCase()
-}
-
-function avatarBg(id) {
-  const c = [
-    'var(--avatar-color-1)',
-    'var(--avatar-color-2)',
-    'var(--avatar-color-3)',
-    'var(--avatar-color-4)',
-    'var(--avatar-color-5)',
-    'var(--avatar-color-6)',
-  ]
-  let h = 0
-  const s = String(id || '')
-  for (let i = 0; i < s.length; i++) h = s.charCodeAt(i) + ((h << 5) - h)
-  return c[Math.abs(h) % c.length]
-}
 
 const filters = reactive({
   action: '',
@@ -348,11 +331,6 @@ const translateModelType = (type) => {
     'App\\Models\\User': 'Usuário',
   }
   return translations[type] || type
-}
-
-const formatDateTime = (date) => {
-  if (!date) return '-'
-  return new Date(date).toLocaleString('pt-BR')
 }
 
 const formatLogId = (id) => {

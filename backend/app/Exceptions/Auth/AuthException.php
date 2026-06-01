@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace App\Exceptions\Auth;
 
-use Exception;
+use App\Exceptions\DomainException;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthException extends Exception
+class AuthException extends DomainException
 {
     public const INVALID_CREDENTIALS    = 'auth.invalid_credentials';
     public const TOKEN_REFRESH_ERROR    = 'auth.token_refresh_error';
