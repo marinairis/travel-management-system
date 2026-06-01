@@ -10,18 +10,6 @@
       <el-icon><Menu /></el-icon>
     </el-button>
 
-    <el-input
-      :placeholder="$t('common.search')"
-      size="default"
-      clearable
-      class="voa-tb-search"
-      style="flex: 1; max-width: 300px"
-    >
-      <template #prefix
-        ><el-icon><Search /></el-icon
-      ></template>
-    </el-input>
-
     <div class="voa-tb-actions">
       <el-badge
         v-if="authStore.isAuthenticated"
@@ -107,7 +95,7 @@ import { useThemeStore } from '@/stores/theme'
 import { useNotificationStore } from '@/stores/notification'
 import { useLocaleStore } from '@/stores/locale'
 import { useI18n } from 'vue-i18n'
-import { Menu, Search, Bell, Moon, Sunny, Setting, SwitchButton } from '@element-plus/icons-vue'
+import { Menu, Bell, Moon, Sunny, Setting, SwitchButton } from '@element-plus/icons-vue'
 import { useAvatar } from '@/composables/useAvatar'
 import { useRole } from '@/composables/useRole'
 
