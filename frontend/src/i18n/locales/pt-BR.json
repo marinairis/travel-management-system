@@ -318,5 +318,9 @@
     "serverError": "Erro interno do servidor.",
     "unknownError": "Erro desconhecido.",
     "connectionError": "Erro de conexão com o servidor."
+  },
+  "demo": {
+    "accountsTitle": "Contas de Demonstração",
+    "viewAs": "Ver como"
   }
 }

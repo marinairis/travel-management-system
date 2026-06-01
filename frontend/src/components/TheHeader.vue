@@ -11,6 +11,8 @@
     </el-button>
 
     <div class="voa-tb-actions">
+      <DemoUserSwitcher v-if="authStore.isAuthenticated" />
+
       <el-badge
         v-if="authStore.isAuthenticated"
         :value="notificationStore.unreadCount"
@@ -98,6 +100,7 @@ import { useI18n } from 'vue-i18n'
 import { Menu, Bell, Moon, Sunny, Setting, SwitchButton } from '@element-plus/icons-vue'
 import { useAvatar } from '@/composables/useAvatar'
 import { useRole } from '@/composables/useRole'
+import DemoUserSwitcher from '@/components/DemoUserSwitcher.vue'
 
 defineEmits(['toggleSidebar'])
 

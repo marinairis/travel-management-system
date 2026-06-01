@@ -317,5 +317,9 @@
     "serverError": "Internal server error.",
     "unknownError": "Unknown error.",
     "connectionError": "Connection error with the server."
+  },
+  "demo": {
+    "accountsTitle": "Demo Accounts",
+    "viewAs": "View as"
   }
 }

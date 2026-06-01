@@ -110,3 +110,42 @@ html.dark .auth-form-links a:hover {
   right: 20px;
   z-index: 1000;
 }
+
+/* Demo accounts section */
+.demo-accounts-card {
+  margin-top: var(--spacing-lg);
+}
+
+.demo-accounts-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--el-text-color-secondary);
+  text-transform: uppercase;
+  margin-bottom: var(--spacing-md);
+}
+
+.demo-account-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-sm);
+  border-radius: var(--el-border-radius-base);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.demo-account-row:hover {
+  background: var(--el-fill-color-light);
+}
+
+.demo-account-role {
+  min-width: 72px;
+  text-align: center;
+}
+
+.demo-account-email {
+  font-size: 13px;
+  color: var(--el-color-primary);
+  font-weight: 500;
+}
