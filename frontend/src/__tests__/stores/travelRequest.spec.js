@@ -102,7 +102,7 @@ describe('travelRequest store', () => {
     const result = await store.cancelTravelRequest(2)
 
     expect(result).toBe(true)
-    expect(api.patch).toHaveBeenCalledWith('/travel-requests/2/cancel')
+    expect(api.patch).toHaveBeenCalledWith('/travel-requests/2/cancel', { reason: '' })
   })
 
   it('deleteTravelRequest chama o endpoint de exclusão', async () => {

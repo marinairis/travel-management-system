@@ -4,7 +4,7 @@ Sistema de gestão de pedidos de viagem corporativa — backend Laravel 12 + fro
 
 ---
 
-## Acesso rápido
+## URLs de Acesso
 
 | Serviço   | URL                                      |
 |-----------|------------------------------------------|
@@ -17,71 +17,48 @@ Sistema de gestão de pedidos de viagem corporativa — backend Laravel 12 + fro
 
 ## Pré-requisitos
 
-Você precisa ter **Docker** e **make** instalados.
-
-**Linux (Ubuntu/Debian)**
-```bash
-sudo apt update && sudo apt install docker.io docker-compose-plugin make
-sudo usermod -aG docker $USER && newgrp docker
-```
-
-**Windows (WSL2) — recomendado**
-1. Instale o [Docker Desktop](https://www.docker.com/products/docker-desktop/) e ative a integração WSL2 em _Settings → Resources → WSL Integration_
-2. No terminal WSL2: `sudo apt install make`
-3. Clone e rode o projeto dentro do terminal WSL2
-
-**macOS**
-```bash
-# Docker Desktop: https://www.docker.com/products/docker-desktop/
-xcode-select --install   # instala make junto com o Xcode CLI Tools
-```
+- **Docker** e **Docker Compose** instalados
 
 ---
 
-## Subindo o projeto
+## Como Rodar o Projeto
+
+### 1. Clone e entre no projeto
 
 ```bash
 git clone <url-do-repositorio>
 cd travel-management-system
-make up
 ```
 
-Na primeira execução o Docker irá:
-1. Construir as imagens (PHP 8.3 + Node 20)
-2. Instalar dependências (`composer install` + `npm install`)
-3. Aguardar o MySQL estar pronto
-4. Gerar `APP_KEY` e `JWT_SECRET` automaticamente
-5. Executar as migrations e o seeder (cria o usuário admin)
+### 2. Suba os containers
 
-Verifique se os containers estão rodando:
 ```bash
-make ps
+docker compose up -d --build
 ```
 
+Na primeira execução, o Docker irá automaticamente:
+- Construir as imagens (PHP 8.3 + Node 20)
+- Instalar dependências (`composer install` + `npm install`)
+- Aguardar o MySQL estar pronto
+- Gerar `APP_KEY` e `JWT_SECRET`
+- Executar as migrations e o seeder
+
+### 3. Verifique se está rodando
+
+```bash
+docker compose ps
+```
+
+### 4. Acesse o sistema
+
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000
+
 ---
 
-## Comandos make
+## Credenciais de Acesso
 
-| Comando              | O que faz                                         |
-|----------------------|---------------------------------------------------|
-| `make up`            | Sobe todos os containers em background            |
-| `make down`          | Para todos os containers                          |
-| `make build`         | Reconstrói as imagens sem cache                   |
-| `make reset`         | Para, remove volumes e sobe do zero (banco limpo) |
-| `make logs`          | Acompanha todos os logs em tempo real             |
-| `make logs-backend`  | Logs apenas do backend                            |
-| `make logs-frontend` | Logs apenas do frontend                           |
-| `make test`          | Roda testes do backend (PHPUnit)                  |
-| `make test-frontend` | Roda testes do frontend (Vitest)                  |
-| `make ps`            | Lista status dos containers                       |
-| `make shell-backend` | Abre shell no container backend                   |
-| `make shell-frontend`| Abre shell no container frontend                  |
-
----
-
-## Credenciais de acesso
-
-Após `make up`, o seeder cria o seguinte usuário:
+O seeder cria automaticamente o seguinte usuário:
 
 | Papel | E-mail                      | Senha     |
 |-------|-----------------------------|-----------|
@@ -91,23 +68,67 @@ Após `make up`, o seeder cria o seguinte usuário:
 
 ## Testes
 
-**Backend (PHPUnit)**
+### Backend (PHPUnit)
+
 ```bash
-make test
-# ou diretamente:
 docker compose exec backend php artisan test
 ```
 
-**Frontend (Vitest)**
+### Frontend (Vitest)
+
 ```bash
-make test-frontend
-# ou diretamente:
 docker compose exec frontend npm run test
 ```
 
 ---
 
-## Rotinas diárias automatizadas
+## Comandos Úteis
+
+### Parar os containers
+
+```bash
+docker compose down
+```
+
+### Visualizar logs
+
+```bash
+# Todos os logs
+docker compose logs -f
+
+# Apenas backend
+docker compose logs -f backend
+
+# Apenas frontend
+docker compose logs -f frontend
+```
+
+### Acessar shell dos containers
+
+```bash
+# Backend
+docker compose exec backend sh
+
+# Frontend
+docker compose exec frontend sh
+```
+
+### Reset completo (remove banco e重建)
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+---
+
+## make (atalhos opcionais)
+
+Para comodidade, existem atalhos no arquivo `Makefile`. Example: `make up` é equivalente a `docker compose up -d`. Para ver todos os comandos disponíveis, consulte o arquivo `Makefile`.
+
+---
+
+## Rotinas Diárias Automatizadas
 
 O Laravel Scheduler executa automaticamente dentro do container — nenhuma configuração de cron no host é necessária.
 
@@ -115,24 +136,25 @@ O Laravel Scheduler executa automaticamente dentro do container — nenhuma conf
 |--------------------------|--------------------|----------------------------------------------------------------------------------------------|
 | `travel-requests:expire` | Diariamente, 00:00 | Marca como expirados os pedidos com status "solicitado" cuja data de partida já passou |
 
-Para rodar a rotina manualmente:
+Para rodar manualmente:
+
 ```bash
 docker compose exec backend php artisan travel-requests:expire
 ```
 
 ---
 
-## Testando o envio de e-mail (convite de usuários)
+## Testando o Envio de E-mail
 
-Todos os e-mails enviados pelo sistema são capturados pelo **Mailpit** — nenhum e-mail real é enviado em desenvolvimento.
+Todos os e-mails são capturados pelo **Mailpit** — nenhum e-mail real é enviado em desenvolvimento.
 
 1. Acesse o Swagger em http://localhost:8000/api/documentation
 2. Autentique-se com o usuário admin e use o endpoint `POST /api/invitations`
-3. Acesse http://localhost:8025 para ver o convite na caixa de entrada do Mailpit
+3. Acesse http://localhost:8025 para ver o convite na caixa de entrada
 
 ---
 
-## Origem dos dados de localidades e destinos
+## Origem dos Dados de Localidades e Destinos
 
 O endpoint `GET /api/locations/destinations` consome a **API pública do IBGE**:
 
@@ -140,7 +162,7 @@ O endpoint `GET /api/locations/destinations` consome a **API pública do IBGE**:
 https://servicodados.ibge.gov.br/api/v1/localidades/municipios
 ```
 
-Os dados são cacheados por 24 horas no banco de dados para evitar chamadas repetidas. Nenhuma configuração extra é necessária — funciona automaticamente.
+Os dados são cacheados por 24 horas no banco de dados para evitar chamadas repetidas.
 
 ---
 
@@ -149,29 +171,31 @@ Os dados são cacheados por 24 horas no banco de dados para evitar chamadas repe
 Acesse http://localhost:8000/api/documentation para a documentação interativa.
 
 Para regenerar após editar os arquivos em `backend/app/Docs/`:
+
 ```bash
 docker compose exec backend php artisan l5-swagger:generate
 ```
 
 ---
 
-## Variáveis de ambiente
+## Variáveis de Ambiente
 
-**Backend** — copie o exemplo e ajuste conforme necessário:
+No Docker, as variáveis são injetadas automaticamente via `docker-compose.yml`. Para rodar localmente sem Docker, copie os exemplos:
+
 ```bash
 cp backend/.env.example backend/.env
-```
-
-No Docker, as variáveis são injetadas automaticamente via `docker-compose.yml` — o arquivo `.env` só é necessário para rodar localmente sem Docker.
-
-**Frontend** — copie o exemplo:
-```bash
 cp frontend/.env.example frontend/.env
 ```
 
-| Variável       | Descrição         | Padrão                  |
-|----------------|-------------------|-------------------------|
-| `VITE_API_URL` | URL do backend    | `http://localhost:8000` |
+### Principais configurações
+
+| Variável          | Descrição                    | Padrão                    |
+|-------------------|------------------------------|---------------------------|
+| `VITE_API_URL`    | URL do backend (frontend)    | `http://localhost:8000`   |
+| `DB_HOST`         | Host do banco                | `db`                      |
+| `DB_DATABASE`     | Nome do banco                | `travel_management`       |
+| `APP_KEY`         | Chave da aplicação           | Gerado automaticamente    |
+| `JWT_SECRET`      | Chave do JWT                 | Gerado automaticamente    |
 
 ---
 

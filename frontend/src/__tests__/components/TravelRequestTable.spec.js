@@ -46,7 +46,14 @@ const i18n = createI18n({
 
 const elStubs = {
   ElTable: { template: '<div><slot /></div>' },
-  ElTableColumn: { template: '<div><slot /></div>' },
+  ElTableColumn: {
+    template: '<td />',
+    props: ['prop', 'label', 'width', 'minWidth', 'sortable', 'fixed', 'showOverflowTooltip'],
+  },
+  ElTooltip: {
+    template: '<span><slot /></span>',
+    props: ['content', 'placement'],
+  },
   ElTag: { template: '<span><slot /></span>', props: ['type'] },
   ElButton: { template: '<button @click="$emit(\'click\')"><slot /></button>', emits: ['click'] },
   ElDialog: {
@@ -65,6 +72,11 @@ const elStubs = {
   ElDescriptions: { template: '<div><slot /></div>', props: ['column', 'border'] },
   ElDescriptionsItem: { template: '<div><slot /></div>', props: ['label'] },
   ElIcon: { template: '<span />' },
+  CancelRequestDialog: {
+    template: '<div />',
+    props: ['modelValue', 'isLoading', 'confirmType'],
+    emits: ['update:modelValue', 'confirm'],
+  },
 }
 
 const mockData = [

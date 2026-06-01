@@ -10,12 +10,20 @@ vi.mock('@/plugins/axios', () => ({
 
 vi.mock('@/stores/destinations', () => ({
   useDestinationsStore: () => ({
-    loading: false,
+    isLoading: false,
     getDestinationsForSelect: [
       { value: 'São Paulo, SP', label: 'São Paulo, SP' },
       { value: 'Rio de Janeiro, RJ', label: 'Rio de Janeiro, RJ' },
     ],
     getDestinations: vi.fn().mockResolvedValue([]),
+  }),
+}))
+
+vi.mock('@/stores/user', () => ({
+  useUserStore: () => ({
+    isLoading: false,
+    basicUsers: [{ id: 1, name: 'Maria' }],
+    fetchBasicUsers: vi.fn().mockResolvedValue([]),
   }),
 }))
 
@@ -31,17 +39,27 @@ const i18n = createI18n({
         destination: 'Destino',
         destinationPlaceholder: 'Selecione...',
         destinationRequired: 'Destino obrigatório',
+        destinationsUnavailable: 'Sem destinos disponíveis',
         departureDate: 'Data de saída',
         datePlaceholder: 'DD/MM/YYYY',
         departureDateRequired: 'Data de saída obrigatória',
         returnDate: 'Data de retorno',
         returnDateRequired: 'Data de retorno obrigatória',
+        dateRange: 'Período',
+        dateRangeRequired: 'Período obrigatório',
+        travelType: 'Tipo de viagem',
+        travelTypePlaceholder: 'Selecione o tipo',
+        travelTypeBus: 'Ônibus',
+        travelTypePlane: 'Avião',
+        travelTypeCar: 'Carro',
+        travelTypeHotel: 'Hotel',
         notes: 'Observações',
         notesPlaceholder: 'Observações opcionais...',
         createRequest: 'Criar pedido',
         updateRequest: 'Atualizar pedido',
         loadDestinationsError: 'Erro ao carregar destinos',
       },
+      dashboard: { dateRangeSeparator: 'até' },
       common: { cancel: 'Cancelar' },
     },
   },
@@ -51,6 +69,12 @@ const elStubs = {
   ElForm: {
     template: '<form @submit.prevent><slot /></form>',
     props: ['model', 'rules', 'labelPosition'],
+    setup() {
+      return {
+        resetFields: vi.fn(),
+        validate: vi.fn().mockResolvedValue(true),
+      }
+    },
   },
   ElFormItem: { template: '<div><slot /></div>', props: ['label', 'prop'] },
   ElInput: {
@@ -59,8 +83,14 @@ const elStubs = {
     props: ['modelValue', 'placeholder', 'type', 'rows'],
     emits: ['update:modelValue'],
   },
-  ElSelectV2: {
+  ElSelect: {
     template: '<select><slot /></select>',
+    props: ['modelValue', 'placeholder', 'filterable', 'clearable', 'loading'],
+    emits: ['update:modelValue'],
+  },
+  ElOption: { template: '<option />', props: ['label', 'value', 'disabled'] },
+  ElSelectV2: {
+    template: '<select />',
     props: ['modelValue', 'options', 'placeholder', 'filterable', 'clearable', 'loading'],
   },
   ElDatePicker: {
@@ -76,6 +106,10 @@ const elStubs = {
   ElCol: { template: '<div><slot /></div>', props: ['xs', 'sm'] },
   ElIcon: { template: '<span />' },
   LocationFilled: { template: '<span />' },
+  Van: { template: '<span />' },
+  Promotion: { template: '<span />' },
+  MapLocation: { template: '<span />' },
+  House: { template: '<span />' },
 }
 
 function mountForm(props = {}) {
@@ -134,7 +168,6 @@ describe('TravelRequestForm', () => {
     const wrapper = mountForm()
     expect(wrapper.vm.formData.requester_name).toBe('')
     expect(wrapper.vm.formData.destination).toBe('')
-    expect(wrapper.vm.formData.departure_date).toBe('')
-    expect(wrapper.vm.formData.return_date).toBe('')
+    expect(wrapper.vm.formData.date_range).toEqual([])
   })
 })

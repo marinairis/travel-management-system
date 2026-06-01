@@ -69,5 +69,8 @@ export const useTravelRequestStore = defineStore('travelRequest', {
     async cancelTravelRequest(id, reason = '') {
       return this._mutateRequest(() => travelRequestRepository.cancel(id, reason))
     },
+    async deleteTravelRequest(id) {
+      return this._mutateRequest(() => travelRequestRepository.deleteRequest(id))
+    },
   },
 })
