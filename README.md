@@ -49,6 +49,21 @@ Na primeira execução, o Docker irá automaticamente:
 docker compose ps
 ```
 
+### Branch de Teste (opcional)
+
+Se quiser testar com dados já preenchidos (4 usuários), use a branch de teste:
+
+```bash
+git checkout teste
+docker compose up -d --build
+```
+
+Para executar o seeder novamente depois:
+
+```bash
+docker compose exec backend php artisan db:seed
+```
+
 ### 4. Acesse o sistema
 
 - Frontend: http://localhost:5173
