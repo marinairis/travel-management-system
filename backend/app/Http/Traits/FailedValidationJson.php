@@ -19,4 +19,14 @@ trait FailedValidationJson
             ], 422)
         );
     }
+
+    protected function failedAuthorization(): void
+    {
+        throw new HttpResponseException(
+            response()->json([
+                'success' => false,
+                'message' => __('messages.travel_request.unauthorized'),
+            ], 403)
+        );
+    }
 }

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Requests\TravelRequest;
 
 use App\Http\Traits\FailedValidationJson;
+use App\Interfaces\Services\TravelRequestServiceInterface;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 
 class UpdateTravelRequestRequest extends FormRequest
 {
@@ -13,7 +15,18 @@ class UpdateTravelRequestRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        $service = app(TravelRequestServiceInterface::class);
+        $travelRequest = $service->getTravelRequest((int) $this->route('id'));
+
+        if (! $travelRequest) {
+            return true;
+        }
+
+        if (! $service->canUpdateTravelRequest($travelRequest, Auth::user())) {
+            return false;
+        }
+
+        return $service->canModifyTravelRequest($travelRequest);
     }
 
     public function rules(): array

@@ -21,7 +21,7 @@ class TravelRequestFactory extends Factory
             'destination' => $this->faker->city().', '.$this->faker->state(),
             'departure_date' => $departureDate,
             'return_date' => $returnDate,
-            'status' => $this->faker->randomElement(['requested', 'approved', 'rejected', 'cancelled']),
+            'status' => $this->faker->randomElement(['requested', 'approved', 'cancelled', 'expired']),
             'approved_by' => null,
             'approved_at' => null,
             'notes' => $this->faker->optional()->sentence(),
@@ -40,9 +40,7 @@ class TravelRequestFactory extends Factory
     public function rejected(): static
     {
         return $this->state(fn (array $attributes) => [
-            'status' => 'rejected',
-            'approved_by' => User::factory(),
-            'approved_at' => now(),
+            'status' => 'cancelled',
         ]);
     }
 

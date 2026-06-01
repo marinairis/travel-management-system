@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TravelRequest\UpdateTravelRequestRequest;
 use App\Interfaces\Services\TravelRequestServiceInterface;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class UpdateTravelRequestController extends Controller
@@ -24,14 +23,6 @@ class UpdateTravelRequestController extends Controller
 
         if (! $travelRequest) {
             throw new TravelRequestException(TravelRequestException::NOT_FOUND, Response::HTTP_NOT_FOUND);
-        }
-
-        if (! $this->service->canUpdateTravelRequest($travelRequest, Auth::user())) {
-            throw new TravelRequestException(TravelRequestException::UNAUTHORIZED, Response::HTTP_FORBIDDEN);
-        }
-
-        if (! $this->service->canModifyTravelRequest($travelRequest)) {
-            throw new TravelRequestException(TravelRequestException::NOT_EDITABLE, Response::HTTP_FORBIDDEN);
         }
 
         $updated = $this->service->updateTravelRequest($travelRequest, $request->validated());
